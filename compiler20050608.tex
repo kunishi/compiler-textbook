@@ -1,0 +1,277 @@
+%#!platex
+\documentclass[a4j,10pt]{jsarticle}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{ascmac}
+
+\newtheorem{example}{例}
+
+\title{コンパイラ講義ノート}
+\author{国島丈生}
+\date{2005-06-08}
+
+\begin{document}
+\maketitle
+\section*{練習問題の解答}
+\begin{enumerate}
+ \item 次の文法を考える。
+       \begin{eqnarray*}
+	S & \rightarrow & A1B \\
+	A & \rightarrow & 0A | \epsilon \\
+	B & \rightarrow & 0B | 1B | \epsilon
+       \end{eqnarray*}
+       この文法に対し、文字列$00101$の最左導出、最右導出を示せ。
+
+       \[
+	S \Rightarrow A1B \Rightarrow 0A1B \Rightarrow 00A1B \Rightarrow
+       001B \Rightarrow 0010B \Rightarrow 00101B \Rightarrow 00101
+       \]
+       \[
+	S \Rightarrow A1B \Rightarrow A10B \Rightarrow A101B \Rightarrow
+       A101 \Rightarrow 0A101 \Rightarrow 00A101 \Rightarrow 00101
+       \]
+ \item 算術式に対する文法
+       \begin{eqnarray*}
+	E & \rightarrow & E + T | T \\
+	T & \rightarrow & T * F | F \\
+	F & \rightarrow & (E) | {\bf id}
+       \end{eqnarray*}
+       を、左再帰でないように変形せよ。
+       \begin{eqnarray*}
+	E & \rightarrow & TE' \\
+	E' & \rightarrow & + TE' | \epsilon \\
+	T & \rightarrow & FT' \\
+	T' & \rightarrow & * FT' | \epsilon \\
+	F & \rightarrow & (E) | \mathbf{id}
+       \end{eqnarray*}
+\end{enumerate}
+
+\section{下向き構文解析}
+下向き構文解析は解析木を根から葉に向かって構築していく構文解析手法であり、
+入力記号列の最左導出を見つけること、と考えてよい。
+
+構文解析の視点からみると、一般的な文脈自由文法には次のような問題点がある。
+\begin{enumerate}
+ \item \textbf{左再帰}:左再帰文法から再帰下降構文解析ルーチンを作ると、停
+       止しない再帰関数ができてしまう。(前々回資料、前回資料1.5節参照)
+ \item \textbf{後戻り}:文法によっては、解析に失敗したときに記号列をいくら
+       か戻し、処理をやり直さなければならないことがある。後戻りは一般に
+       処理コストが高く、なるべく避けるのが望ましい。
+\end{enumerate}
+
+\begin{screen}
+\begin{example}
+ 文法$S \rightarrow aBd, B\rightarrow b | bc$に対し、再帰下降構文解析を試
+ みる。この文法に対する構文解析プログラムは次のようになる。
+ \begin{verbatim}
+	void S() { match(a); B(); match(d); }
+	void B() { match(b); または { match(b); match(c); } }\end{verbatim}
+ ここで\textsf{match()}は前々回の資料で示した関数である。また、「または」
+ と書いた部分は「\textsf{match(b)}が失敗したら\textsf{match(b);
+ match(c);}」という意味である\footnote{後で述べる通り、通常はこのような後
+ 戻りを含むプログラムは作らないため、分かりやすさを重視して、あえて日本語
+ で示した。}。
+
+ この文法により記号列$abcd$を構文解析する過程は次のようになる。
+ \begin{enumerate}
+  \item \textsf{S()}を呼び出す。
+  \item \textsf{S()}の中から\textsf{B()}を呼び出す。
+  \item \textsf{B()}の中から\textsf{match(b)}を呼び出す。この結果、文$abd$
+	が得られるが、これは$abcd$と一致しないため、構文解析は失敗であり、
+	入力記号$b$を読む前の状態に後戻りし、\textsf{B()}に戻る。
+  \item \textsf{B()}の中から\textsf{match(b); match(c);}を呼び出す。この
+	結果、文$abcd$が得られ、構文解析は成功する。
+ \end{enumerate}
+
+ この文法では、左端の括り出しを行うことで後戻りが回避できる。つまり文法を
+ $S \rightarrow aBd, B \rightarrow b(c|\epsilon)$と書き直す。すると構文解
+ 析プログラムは次のようになり、後戻りが発生しない。
+ \begin{verbatim}
+	void S() { match(a); B(); match(d); }
+	void B() { match(b); { if (lookahead == 'c') match(c); } }\end{verbatim}
+\end{example}
+\end{screen}
+
+\begin{screen}
+\begin{example}
+ 文法$S \rightarrow aBc, B \rightarrow b(c|\epsilon)$について、記号列
+ $abc$を再帰構文解析してみよう。
+ \begin{enumerate}
+  \item \textsf{S()}を呼び出す。
+  \item \textsf{S()}の中で\textsf{B()}を呼び出す。
+  \item \textsf{B()}の中で\textsf{match(b)}を呼び出し、次いで
+	\textsf{match(c)}を呼び出す。ここまでは成功である。
+	\label{151554_7Jun05}
+  \item \textsf{S()}に戻り、\textsf{match(c)}を呼び出す。しかし、このとき
+	入力記号は尽きているので、構文解析は失敗であり、
+	\ref{151554_7Jun05}に後戻りし、$\epsilon$に相当する処理を試みる。
+	つまり、何もせず、\textsf{S()}に戻る。
+  \item \textsf{match(c)}を呼び出す。この結果、構文解析は成功である。
+ \end{enumerate}
+ この後戻りは、左端の括り出しでは解決できない。
+\end{example}
+\end{screen}
+
+\section{LL(1)文法}
+
+後戻りのない再帰構文解析(\textbf{予測型構文解析})を実現するため、文脈自由
+文法にいくらか制限を加えてみる。これを\textbf{LL(1)文法}といい、多くのプ
+ログラミング言語の文法はこの範囲に収まることが知られている。
+
+\subsection{FIRSTとFOLLOW}
+
+まず\textsf{FIRST}と\textsf{FOLLOW}という2つの関数を導入しておこう。
+
+任意の記号列$\alpha$に対し、$\alpha$から導出される記号列の中で先頭に現れ
+る終端記号の集合を$\mathsf{FIRST(\alpha)}$とする。ただし$S
+\stackrel{*}{\Rightarrow} \epsilon$の場合は$\epsilon$も
+$\mathsf{FIRST(\alpha)}$に含める。
+
+非終端記号$A$に対し、文形式の中で、$A$のすぐ後ろに現れることのある終端記
+号の集合を$\mathsf{FOLLOW(A)}$とする。$A$が文形式の一番後ろになることがあ
+る場合には、記号列の末尾を表す特殊な終端記号$\$$を$\mathsf{FOLLOW(A)}$に
+含める。
+
+\begin{screen}
+ \begin{example}\label{ex:first_follow}
+  \begin{eqnarray*}
+   E & \rightarrow & TE' \\
+   E' & \rightarrow & + TE' | \epsilon \\
+   T & \rightarrow & FT' \\
+   T' & \rightarrow & * FT' | \epsilon \\
+   F & \rightarrow & (E) | \mathbf{id}
+  \end{eqnarray*}
+  この文法に対し、\textsf{FIRST, FOLLOW}の一部を求めると次のようになる。
+  \begin{eqnarray*}
+   & & \mathsf{FIRST}(E) = \mathsf{FIRST}(T) = \mathsf{FIRST}(F) = \{(,
+    \mathbf{id}\} \\
+   & & \mathsf{FIRST}(E') = \{+, \epsilon\} \\
+   & & \mathsf{FIRST}(T') = \{*, \epsilon\} \\
+   & & \mathsf{FOLLOW}(E) = \mathsf{FOLLOW}(E') = \{), \$\} \\
+   & & \mathsf{FOLLOW}(T) = \mathsf{FOLLOW}(T') = \{+, ), \$\} \\
+   & & \mathsf{FOLLOW}(F) = \{+, *, ), \$\}
+  \end{eqnarray*}
+ \end{example}
+\end{screen}
+
+\subsection{LL(1)文法}
+
+文法$G$の生成規則のうち、$A \rightarrow \alpha | \beta$の形のものについて
+常に次の性質が成立するとき、$G$を\textbf{LL(1)文法}という。
+\begin{enumerate}
+ \item $\alpha$と$\beta$は同じ終端記号で始まる記号列を導出することがない。
+       \[
+       (\mathsf{FIRST(\alpha) - \{\epsilon\}) \cap
+       (\mathsf{FIRST}(\beta) - \{\epsilon\}) = \emptyset}
+       \]
+ \item $\alpha$と$\beta$のうち、$\epsilon$を導出するのはたかだか一方だけ
+       である。
+ \item $\beta \stackrel{*}{\Rightarrow} \epsilon$のとき、$\alpha$から
+       は$\mathsf{FOLLOW}(A)$に含まれる終端記号で始まる記号列は導出されな
+       い。つまり
+       \[
+	\beta \stackrel{*}{\Rightarrow} \epsilon のとき 
+       \mathsf{FIRST}(\alpha) \cap \mathsf{FOLLOW}(A) = \emptyset
+       \]
+       $\alpha \stackrel{*}{\Rightarrow} \epsilon$のときも同様。
+\end{enumerate}
+
+\begin{screen}
+\begin{example}
+ 例\ref{ex:first_follow}の文法では
+ \begin{eqnarray*}
+  & & \mathsf{FIRST}(+TE') = \{+\},\; \mathsf{FOLLOW}(E') = \{), \$\} \\
+  & & \mathsf{FIRST}(*FT') = \{*\},\; \mathsf{FOLLOW}(T') = \{+, ),
+   \$\} \\
+  & & \mathsf{FIRST}((E)) = \{(\},\; \mathsf{FIRST}(\mathbf{id}) = \{\mathbf{id}\}
+ \end{eqnarray*}
+ したがってこの文法はLL(1)である。
+\end{example}
+\end{screen}
+
+与えられた文脈自由文法から(1)曖昧性を取り除き(2)左再帰を取り除き(3)左端の
+括り出しを行い、LL(1)文法になれば、前々回に示した方法で予測型構文解析プロ
+グラムが必ず作れる。
+
+\subsection{FIRSTの計算方法}
+
+\begin{enumerate}
+ \item 終端記号$a$について$\mathsf{FIRST}(a) = \{a\}$
+ \item 生成規則$X \rightarrow a\alpha$について、$a$を$\mathsf{FIRST}(X)$
+       に加える。
+ \item 生成規則$X \rightarrow \epsilon$について、$\epsilon$を
+       $\mathsf{FIRST}(X)$に加える。
+ \item 生成規則$X \rightarrow Y_1Y_2\cdots Y_n$について
+       \begin{itemize}
+	\item $Y_1$が$\epsilon$を導出しないならば$\mathsf{FIRST}(Y_1)$を
+	      $\mathsf{FIRST}(X)$に加える
+	\item $Y_1 \stackrel{*}{\Rightarrow} \epsilon$であれば、
+	      $\mathsf{FIRST}(Y_1) - \{\epsilon\}$を$\mathsf{FIRST}(X)$に加える。さらに$Y_2$が$\epsilon$を導出しないならば、$\mathsf{FIRST}(Y_2)$を
+	      $\mathsf{FIRST}(X)$に加え、$Y_2 \stackrel{*}{\Rightarrow}
+	      \epsilon$ならば$\mathsf{FIRST}(Y_2) - \{\epsilon\}$を$\mathsf{FIRST}(X)$に加える。(以下同様)
+	\item $Y_1Y_2\cdots Y_n \stackrel{*}{\Rightarrow} \epsilon$ならば、
+	      $\epsilon$を$\mathsf{FIRST}(X)$に加える
+	      \label{170823_7Jun05}
+       \end{itemize}
+ \item $\mathsf{FIRST}(X_1X_2\cdots X_n)$は\ref{170823_7Jun05}と同様に計算
+\end{enumerate}
+
+\subsection{FOLLOWの計算方法}
+
+\begin{enumerate}
+ \item $\mathsf{FOLLOW}(S)$に$\$$を加える。
+ \item どの\textsf{FOLLOW}にも記号が追加されなくなるまで、以下を繰り返す。
+       \begin{itemize}
+	\item $A \rightarrow \alpha B\beta$について、$\mathsf{FIRST}(\beta)
+	      - \{\epsilon\}$を$\mathsf{FOLLOW}(B)$に加える。
+	\item $A \rightarrow \alpha B\beta$、かつ$\mathsf{FIRST}(\beta)$
+	      が$\epsilon$を含んでいるとき、$\mathsf{FOLLOW}(A)$を
+	      $\mathsf{FOLLOW}(B)$に加える。
+	\item $A \rightarrow \alpha B$のとき、$\mathsf{FOLLOW}(A)$を
+	      $\mathsf{FOLLOW}(B)$に加える。
+       \end{itemize}
+\end{enumerate}
+
+\section{LL(1)でない文法の構文解析}
+
+LL(1)でない文法に対する一般的な構文解析手法は、本講義の範囲を越えるので省
+略する。ただし、ある種のLL(1)でない文法では、生成規則の適用順に優先度を設
+けることで予測型構文解析が行える場合がある。
+
+\begin{screen}
+ \begin{example}
+  C言語のif文を一般化した次の文法を考える。
+  \begin{eqnarray*}
+   & & S \rightarrow iES | iESeS | a \\
+   & & E \rightarrow b
+  \end{eqnarray*}
+  これに対し左端の括り出しを行うと、次のような文法が得られる。
+  \begin{eqnarray*}
+   & & S \rightarrow iESS' | a \\
+   & & S' \rightarrow eS | \epsilon \\
+   & & E \rightarrow b
+  \end{eqnarray*}
+  これでもまだLL(1)文法ではない。実はこの文法は、どう変形してもLL(1)には
+  ならないことがわかっている。しかし、$S' \rightarrow eS$を$S'
+  \rightarrow \epsilon$より優先して適用することにすれば、予測型構文解析が
+  行える。$S'$に対応する関数は次のようになる。
+  \begin{verbatim}
+	void S_dash() { match(e); S(); }\end{verbatim}
+ \end{example}
+ 上で示した優先度は、前回述べた規則「各 else は前のほうにある未対応の
+ then 文のうち、もっとも近いものと対応する」と同じ働きをしている。
+\end{screen}
+
+\section*{練習問題}
+
+\begin{enumerate}
+ \item 次の文法がLL(1)文法であることを示せ。
+       \begin{eqnarray*}
+	& & S \rightarrow AaAb | BbBa \\
+	& & A \rightarrow \epsilon \\
+	& & B \rightarrow \epsilon
+       \end{eqnarray*}
+\end{enumerate}
+
+\end{document}

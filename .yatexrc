@@ -1,0 +1,21 @@
+(setq tmp-section-table '(
+("stackrel" 2)
+("lstloadlanguages")
+("icode")
+))
+(setq tmp-singlecmd-table '(
+("quad")
+("Director")
+("Follow")
+("First")
+("Box")
+("complement")
+))
+
+(setq tmp-env-table '(
+("definition")
+))
+(setq YaTeX::usepackage-alist-local '(
+("euler")
+("amsfonts")
+))

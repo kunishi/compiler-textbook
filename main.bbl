@@ -1,0 +1,39 @@
+\begin{thebibliography}{1}
+
+\bibitem{aho07:_compil_princ_techn_tools_secon_edition}
+Alfred~V. Aho, Monica~S. Lam, Ravi Sethi, and Jeffrey~D. Ullman.
+\newblock {\em Compilers - Principles, Techniques, \& Tools (Second Edition)}.
+\newblock Addison Wesley, 2007.
+
+\bibitem{aho86:_compiler}
+Alfred~V. Aho, Ravi Sethi, and Jeffrey~D. Ullman.
+\newblock {\em Compilers - Principles, Techniques, and Tools}.
+\newblock Addison-Wesley, 1986.
+\newblock 日本語訳: 「コンパイラI・II」（原田賢一訳、サイエンス社）.
+
+\bibitem{中田99}
+中田育男.
+\newblock コンパイラの構成と最適化.
+\newblock 朝倉書店, 1999.
+
+\bibitem{湯浅01}
+湯浅太一.
+\newblock コンパイラ.
+\newblock 昭晃堂, 2001.
+
+\bibitem{エイホ77}
+A.~V.エイホ, J.~E.ホップクロフト, J.~D.ウルマン.
+\newblock アルゴリズムの設計と解析I.
+\newblock サイエンス社, 1977.
+
+\bibitem{カーニハン89}
+B.~W.カーニハン, D.~M.リッチー.
+\newblock プログラミング言語C 第2版.
+\newblock 共立出版, 1989.
+
+\bibitem{ホップクロフト03:automaton}
+J.ホップクロフト, R.モトワニ, J.ウルマン.
+\newblock オートマトン 言語理論 計算論 I [第2版].
+\newblock サイエンス社, 2003.
+
+\end{thebibliography}

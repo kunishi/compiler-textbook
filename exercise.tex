@@ -1,0 +1,148 @@
+%#!platex main
+
+\chapter{練習問題}
+
+\section{正則表現・有限オートマトン}
+
+\begin{exercise}
+ 次の言語を表す正則表現を示せ。
+ \begin{enumerate}
+  \item アルファベット$\{0, 1\}$上の記号列のうち、0から始まり1が0回以上続
+	くもの全体からなる言語
+  \item アルファベット$\{a, b, c\}$上の記号列のうち、1個以上の$a$と1個以
+	上の$b$を含むもの全体からなる言語
+  \item アルファベット$\{0, 1\}$上の記号列のうち、0と1が交互に出現するも
+	の全体からなる言語
+ \end{enumerate}
+\end{exercise}
+\begin{exercise}
+ 正則表現 $(0 \mid 1)^\ast 0(0\mid 1)(0\mid 1)$ が表す言語は何か。言葉で説明せよ。
+\end{exercise}
+\begin{exercise}
+ C言語の空白記号は、空白（$_{\sqcup}$）、タブ（\verb|\t|）、改行
+ （\verb|\n|）が1個以上並んだ文字列である。これを正則表現で表せ。
+\end{exercise}
+\begin{exercise}
+ C言語の16進定数は 0x あるいは 0X で始まり、数字および a, b, c, d, e, f,
+ A, B, C, D, E, F が1個以上続く。これを正則表現で表せ。
+\end{exercise}
+\begin{exercise}
+ C言語の識別子はA〜Z, a〜z, 0〜9, 下線（\underline{ }）からなる文字列であ
+ る。ただし、最初の文字に数字を使うことはできない。これを正則表現で表せ。
+\end{exercise}
+\begin{exercise}
+ アルファベットを$\{0, 1\}$とするとき、次の言語を受理する有限オートマト
+ ンを示せ。
+ \begin{enumerate}
+  \item $00$で終わる記号列全体
+  \item $011$を途中に含む記号列全体
+ \end{enumerate}
+\end{exercise}
+\begin{exercise}
+ 正則表現$00(0 \mid 1)^\ast$に対応する有限オートマトンを構成せよ。
+\end{exercise}
+
+
+\section{文脈自由文法}
+
+\begin{exercise}
+ 次の文脈自由文法について、トークン列 8 - 2 + 6 の解析木を示せ。可能なす
+ べての場合を示し、自然な式の意味になるものはどれか示せ。
+ \[
+  string \rightarrow string + string \mid string - string \mid 0 \mid 1
+ \mid 2 \mid 3 \mid 4 \mid 5 \mid 6 \mid 7 \mid 8 \mid 9
+ \]
+\end{exercise}
+\begin{exercise}
+ 文脈自由文法$S \rightarrow 0 S 1 \mid 0 1$はどのような言語を表すか述べよ。
+\end{exercise}
+\begin{exercise}
+ 次の文法を考える。
+  \begin{eqnarray*}
+   S & \rightarrow & A1B \\
+   A & \rightarrow & 0A \mid \epsilon \\
+   B & \rightarrow & 0B \mid 1B \mid \epsilon
+  \end{eqnarray*}
+ この文法に対し、文字列$00101$の最左導出、最右導出を示せ。
+\end{exercise}
+\begin{exercise}
+ 文法
+ \begin{equation*}
+  S \rightarrow aS \mid aSbS \mid \epsilon
+ \end{equation*}
+ は曖昧である。文字列$aab$に対して、解析木、最左導出、最右導出がそれぞれ
+ 2つずつ存在することを示せ。
+\end{exercise}
+\begin{exercise}
+ 算術式に対する文法
+  \begin{eqnarray*}
+   E & \rightarrow & E + T \mid T \\
+   T & \rightarrow & T * F \mid F \\
+   F & \rightarrow & (E) \mid {\bf id}
+  \end{eqnarray*}
+ を、左再帰でないように変形せよ。
+\end{exercise}
+
+\section{構文解析}
+
+\begin{exercise}
+ 次の文法について以下の問いに答えよ。
+ \begin{align*}
+  S & \rightarrow AaAb \mid BbBa \\
+  A & \rightarrow \epsilon \\
+  B & \rightarrow \epsilon
+ \end{align*}
+ \begin{enumerate}
+  \item すべての非終端記号について$\First$と$\Follow$を計算せよ。
+  \item この文法はLL(1)文法か。
+ \end{enumerate}
+\end{exercise}
+\begin{exercise}
+ 次の文法がLL(1)文法かどうか判定せよ。
+ \begin{align*}
+  S & \rightarrow aA \mid B \mid cC \mid \epsilon \\
+  A & \rightarrow aB \mid Ca \\
+  B & \rightarrow bC \mid d \\
+  C & \rightarrow cA \mid Bc
+ \end{align*}
+\end{exercise}
+\begin{exercise}
+ 次の文法がLL(1)文法かどうか判定せよ。
+ \begin{align*}
+  S & \rightarrow aA \mid aAb \\
+  A & \rightarrow \epsilon \mid baA
+ \end{align*}
+\end{exercise}
+
+\section{意味解析}
+
+\begin{exercise}
+ 次の問いに答えよ。
+ \begin{enumerate}
+  \item 中置記法の式$9*(6+2)-4$を後置記法に変換せよ。
+  \item 得られた後置記法の式をスタック1本を用いて計算することを考える。
+	計算の過程を順を追って示せ。
+ \end{enumerate}
+\end{exercise}
+\begin{exercise}
+ 次に示すのは、0以上の2進整数を表す文脈自由文法を基にした翻訳スキームである。
+  \begin{align*}
+   S & \rightarrow S' B && \{ S.val = S'.val * 2 + B.val; \}\\
+   S & \rightarrow B && \{ S.val = B.val; \}\\
+   B & \rightarrow 0 && \{ B.val = 0; \}\\
+   B & \rightarrow 1 && \{ B.val = 1; \}
+  \end{align*}
+ \begin{enumerate}
+  \item $11001$に対する(意味動作を含んだ)解析木を示せ。
+	\label{152748_11Jul06}
+  \item \ref{152748_11Jul06}で示した解析木の根の属性 $val$ を計算せよ。
+  \item この翻訳スキームは何を計算するものか、説明せよ。
+ \end{enumerate}
+\end{exercise}
+
+\section{実行時環境}
+
+\begin{exercise}
+ C言語変数の記憶域割付け手法を3つ示し、それぞれどのようなものか説明
+ せよ。
+\end{exercise}
