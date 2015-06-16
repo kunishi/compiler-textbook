@@ -1,225 +1,225 @@
 %#!platex main
 
-\chapter{$B;z6g2r@O(B}
+\chapter{字句解析}
 \label{103559_30Mar06}
 
-\section{$BMQ8l(B}
+\section{用語}
 
-$B@bL@$r;O$a$kA0$K!"$3$N>O$rDL$7$FMQ$$$i$l$kMQ8l$r@0M}$7$F$*$/$3$H$K$7$h$&!#(B
+説明を始める前に、この章を通して用いられる用語を整理しておくことにしよう。
 
-\ref{134201_29Mar06}$B@a$G=R$Y$?$h$&$K!";z6g2r@O$NL\E*$O!"J8;zNs$H$7$F$N86(B
-$B;O%W%m%0%i%`$+$i0UL#$N$"$kJ8;zNs$r@Z$j=P$9$3$H$G$"$k!#$3$3$G8@$&!V!J86;O(B
-$B8@8l$G!K0UL#$N$"$kJ8;zNs!W$N$3$H$r(B{\bfseries $B;z6gMWAG(B}$B!J(Blexeme$B!K$H$$$&!#(B
-$BNc$($P!"(BC$B8@8l$N;z6gMWAG$K$O<!$N$h$&$J$b$N$,$"$k!#(B
+\ref{134201_29Mar06}節で述べたように、字句解析の目的は、文字列としての原
+始プログラムから意味のある文字列を切り出すことである。ここで言う「（原始
+言語で）意味のある文字列」のことを{\bfseries 字句要素}（lexeme）という。
+例えば、C言語の字句要素には次のようなものがある。
 \begin{itemize}
- \item $BJQ?tL>!"4X?tL>$J$I$N(B{\bfseries $B<1JL;R(B}$B!J(Bidentifier$B!K(B
- \item \icode{int}, \icode{while}$B$J$I!"(BC$B8@8l%W%m%0%i%`Cf$GFCJL$J0UL#$r;}(B
-       $B$A!"B>$NMQES$KMQ$$$k$3$H$N$G$-$J$$8l!J(B{\bfseries $BM=Ls8l(B}, keyword$B!K(B
- \item $B%G!<%?$NCM$rI=$9(B{\bfseries $BDj?t(B}$B!J(Bconstant$B!K!#@0?tDj?t!"IbF0>.?tE@(B
-       $BDj?t!"J8;zDj?t$J$I$,$"$k!#(B
- \item $BJ8;zNs$rI=$9(B{\bfseries $BJ8;zNs%j%F%i%k(B}$B!J(Bstring literal$B!K(B
- \item \icode{+}, \icode{*}, \icode{=}, \icode{==}$B$J$I$N(B{\bfseries $B1i;;(B
-       $B;R(B}$B!J(Boperator$B!K(B
- \item $B3g8L!"%;%_%3%m%s$J$I$N(B{\bfseries $B6h@Z$j5-9f(B}$B!J(Bseparator$B!K(B
+ \item 変数名、関数名などの{\bfseries 識別子}（identifier）
+ \item \icode{int}, \icode{while}など、C言語プログラム中で特別な意味を持
+       ち、他の用途に用いることのできない語（{\bfseries 予約語}, keyword）
+ \item データの値を表す{\bfseries 定数}（constant）。整数定数、浮動小数点
+       定数、文字定数などがある。
+ \item 文字列を表す{\bfseries 文字列リテラル}（string literal）
+ \item \icode{+}, \icode{*}, \icode{=}, \icode{==}などの{\bfseries 演算
+       子}（operator）
+ \item 括弧、セミコロンなどの{\bfseries 区切り記号}（separator）
 \end{itemize}
-$B6uGr!"%?%V!"2~9TJ8;z!"%3%a%s%H$J$I$O(BC$B8@8l$N%W%m%0%i%`$N0UL#$K$O1F6A$rM?$((B
-$B$J$$$N$G!";z6g2r@O$N:]$K<N$F$i$l$k!#(B
+空白、タブ、改行文字、コメントなどはC言語のプログラムの意味には影響を与え
+ないので、字句解析の際に捨てられる。
 
-$B<B:]$N;z6g2r@O$G$O!"@Z$j=P$7$?;z6gMWAG$r$=$N$^$^9=J82r@OIt$KEO$9$3$H$O$;(B
-$B$:!";z6gMWAG$r(B{\bfseries $B%H!<%/%s(B}$B!J(Btoken$B!K$H$$$&%G!<%?$KJQ49$7$F$+$iEO$9!#(B
-$B%H!<%/%s$K$O0J2<$N$h$&$J>pJs$,4^$^$l$k!#(B
+実際の字句解析では、切り出した字句要素をそのまま構文解析部に渡すことはせ
+ず、字句要素を{\bfseries トークン}（token）というデータに変換してから渡す。
+トークンには以下のような情報が含まれる。
 \begin{itemize}
- \item $B;z6gMWAG$N<oN`!#Nc$($P(B\icode{ID}$B!J<1JL;R!K!"(B\icode{IF}$B!JM=Ls8l(B
-       \icode{if}$B!K!"(B\icode{RELOP}$B!JHf3S1i;;;R!K$J$I(B\footnote{$B0J9_!"FC$K(B
-       $BCG$i$J$$8B$j!"1QBgJ8;z$H?t;z$+$i$J$k%4%7%C%/J8;zNs$r;z6gMWAG$N<oN`(B
-       $B$H$7$FMQ$$$k!#(B}$B!#(B
- \item $BIU2C>pJs!#Nc$($P!"<1JL;R(B\icode{argc}$B$K$O!"$=$N<1JL;R$NL>A0!"$9$J$o(B
-       $B$A(B ``argc'' $B$,IU2C>pJs$H$7$FIU$1$i$l$k!#$^$?@0?tDj?t(B \icode{453}
-       $B$K$O!"$=$NDj?t$NCM!"$9$J$o$A(B 453 $B$H$$$&@0?t$,IU2C>pJs$H$7$FIU$1$i(B
-       $B$l$k!#IU2C>pJs$N$J$$>l9g$b$"$k!#(B
+ \item 字句要素の種類。例えば\icode{ID}（識別子）、\icode{IF}（予約語
+       \icode{if}）、\icode{RELOP}（比較演算子）など\footnote{以降、特に
+       断らない限り、英大文字と数字からなるゴシック文字列を字句要素の種類
+       として用いる。}。
+ \item 付加情報。例えば、識別子\icode{argc}には、その識別子の名前、すなわ
+       ち ``argc'' が付加情報として付けられる。また整数定数 \icode{453}
+       には、その定数の値、すなわち 453 という整数が付加情報として付けら
+       れる。付加情報のない場合もある。
 \end{itemize}
 
-\section{$BAGKQ$J;z6g2r@O$H$=$NLdBjE@(B}
+\section{素朴な字句解析とその問題点}
 \label{170323_24Apr06}
 
-$B;z6g2r@O%"%k%4%j%:%`$NA0Ds$H$7$F!"86;O%W%m%0%i%`$rFI$`2s?t$O(B1$B2s$K2!$5$($?(B
-$B$$!#$D$^$j!"86;O%W%m%0%i%`$N%U%!%$%k$r=i$a$+$i=*$o$j$^$G=g$K(B1$B2sFI$_9~$`$@(B
-$B$1$G;z6g2r@O$r=*$o$i$;$k$h$&$K$7$?$$!#$3$l$O!"(BCPU$B$N7W;;$KHf$Y$F!"%U%!%$%k(B
-$B!JFs<!5-21!K$H$NF~=PNO$O$:$C$H;~4V$,$+$+$k$+$i$G$"$k!#(B
+字句解析アルゴリズムの前提として、原始プログラムを読む回数は1回に押さえた
+い。つまり、原始プログラムのファイルを初めから終わりまで順に1回読み込むだ
+けで字句解析を終わらせるようにしたい。これは、CPUの計算に比べて、ファイル
+（二次記憶）との入出力はずっと時間がかかるからである。
 
-$B$^$?!"%3%s%Q%$%iCf$K5pBg$JJ8;zG[Ns$r3NJ]$7!"$=$3$K86;O%W%m%0%i%`$rA4ItFI(B
-$B$_9~$s$G$+$i;z6g2r@O$r$9$k$H$$$&J}K!$b9%$^$7$/$J$$!#5pBg$JG[Ns$r3NJ]$9$k(B
-$B$H!"%3%s%Q%$%i$N;HMQ%a%b%jNL$,A}$($F$7$^$&!#%3%s%Q%$%i$OHf3SE*=E$$%W%m%0(B
-$B%i%`$J$N$G!"$J$k$Y$/;HMQ%a%b%jNL$r@aLs$7$F@_7W$7$?$$!#(B
+また、コンパイラ中に巨大な文字配列を確保し、そこに原始プログラムを全部読
+み込んでから字句解析をするという方法も好ましくない。巨大な配列を確保する
+と、コンパイラの使用メモリ量が増えてしまう。コンパイラは比較的重いプログ
+ラムなので、なるべく使用メモリ量を節約して設計したい。
 
-$B$9$k$H!"AGKQ$J;z6g2r@O%W%m%0%i%`$O<!$N$h$&$K$J$k$G$"$m$&!#86;O%W%m%0%i%`(B
-$B%U%!%$%k$+$i(B\icode{getc()}$B4X?t$G(B1$BJ8;zFI$_!"$=$N<oN`$K$h$C$F>l9gJ,$1$r(B
-$B9T$&!#$3$l$r%U%!%$%k$N=*$o$j$^$G7+$jJV$9!#(B
+すると、素朴な字句解析プログラムは次のようになるであろう。原始プログラム
+ファイルから\icode{getc()}関数で1文字読み、その種類によって場合分けを
+行う。これをファイルの終わりまで繰り返す。
 
 \begin{quote}
 \begin{lstlisting}[language=C]
  #include <stdio.h>
- /* $B8e=R$9$k$h$&$K!";z6gMWAG$O@0?t$GI=8=$9$k(B */
+ /* 後述するように、字句要素は整数で表現する */
  #define IF 1
- /* $B0J2<!";z6gMWAG$NDj5A$,B3$/(B */
+ /* 以下、字句要素の定義が続く */
 
- /* $B<!$N;z6gMWAG$NHV9f$rJV$9(B */
+ /* 次の字句要素の番号を返す */
  int simple_lexical_analysis()
  {
    char c;
-   /* file: $B86;O%W%m%0%i%`%U%!%$%k(B */
+   /* file: 原始プログラムファイル */
    while((c = getc(file)) != EOF) {
-     /* $BM=Ls8l(B if $B$N=hM}(B */
+     /* 予約語 if の処理 */
      if (c == 'i') {
        c = getc(file);
        if (c == 'f') {
          return IF;
        }
      }
-     /* $B0J2<!"B>$N;z6gMWAG$N=hM}$,B3$/(B */
+     /* 以下、他の字句要素の処理が続く */
    }
  }
 \end{lstlisting}
 \end{quote}
 
-$B$7$+$7!"$3$N%W%m%0%i%`$K$OLdBj$,$"$k!#;z6gMWAG$4$H$N=hM}$,J#;($K$J$C$F$7(B
-$B$^$&$N$G$"$k!#(BC$B8@8l$K$O!"(Bi$B$G;O$^$kM=Ls8l$O(B\icode{if}$B$NB>$K(B\icode{int}$B$b$"(B
-$B$k!#$^$?%f!<%6$,(B i $B$G;O$^$k<1JL;R$r;H$&2DG=@-$b9b$$!#$3$N$h$&$J2DG=@-$r$9(B
-$B$Y$FLVMe$7$F>l9gJ,$1$r=q$/$N$OBgJQ$G$"$k!#$^$7$F$d$3$N%W%m%0%i%`$r<+F0E*(B
-$B$K@8@.$9$k$N$OFq$7$$!#(B
+しかし、このプログラムには問題がある。字句要素ごとの処理が複雑になってし
+まうのである。C言語には、iで始まる予約語は\icode{if}の他に\icode{int}もあ
+る。またユーザが i で始まる識別子を使う可能性も高い。このような可能性をす
+べて網羅して場合分けを書くのは大変である。ましてやこのプログラムを自動的
+に生成するのは難しい。
 
-$B0J2<$N@a$G$O!"@5B'I=8=$rMQ$$$F;z6g2r@OIt$r<+F0E*$K@8@.$9$k<jK!$r=R$Y$k!#(B
+以下の節では、正則表現を用いて字句解析部を自動的に生成する手法を述べる。
 
-\section{$B@5B'I=8=$r4p$K$7$?;z6g2r@O(B}
+\section{正則表現を基にした字句解析}
 \label{112953_24Apr06}
 
 \begin{figure}
  \begin{center}
   \includegraphics[width=13cm]{figure/fa_while.pdf}
  \end{center}
- \caption{\icode{while}$B$KBP1~$9$kM-8B%*!<%H%^%H%s(B}
+ \caption{\icode{while}に対応する有限オートマトン}
  \label{163948_18Apr06}
 \end{figure}
 \begin{figure}
  \begin{center}
   \includegraphics{figure/fa_decimal.pdf}
  \end{center}
- \caption{10$B?J?t$KBP1~$9$kM-8B%*!<%H%^%H%s(B}
+ \caption{10進数に対応する有限オートマトン}
  \label{164232_18Apr06}
 \end{figure}
 
-$B;z6g2r@O$N<jK!$G$O!"<!$N$3$H$r9M$($kI,MW$,$"$k!#(B
+字句解析の手法では、次のことを考える必要がある。
 \begin{enumerate}
- \item $B;z6gMWAG$rDj5A$9$kJ}K!(B
+ \item 字句要素を定義する方法
        \label{075512_23Apr08}
- \item \ref{075512_23Apr08} $B$GDj5A$7$?;z6gMWAG$r8!=P$9$kJ}K!(B
+ \item \ref{075512_23Apr08} で定義した字句要素を検出する方法
        \label{075846_23Apr08}
- \item $B;z6gMWAG$r8!=P$7$?$H$-$K2?$i$+$NF0:n$r9T$&J}K!!J@0?tDj?t$N;z6gMW(B
-       $BAG$r8!=P$7$?$H$-$K$=$N@0?t$NCM$r5a$a$k!"$J$I!K(B
+ \item 字句要素を検出したときに何らかの動作を行う方法（整数定数の字句要
+       素を検出したときにその整数の値を求める、など）
 \end{enumerate}
 
-$B$3$3$G=R$Y$k;z6g2r@O<jK!$G$O!"3F;z6gMWAG$r@5B'I=8=$GI=$7!"BP1~$9$kM-8B%*!<%H%^%H%s(B
-$B$r9=@.$7$F;z6gMWAG$r<uM}$5$;$k!#>e$K=R$Y$?(B\ref{075512_23Apr08} $B$N<B8=J}K!(B
-$B$H$7$F@5B'I=8=$r!"(B\ref{075846_23Apr08} $B$N<B8=J}K!$H$7$FM-8B%*!<%H%^%H%s(B
-$B$rMxMQ$9$k$N$G$"$k!#Nc$($P!"M=Ls8l(B
-\icode{while}$B$KBP1~$9$k@5B'I=8=$O(B$while$$B$G$"$j!"$3$N@5B'I=8=$HEy2A$JM-8B(B
-$B%*!<%H%^%H%s$O?^(B\ref{163948_18Apr06}$B$N$h$&$K$J$k!#$^$?!"(BC$B8@8l$N(B10$B?JDj?t$O(B
-0$B0J30$N?t;z$+$i;O$^$k?t;z$NNs$G$"$k$N$G!"$3$l$KBP1~$9$k@5B'I=8=$O(B
-$[1\mbox{-}9][0\mbox{-}9]^\ast$$B$G$"$j!"$3$l$HEy2A$JM-8B%*!<%H%^%H%s$O?^(B
-\ref{164232_18Apr06}$B$N$h$&$K$J$k!#(B
+ここで述べる字句解析手法では、各字句要素を正則表現で表し、対応する有限オートマトン
+を構成して字句要素を受理させる。上に述べた\ref{075512_23Apr08} の実現方法
+として正則表現を、\ref{075846_23Apr08} の実現方法として有限オートマトン
+を利用するのである。例えば、予約語
+\icode{while}に対応する正則表現は$while$であり、この正則表現と等価な有限
+オートマトンは図\ref{163948_18Apr06}のようになる。また、C言語の10進定数は
+0以外の数字から始まる数字の列であるので、これに対応する正則表現は
+$[1\mbox{-}9][0\mbox{-}9]^\ast$であり、これと等価な有限オートマトンは図
+\ref{164232_18Apr06}のようになる。
 
-$B$3$N$h$&$JM-8B%*!<%H%^%H%s$r$9$Y$F$N;z6gMWAG$KBP$7$F:n$j!"JBNs$KF0:n$5$;(B
-$B$k!#$D$^$j!"86;O%W%m%0%i%`%U%!%$%k$+$i(B1$BJ8;zFI$_9~$s$G!"$=$l$rF~NO5-9f$H$7(B
-$B$F$9$Y$F$NM-8B%*!<%H%^%H%s$rF0:n$5$;$k!#$3$l$r7+$jJV$7$F!"$"$kM-8B%*!<%H(B
-$B%^%H%s$,<uM}>uBV$KE~C#$9$l$P!";z6gMWAG$,8+$D$+$C$?$3$H$K$J$k!#Nc$($P(B
-`w', `h', `i', `l', `e' $B$N=g$K86;O%W%m%0%i%`%U%!%$%k$+$iJ8;z$rFI$_9~$s$@(B
-$B$H$9$k$H!"?^(B\ref{163948_18Apr06}$B$NM-8B%*!<%H%^%H%s$O<uM}>uBV$KE~C#$7!"0l(B
-$BJ}!"$=$l0J30$NM-8B%*!<%H%^%H%s!JNc$($P?^(B\ref{164232_18Apr06}$B$N%*!<%H%^%H(B
-$B%s!K$O<uM}>uBV$KE~C#$7$J$$!#=>$C$F!";z6gMWAG(B\icode{while}$B$,8+$D$+$C$?$3$H(B
-$B$K$J$k!#;z6gMWAG$,(B1$B$D8+$D$+$l$P!"$9$Y$F$NM-8B%*!<%H%^%H%s$r%j%;%C%H$7!J=i(B
-$B4|>uBV$KLa$7$F!K!":F$S86;O%W%m%0%i%`%U%!%$%k$+$i$NJ8;z$NFI9~$_$r;O$a$k!#(B
+このような有限オートマトンをすべての字句要素に対して作り、並列に動作させ
+る。つまり、原始プログラムファイルから1文字読み込んで、それを入力記号とし
+てすべての有限オートマトンを動作させる。これを繰り返して、ある有限オート
+マトンが受理状態に到達すれば、字句要素が見つかったことになる。例えば
+`w', `h', `i', `l', `e' の順に原始プログラムファイルから文字を読み込んだ
+とすると、図\ref{163948_18Apr06}の有限オートマトンは受理状態に到達し、一
+方、それ以外の有限オートマトン（例えば図\ref{164232_18Apr06}のオートマト
+ン）は受理状態に到達しない。従って、字句要素\icode{while}が見つかったこと
+になる。字句要素が1つ見つかれば、すべての有限オートマトンをリセットし（初
+期状態に戻して）、再び原始プログラムファイルからの文字の読込みを始める。
 
-$B$?$@$7!"$3$NJ}K!$G$O$^$@LdBjE@$,;D$C$F$$$k!#(B
+ただし、この方法ではまだ問題点が残っている。
 \begin{figure}
  \begin{center}
   \includegraphics{figure/fa_relop.pdf}
  \end{center}
- \caption{$BHf3S1i;;;R$KBP$9$kM-8B%*!<%H%^%H%s(B}
+ \caption{比較演算子に対する有限オートマトン}
  \label{182549_18Apr06}
 \end{figure}
 \begin{figure}
  \begin{center}
   \includegraphics{figure/fa_relop_fixed.pdf}
  \end{center}
- \caption{$BHf3S1i;;;R$KBP$9$kM-8B%*!<%H%^%H%s!J2~NIHG!K(B}
+ \caption{比較演算子に対する有限オートマトン（改良版）}
  \label{183745_18Apr06}
 \end{figure}
 \begin{figure}
  \begin{center}
   \includegraphics{figure/fa_identifier.pdf}
  \end{center}
- \caption{$B<1JL;R$KBP$9$kM-8B%*!<%H%^%H%s(B}
+ \caption{識別子に対する有限オートマトン}
  \label{081246_19Apr06}
 \end{figure}
 \begin{enumerate}
- \item $B0l$D$NJ8;zNs$,(B2$B$D0J>e$NM-8B%*!<%H%^%H%s$G<uM}$5$l$k$3$H$,$"$k!#Nc(B
-       $B$($PJ8;zNs(B `while' $B$O?^(B\ref{163948_18Apr06}$B$NM-8B%*!<%H%^%H%s$G<u(B
-       $BM}$5$l$k$,!"(BC$B8@8l$N<1JL;R$r<uM}$9$kM-8B%*!<%H%^%H%s!J?^(B
-       \ref{081246_19Apr06}$B!"N}=,LdBj(B\ref{ex:regexp_05}$B$r;2>H!K$G$b<uM}$5(B
-       $B$l$k!#$3$N>l9g!"(BC$B8@8l$G$OM=Ls8l$H$7$F2r<a$7$J$1$l$P$J$i$J$$!#$9$J(B
-       $B$o$A!"?^(B\ref{163948_18Apr06}$B$NM-8B%*!<%H%^%H%s$rM%@h$7$F=hM}$7$J$1(B
-       $B$l$P$J$i$J$$!#(B
- \item ($B:GD90lCW$N86B'(B) $B;z6gMWAG$rG'<1$9$k$H$-$O!":G$bD9$$$b$N$r:NMQ$7$J(B
-       $B$1$l$P$J$i$J$$!#Nc$($P(B\verb|<|$B$H(B\verb|<=|$B$H$$$&(B2$B$D$N;z6gMWAG$r9M$((B
-       $B$h$&!#$3$l$i$N;z6gMWAG$r<uM}$9$kM-8B%*!<%H%^%H%s$r?^(B
-       \ref{182549_18Apr06}$B$K<($9!#(B`\verb|<|'$B$rFI$_9~$s$@$H$-!">e$N%*!<%H(B
-       $B%^%H%s$O<uM}>uBV$KE~C#$9$k!#$7$+$7!"$b$7$3$N<!$NJ8;z$,(B `\verb|=|'
-       $B$G$"$l$P!"(B\verb|<|$B$G$O$J$/(B\verb|<=|$B$H$$$&;z6gMWAG$H2r<a$7$J$1$l$P(B
-       $B$J$i$J$$!#$D$^$j!"2<$N%*!<%H%^%H%s$N$_$G<uM}$5$;$J$1$l$P$J$i$J$$!#(B
+ \item 一つの文字列が2つ以上の有限オートマトンで受理されることがある。例
+       えば文字列 `while' は図\ref{163948_18Apr06}の有限オートマトンで受
+       理されるが、C言語の識別子を受理する有限オートマトン（図
+       \ref{081246_19Apr06}、練習問題\ref{ex:regexp_05}を参照）でも受理さ
+       れる。この場合、C言語では予約語として解釈しなければならない。すな
+       わち、図\ref{163948_18Apr06}の有限オートマトンを優先して処理しなけ
+       ればならない。
+ \item (最長一致の原則) 字句要素を認識するときは、最も長いものを採用しな
+       ければならない。例えば\verb|<|と\verb|<=|という2つの字句要素を考え
+       よう。これらの字句要素を受理する有限オートマトンを図
+       \ref{182549_18Apr06}に示す。`\verb|<|'を読み込んだとき、上のオート
+       マトンは受理状態に到達する。しかし、もしこの次の文字が `\verb|=|'
+       であれば、\verb|<|ではなく\verb|<=|という字句要素と解釈しなければ
+       ならない。つまり、下のオートマトンのみで受理させなければならない。
        \label{183630_18Apr06}
 \end{enumerate}
 
-\ref{183630_18Apr06}$B$K5s$2$??^(B\ref{182549_18Apr06}$B$NLdBjE@$r2~NI$9$k0l$D(B
-$B$N0F$r?^(B\ref{183745_18Apr06}$B$K<($9!#%]%$%s%H$O!"(B`\verb|<|'$B$r<uM}$9$kM-8B%*!<(B
-$B%H%^%H%s$r2~NI$7!"(B`\verb|<|'$B$N<!$K(B `=' $B0J30$NJ8;z$rFI$_9~$s$@$H$-$K<uM}$9(B
-$B$k!"$H$7$?E@$G$"$k!#0lHL$K!":GD90lCW$N86B'$O$3$l$HF1MM$NJ}K!$G2r7h$G$-$k!#(B
+\ref{183630_18Apr06}に挙げた図\ref{182549_18Apr06}の問題点を改良する一つ
+の案を図\ref{183745_18Apr06}に示す。ポイントは、`\verb|<|'を受理する有限オー
+トマトンを改良し、`\verb|<|'の次に `=' 以外の文字を読み込んだときに受理す
+る、とした点である。一般に、最長一致の原則はこれと同様の方法で解決できる。
 
-$B$?$@$7!"Cm0U$7$J$1$l$P$J$i$J$$E@$,$"$k!#>e$N%*!<%H%^%H%s$G;z6gMWAG(B
-`\verb|<|'$B$r<uM}$7$?$H$-!"K\Mh$N;z6gMWAG(B`\verb|<|'$B$h$j$b(B1$BJ8;zM>7W$KFI$_9~(B
-$B$s$G$7$^$C$F$$$k!#$3$NM>7W$KFI$_9~$s$@J8;z$O!"<!$N;z6gMWAG$r9=@.$9$kJ8;z(B
-$B$G$"$k$+$b$7$l$J$$$?$a!"(B`\verb|<|'$B$r<uM}$7$?8e!"FI$_9~$_$rGK4~$7$F$*$+$J(B
-$B$1$l$P$J$i$J$$!#(B
+ただし、注意しなければならない点がある。上のオートマトンで字句要素
+`\verb|<|'を受理したとき、本来の字句要素`\verb|<|'よりも1文字余計に読み込
+んでしまっている。この余計に読み込んだ文字は、次の字句要素を構成する文字
+であるかもしれないため、`\verb|<|'を受理した後、読み込みを破棄しておかな
+ければならない。
 
-\section{$B;z6g2r@O%W%m%0%i%`$N<B8=(B}
+\section{字句解析プログラムの実現}
 \label{170501_24Apr06}
 
 \begin{figure}
  \begin{center}
   \includegraphics[width=13cm]{figure/lexical_analysis_example.pdf}
  \end{center}
- \caption{$B;z6g2r@O$N$?$a$NM-8B%*!<%H%^%H%s72(B}
+ \caption{字句解析のための有限オートマトン群}
  \label{112450_24Apr06}
 \end{figure}
 
-$BM-8B%*!<%H%^%H%s$r4pAC$H$9$k;z6g2r@O%W%m%0%i%`$N<B8=$K$D$$$F@bL@$r9T$&!#(B
-$B$J$*!"@bL@$N$?$a!"$3$3$G$OG'<1$9$Y$-%H!<%/%s$r(B\verb|<|, \verb|<=|,
-\icode{while}, $B$=$l$K(BC$B8@8l$N<1JL;R$N$_$H$9$k!#$^$?!"$3$l$i$N%H!<%/%s$rG'(B
-$B<1$9$kM-8B%*!<%H%^%H%s$N>uBV$KHV9f$rIU$1$F$*$/!J?^(B\ref{112450_24Apr06}$B!K!#(B
+有限オートマトンを基礎とする字句解析プログラムの実現について説明を行う。
+なお、説明のため、ここでは認識すべきトークンを\verb|<|, \verb|<=|,
+\icode{while}, それにC言語の識別子のみとする。また、これらのトークンを認
+識する有限オートマトンの状態に番号を付けておく（図\ref{112450_24Apr06}）。
 
-\subsection{$B%U%!%$%k$H$NF~=PNO(B}
+\subsection{ファイルとの入出力}
 
-$B$3$l$+$i:n@.$9$k;z6g2r@O%W%m%0%i%`$O!"86;O%W%m%0%i%`%U%!%$%k$+$i(B1$BJ8;z$:$D(B
-$BJ8;z$rFI$_!"=hM}$9$k!"$H$$$&A`:n$r%U%!%$%k$N=*$o$j$^$G7+$jJV$9!#$?$@$7!"(B
-\ref{112953_24Apr06}$B@a$G=R$Y$?$h$&$K!";z6g$K$h$C$F$O!";z6g$rG'<1$7$?8e$KFI(B
-$B$_9~$_$rGK4~$7$F$*$+$J$1$l$P$J$i$J$$!#(B
+これから作成する字句解析プログラムは、原始プログラムファイルから1文字ずつ
+文字を読み、処理する、という操作をファイルの終わりまで繰り返す。ただし、
+\ref{112953_24Apr06}節で述べたように、字句によっては、字句を認識した後に読
+み込みを破棄しておかなければならない。
 
-$B$7$?$,$C$F!"86;O%W%m%0%i%`%U%!%$%k$+$i$NFI$_9~$_$O(B\icode{getc()}$B4X?t$r!"(B
-$BFI$_9~$_$NGK4~$O(B\icode{ungetc()}$B4X?t$r$=$l$>$lMQ$$$l$P$h$$(B
-\footnote{\icode{ungetc()}$B4X?t$O:#$^$G;H$C$?$3$H$,$J$$$H;W$o$l$k$N$G!"%*(B
-$B%s%i%$%s%^%K%e%"%k$J$I$G$I$&$$$&4X?t$+D4$Y$F$*$/$3$H!#(B\icode{getc()}$B4X?t(B
-$B$rCN$i$J$$!"$b$7$/$OK:$l$F$$$k>l9g$b%*%s%i%$%s%^%K%e%"%k$J$I$GD4$Y$F$*$/(B
-$B$3$H!#(B}$B!#$?$@$7!"$3$NItJ,$O8e$G2~NI$r;n$_$?$$$N$G!"D>@\(B\icode{getc()},
-\icode{ungetc()}$B$r;H$&$N$G$O$J$/!"<!$N$h$&$J4X?t$rDL$7$F;H$&$3$H$K$9$k!#(B
+したがって、原始プログラムファイルからの読み込みは\icode{getc()}関数を、
+読み込みの破棄は\icode{ungetc()}関数をそれぞれ用いればよい
+\footnote{\icode{ungetc()}関数は今まで使ったことがないと思われるので、オ
+ンラインマニュアルなどでどういう関数か調べておくこと。\icode{getc()}関数
+を知らない、もしくは忘れている場合もオンラインマニュアルなどで調べておく
+こと。}。ただし、この部分は後で改良を試みたいので、直接\icode{getc()},
+\icode{ungetc()}を使うのではなく、次のような関数を通して使うことにする。
 
 \begin{lstlisting}
  int nextchar(FILE* infile)
@@ -233,12 +233,12 @@ $[1\mbox{-}9][0\mbox{-}9]^\ast$$B$G$"$j!"$3$l$HEy2A$JM-8B%*!<%H%^%H%s$O?^(B
  }
 \end{lstlisting}
 
-\subsection{$B%G!<%?$NI=8=(B}
+\subsection{データの表現}
 
-$B%3%s%Q%$%i$G$ODL>o!"86;O8@8l$N%H!<%/%s$KDL$7HV9f$rIU$1!"%3%s%Q%$%i$NFbIt(B
-$B$G$b$=$NHV9f!J@0?t!K$G$=$l$>$l$N%H!<%/%s$rI=$9!#<!$NNc$G$O!"(B
-\verb|<|, \verb|<=|, \icode{while}, $B<1JL;R$K$=$l$>$l(B 0, 1, 2, 3 $B$H$$$&HV(B
-$B9f$r3d$jEv$F$F$$$k!#(B
+コンパイラでは通常、原始言語のトークンに通し番号を付け、コンパイラの内部
+でもその番号（整数）でそれぞれのトークンを表す。次の例では、
+\verb|<|, \verb|<=|, \icode{while}, 識別子にそれぞれ 0, 1, 2, 3 という番
+号を割り当てている。
 
 \begin{lstlisting}
  #define LT  0
@@ -247,135 +247,135 @@ $[1\mbox{-}9][0\mbox{-}9]^\ast$$B$G$"$j!"$3$l$HEy2A$JM-8B%*!<%H%^%H%s$O?^(B
  #define ID  3
 \end{lstlisting}
 
-$B$9$k$H<!@a$G<($9$h$&$K!";z6g2r@O%W%m%0%i%`$O%H!<%/%s$rI=$9HV9f$rJV$jCM$H(B
-$B$9$k4X?t$H$J$j!"$7$?$,$C$F(B\icode{int}$B7?$NCM$rJV$94X?t$H$J$k!#(B
+すると次節で示すように、字句解析プログラムはトークンを表す番号を返り値と
+する関数となり、したがって\icode{int}型の値を返す関数となる。
 
-$B$?$@$7<1JL;R$K$D$$$F$O!"<B:]$N<1JL;RL>!J(B\icode{i}, \icode{main}$B$J$I$NJQ?t(B
-$BL>$d4X?tL>!K$b;z6g2r@O$N=PNO$H$9$kI,MW$,$"$k!#$3$l$OBg0hJQ?t(B\icode{char~%
-yytext[80];}$B$K3JG<$5$l$k$b$N$H$9$k(B\footnote{$B;z6g2r@OIt$N8e$KB3$/9=J82r@O(B
-$BIt$+$i<1JL;RL>$r;2>H$G$-$k$h$&$K!"Bg0hJQ?t$rMQ$$$F$$$k!#(B}$B!#(B
+ただし識別子については、実際の識別子名（\icode{i}, \icode{main}などの変数
+名や関数名）も字句解析の出力とする必要がある。これは大域変数\icode{char~%
+yytext[80];}に格納されるものとする\footnote{字句解析部の後に続く構文解析
+部から識別子名を参照できるように、大域変数を用いている。}。
 
-$B;z6g2r@O%W%m%0%i%`$G$O!"$[$+$K<!$N$h$&$JBg0hJQ?t$rMQ$$$k!#(B
+字句解析プログラムでは、ほかに次のような大域変数を用いる。
 \begin{itemize}
- \item \icode{int state;}$B!DM-8B%*!<%H%^%H%s$N8=:_$N>uBV$rI=$9!#=i4|CM$O(B0$B!#(B
- \item \icode{int initial\_state;}$B!D8=:_=hM}Cf$NM-8B%*!<%H%^%H%s$N=i4|>uBV(B
-       $B$rI=$9!#=i4|CM$O(B0$B!#(B
- \item \icode{FILE *file;}$B!D86;O%W%m%0%i%`$N%U%!%$%k%]%$%s%?!#(B
+ \item \icode{int state;}…有限オートマトンの現在の状態を表す。初期値は0。
+ \item \icode{int initial\_state;}…現在処理中の有限オートマトンの初期状態
+       を表す。初期値は0。
+ \item \icode{FILE *file;}…原始プログラムのファイルポインタ。
 \end{itemize}
 
-\subsection{$B;z6g2r@O%W%m%0%i%`(B}
+\subsection{字句解析プログラム}
 
-$B<!$K!";z6g2r@O%W%m%0%i%`$NK\BN$G$"$k(B\icode{nexttoken()}$B4X?t$N%3!<%I$r<($9!#(B
-$B$3$N4X?t$O!"9=J82r@OIt$+$iI,MW$K1~$8$F8F$S=P$5$l$k$3$H$rA[Dj$7$F$*$j!"<!(B
-$B$N%H!<%/%s$rI=$9HV9f$rJV$jCM$H$9$k!#$^$?!"%H!<%/%s$,<1JL;R$N>l9g$K$O!"Bg(B
-$B0hJQ?t(B\icode{yytext}$B$K$=$N<1JL;RL>$r3JG<$9$k!#(B
+次に、字句解析プログラムの本体である\icode{nexttoken()}関数のコードを示す。
+この関数は、構文解析部から必要に応じて呼び出されることを想定しており、次
+のトークンを表す番号を返り値とする。また、トークンが識別子の場合には、大
+域変数\icode{yytext}にその識別子名を格納する。
 
 \begin{quote}
  \lstinputlisting[numbers=left]{code/nexttoken.c}
 \end{quote}
 
-$BBg$^$+$K$O!"8=:_$N>uBV!J(B\icode{state}$B!K$H<!$NJ8;z!J(B\icode{c}$B!K$+$i<!$N>u(B
-$BBV$r7hDj$7!"(B\icode{state}$B$NCM$r99?7$7!">uBV$K$h$kJ,4t$r9T$&!J(B35$B9TL\!K!#$=(B
-$B$N7k2L<uM}>uBV$KE~C#$9$l$P!"G'<1$7$?%H!<%/%s$NHV9f$rJV$9!#<uM}>uBV$KE~C#(B
-$B$G$-$J$+$C$?>l9g$O!"(B\icode{fail()}$B4X?t$r8F$S=P$7!"=i4|>uBV(B\icode{start}$B$N(B
-$BCM$r99?7$7$F<!$N%*!<%H%^%H%s$K$h$k<uM}$r;n$9!#$3$l$r%*!<%H%^%H%s$N?t$@$1(B
-$B7+$jJV$7$F$$$/!#$I$N%*!<%H%^%H%s$G$b<uM}$G$-$J$+$C$?>l9g$O!"86;O%W%m%0%i(B
-$B%`$K8m$j$,$"$C$?$3$H$K$J$k$N$G!"%(%i!<=hM}$r9T$&(B
-\footnote{\icode{isalpha(c)}$B4X?t!"(B\icode{isdigit(c)}$B4X?t$O$=$l$>$l!"(B
-\icode{c}$B$,%"%k%U%!%Y%C%H$+!"(B\icode{c}$B$,?t;z$+$rH=Dj$9$k4X?t$G$"$k!#>\:Y(B
-$B$O%*%s%i%$%s%^%K%e%"%k$J$I$r;2>H$N$3$H!#(B}$B!#(B
+大まかには、現在の状態（\icode{state}）と次の文字（\icode{c}）から次の状
+態を決定し、\icode{state}の値を更新し、状態による分岐を行う（35行目）。そ
+の結果受理状態に到達すれば、認識したトークンの番号を返す。受理状態に到達
+できなかった場合は、\icode{fail()}関数を呼び出し、初期状態\icode{start}の
+値を更新して次のオートマトンによる受理を試す。これをオートマトンの数だけ
+繰り返していく。どのオートマトンでも受理できなかった場合は、原始プログラ
+ムに誤りがあったことになるので、エラー処理を行う
+\footnote{\icode{isalpha(c)}関数、\icode{isdigit(c)}関数はそれぞれ、
+\icode{c}がアルファベットか、\icode{c}が数字かを判定する関数である。詳細
+はオンラインマニュアルなどを参照のこと。}。
 
-$B?^(B\ref{112450_24Apr06}$B$G(B$\ast$$B$rIU$1$?>uBV$O!"G'<1$7$?%H!<%/%s$h$j$b(B1$BJ8;z(B
-$B@h$^$GFI$_9~$s$G$7$^$C$F$$$k$3$H$r<($9!#Nc$($P%H!<%/%s(B `\verb|<|'$B$O!"%H!<(B
-$B%/%s$NFI$_9~$_<+BN$O>uBV(B1$B$G=*N;$7$F$$$k$,!"(B`\verb|<|'$B$+(B`\verb|<=|'$B$+$r7h(B
-$BDj$9$k$?$a$K(B1$BJ8;z@h$^$GFI$_9~$_!">uBV(B2$B$K;j$kI,MW$,$"$k!#<1JL;R$b!"<1JL;R(B
-$B$K4^$^$l$J$$J8;z$,=P$F$-$?;~E@$G=i$a$F!"<1JL;R$N=*$o$j$,G'<1$G$-$k$?$a!"(B
-$B>uBV(B12 $B$KE~C#$7$?$H$-$K$O(B1$BJ8;z@h$^$GFI$s$G$7$^$C$F$$$k$3$H$K$J$k!#$=$N$?(B
-$B$a!">uBV(B2$B$H>uBV(B12$B$K$D$$$F$O!"(B\icode{backchar()}$B4X?t$K$h$j!"(B1$BJ8;zJ,FI$_9~(B
-$B$_$rGK4~$7$F$$$k!#(B
+図\ref{112450_24Apr06}で$\ast$を付けた状態は、認識したトークンよりも1文字
+先まで読み込んでしまっていることを示す。例えばトークン `\verb|<|'は、トー
+クンの読み込み自体は状態1で終了しているが、`\verb|<|'か`\verb|<=|'かを決
+定するために1文字先まで読み込み、状態2に至る必要がある。識別子も、識別子
+に含まれない文字が出てきた時点で初めて、識別子の終わりが認識できるため、
+状態12 に到達したときには1文字先まで読んでしまっていることになる。そのた
+め、状態2と状態12については、\icode{backchar()}関数により、1文字分読み込
+みを破棄している。
 
-$BF~NO$NGK4~$O%*!<%H%^%H%s$r@Z$jBX$($k:]$K$bH/@8$9$k!#Nc$($P>uBV(B6$B$G!"J8;z(B
-`a'$B$rFI$_9~$s$G%H!<%/%s(B\icode{while}$B$NG'<1$K<:GT$7$?>l9g!"$9$G$KFI$_9~$s(B
-$B$@(B `w', `h', `a'$B$rGK4~$7$F$+$i<!$N%*!<%H%^%H%s$K@Z$jBX$($J$1$l$P$J$i$J$$!#(B
-$B$=$N$?$a$K!"4{$KFI$_9~$s$@J8;z$rC_$($kG[Ns(B\icode{s}$B!"FI$_9~$s$@J8;z?t$rJ](B
-$B;}$9$kJQ?t(B\icode{i}$B$r6I=jJQ?t$H$7$FMQ0U$7$F$$$k!#(B\icode{fail()}$B$r8F$S=P$9(B
-$B$H$-$K$O(B\icode{s}$B$H(B\icode{i}$B$r0z?t$H$7$FEO$7!"(B\icode{fail()}$BCf$GF~NO$NGK(B
-$B4~$r9T$C$F$$$k!#(B
+入力の破棄はオートマトンを切り替える際にも発生する。例えば状態6で、文字
+`a'を読み込んでトークン\icode{while}の認識に失敗した場合、すでに読み込ん
+だ `w', `h', `a'を破棄してから次のオートマトンに切り替えなければならない。
+そのために、既に読み込んだ文字を蓄える配列\icode{s}、読み込んだ文字数を保
+持する変数\icode{i}を局所変数として用意している。\icode{fail()}を呼び出す
+ときには\icode{s}と\icode{i}を引数として渡し、\icode{fail()}中で入力の破
+棄を行っている。
 
-$B$^$?>uBV(B12$B$G$O!"8=:_$N(B\icode{s}$B$NFbMF!"$9$J$o$AG'<1$7$?<1JL;RL>$rBg0hJQ?t(B
-\icode{yytext}$B$K%3%T!<$7$F$$$k!#(B
+また状態12では、現在の\icode{s}の内容、すなわち認識した識別子名を大域変数
+\icode{yytext}にコピーしている。
 
-\subsection{$B;z6g2r@OIt<+F0@8@.%W%m%0%i%`(B\icode{lex}}
+\subsection{字句解析部自動生成プログラム\icode{lex}}
 
-\ref{170501_24Apr06}$B@a$G<($7$?;z6g2r@O%W%m%0%i%`$O3F>uBV$G9T$&$Y$-=hM}$,(B
-$B$+$J$j%Q%?!<%s2=$5$l$F$*$j!"?^(B\ref{112450_24Apr06}$B$N%*!<%H%^%H%s$,M?$($i(B
-$B$l$l$P!"(B\ref{170323_24Apr06}$B@a$G<($7$?%W%m%0%i%`$KHf$Y$F<+F0E*$K@8@.$7$d(B
-$B$9$$!#(B
+\ref{170501_24Apr06}節で示した字句解析プログラムは各状態で行うべき処理が
+かなりパターン化されており、図\ref{112450_24Apr06}のオートマトンが与えら
+れれば、\ref{170323_24Apr06}節で示したプログラムに比べて自動的に生成しや
+すい。
 
-$B<B$O!";z6g2r@OIt$r<+F0@8@.$9$k%W%m%0%i%`$O$$$/$D$b$"$k!#$3$l$i$O$$$:$l$b!"(B
-$BG'<1$9$Y$-%H!<%/%s$N@5B'I=8=$H!"%H!<%/%s$KBP$7$F9T$&$Y$-=hM}$r;XDj$9$k$H!"(B
-$B;z6g2r@O%W%m%0%i%`$r<+F0@8@.$7$F$/$l$k!#FbItE*$K$O!"@5B'I=8=$+$i?^(B
-\ref{112450_24Apr06}$B$KAjEv$9$k%*!<%H%^%H%s$r<+F0@8@.$7!J%"%k%4%j%:%`$ONc(B
-$B$($P(B\cite{$B%[%C%W%/%m%U%H(B03:automaton}$B$r;2>H!K!"$5$i$K(B
-\ref{170501_24Apr06}$B@a$K<($7$?$h$&$J;z6g2r@O%W%m%0%i%`$r<+F0@8@.$7$F$$$k!#(B
+実は、字句解析部を自動生成するプログラムはいくつもある。これらはいずれも、
+認識すべきトークンの正則表現と、トークンに対して行うべき処理を指定すると、
+字句解析プログラムを自動生成してくれる。内部的には、正則表現から図
+\ref{112450_24Apr06}に相当するオートマトンを自動生成し（アルゴリズムは例
+えば\cite{ホップクロフト03:automaton}を参照）、さらに
+\ref{170501_24Apr06}節に示したような字句解析プログラムを自動生成している。
 
-$BNc$H$7$F!"(BUnix$B$KI8=`AuHw$5$l$F$$$k(B\icode{lex}$B%W%m%0%i%`$r<h$j>e$2$k!#(B
-\ref{170501_24Apr06}$B@a$N%W%m%0%i%`$HF1Ey$N;z6g2r@O%W%m%0%i%`$r<+F0@8@.$9(B
-$B$k$K$O!"0J2<$N$h$&$J%k!<%k$r=q$-!"(B\icode{lex}$B$G=hM}$9$l$P$h$$!#(B
+例として、Unixに標準装備されている\icode{lex}プログラムを取り上げる。
+\ref{170501_24Apr06}節のプログラムと同等の字句解析プログラムを自動生成す
+るには、以下のようなルールを書き、\icode{lex}で処理すればよい。
 
 \begin{quote}
  \lstinputlisting{code/nexttoken.lex}
 \end{quote}
 
-`\verb|%{|'$B$+$i(B `\verb|%}|'$B$^$G$,%H!<%/%s$NHV9f;XDj!"(B`\verb|%%|'$B$K64$^$l(B
-$B$?ItJ,$,G'<1$9$Y$-%H!<%/%s$rI=$9@5B'I=8=$H!"$=$N$H$-$K9T$o$l$k=hM}!J(BC$B8@8l(B
-$B%W%m%0%i%`!K$G$"$k!#<1JL;RL>$O<+F0E*$K(B\icode{yytext}$B$H$$$&JQ?t$K3JG<$5$l(B
-$B$k!#(B
+`\verb|%{|'から `\verb|%}|'までがトークンの番号指定、`\verb|%%|'に挟まれ
+た部分が認識すべきトークンを表す正則表現と、そのときに行われる処理（C言語
+プログラム）である。識別子名は自動的に\icode{yytext}という変数に格納され
+る。
 
-\icode{lex}$B$d$=$NB>$N;z6g2r@OIt<+F0@8@.%=%U%H%&%'%"$N>\:Y$O!"$3$3$G$O>JN,(B
-$B$9$k!#3F<+$GE,59;29M;qNA$K$"$?$i$l$?$$!#(B
+\icode{lex}やその他の字句解析部自動生成ソフトウェアの詳細は、ここでは省略
+する。各自で適宜参考資料にあたられたい。
 
-\section{$BF~NO$N%P%C%U%!%j%s%0(B}
+\section{入力のバッファリング}
 
-$BK\>O$N:G8e$K!"(B\icode{nextchar()}$B4X?t!"(B\icode{backchar()}$B4X?t$N2~NI$K$D$$(B
-$B$F9M$($h$&!#(B
+本章の最後に、\icode{nextchar()}関数、\icode{backchar()}関数の改良につい
+て考えよう。
 
 \begin{figure}
  \begin{center}
   \includegraphics[width=13cm]{figure/buffering.pdf}
  \end{center}
- \caption{$BF~NO$N%P%C%U%!%j%s%0(B}
+ \caption{入力のバッファリング}
  \label{175102_24Apr06}
 \end{figure}
 
-$B4pK\$H$J$k9M$(J}$O!"%W%m%0%i%`Cf$K(B{\bfseries $B%P%C%U%!(B}$B!J(Bbuffer$B!K$H8F$P$l(B
-$B$kNN0h$rMQ0U$7$F$*$/!"$H$$$&$b$N$G$"$k!#$"$i$+$8$a!"86;O%W%m%0%i%`$+$i0l(B
-$BDjNL$NJ8;z$r%P%C%U%!$K<h$j9~$s$G$*$-!"(B\icode{nextchar()}$B$H(B
-\icode{backchar()}$B$O%P%C%U%!$+$i(B1$BJ8;zFI$_9~$s$@$j!"%P%C%U%!$KJ8;z$rLa$7$?(B
-$B$j$9$k$h$&$K$9$k!J?^(B\ref{175102_24Apr06}$B!K!#$3$l$K$h$j!"(B\icode{ungetc()}
-$B4X?t$r;H$&I,MW$O$J$/$J$k(B\footnote{$BK\>O$NNc$G$O<($7$F$$$J$$$,!"86;O%W%m%0(B
-$B%i%`$+$i%P%C%U%!$X$NFI$_9~$_$b!"(B\icode{getc()}$B$rMQ$$$F(B1$BJ8;z$:$DFI$_9~$`$N(B
-$B$G$O$J$/!"(B\icode{gets()}$B$J$I$K$h$jJ#?t$NJ8;z$r$^$H$a$FFI$_9~$`$3$H$,$G$-!"(B
-$B$d$O$j8zN($,NI$/$J$k!#(B}$B!#(B
+基本となる考え方は、プログラム中に{\bfseries バッファ}（buffer）と呼ばれ
+る領域を用意しておく、というものである。あらかじめ、原始プログラムから一
+定量の文字をバッファに取り込んでおき、\icode{nextchar()}と
+\icode{backchar()}はバッファから1文字読み込んだり、バッファに文字を戻した
+りするようにする（図\ref{175102_24Apr06}）。これにより、\icode{ungetc()}
+関数を使う必要はなくなる\footnote{本章の例では示していないが、原始プログ
+ラムからバッファへの読み込みも、\icode{getc()}を用いて1文字ずつ読み込むの
+ではなく、\icode{gets()}などにより複数の文字をまとめて読み込むことができ、
+やはり効率が良くなる。}。
 
-$B%P%C%U%!$rMQ$$$?2~NIHG(B\icode{nextchar()}$B!"(B\icode{backchar()}$B$r<!$K<($9!#(B
-$B$3$NNc$G$O!"D9$5(B2048$B$N%P%C%U%!!J(B\icode{char}$B7?$NG[Ns!K$rMQ0U$7!"A0H>J,$H(B
-$B8e$mH>J,$r8r8_$KMQ$$$F$$$k!#JQ?t(B\icode{forward}$B$OBg0hJQ?t$G!"8=:_=hM}$7$F(B
-$B$$$kJ8;z$NE:;z$rJ];}$7$F$$$k!#(B
+バッファを用いた改良版\icode{nextchar()}、\icode{backchar()}を次に示す。
+この例では、長さ2048のバッファ（\icode{char}型の配列）を用意し、前半分と
+後ろ半分を交互に用いている。変数\icode{forward}は大域変数で、現在処理して
+いる文字の添字を保持している。
 
 \begin{quote}
  \lstinputlisting{code/nextchar.c}
 \end{quote}
 
-$B;z6g2r@OIt$G%P%C%U%!$rMQ$$$k$H!"F~NO$NGK4~$K4X$7$F$b$&0l$DMxE@$,@8$^$l$k!#(B
-\ref{170501_24Apr06}$B@a$N;z6g2r@O%W%m%0%i%`$G$O!"(B\icode{backchar()}$B$N8F$S(B
-$B=P$7$,H/@8$7$?$H$-$KHw$(!"8=:_=hM}Cf$NJ8;zNs$r(B\icode{nexttoken()}$BCf$KJ];}(B
-$B$7$F$*$/I,MW$,$"$C$?!JJQ?t(B\icode{s}$B!K!#$7$+$7!"%P%C%U%!$rMQ$$$k$H!"8=:_=h(B
-$BM}Cf$NJ8;zNs$OI,$:%P%C%U%!Cf$K;D$C$F$$$k!#$3$l$rMxMQ$9$k$H!"8=:_=hM}Cf$N(B
-$BJ8;zNs$r(B\icode{nexttoken()}$BCf$GJ];}$7$F$*$/I,MW$,$J$/$J$k!#2~NIHG$N(B
-\icode{nexttoken()}$B!"(B\icode{fail()}$B$r<!$K<($9!#JQ?t(B\icode{beginning}$B$O!"(B
-$B8=:_=hM}$7$F$$$k%*!<%H%^%H%s$,=i4|>uBV$G$"$C$?$H$-$N(B\icode{forward}$B$N0LCV!"(B
-$B$9$J$o$A8=:_=hM}Cf$N%H!<%/%s$N@hF,$NE:;z$rJ];}$7$F$$$k!#(B
+字句解析部でバッファを用いると、入力の破棄に関してもう一つ利点が生まれる。
+\ref{170501_24Apr06}節の字句解析プログラムでは、\icode{backchar()}の呼び
+出しが発生したときに備え、現在処理中の文字列を\icode{nexttoken()}中に保持
+しておく必要があった（変数\icode{s}）。しかし、バッファを用いると、現在処
+理中の文字列は必ずバッファ中に残っている。これを利用すると、現在処理中の
+文字列を\icode{nexttoken()}中で保持しておく必要がなくなる。改良版の
+\icode{nexttoken()}、\icode{fail()}を次に示す。変数\icode{beginning}は、
+現在処理しているオートマトンが初期状態であったときの\icode{forward}の位置、
+すなわち現在処理中のトークンの先頭の添字を保持している。
 
 \begin{quote}
  \lstinputlisting{code/nexttoken_buffer.c}

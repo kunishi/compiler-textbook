@@ -1,104 +1,104 @@
 %#!platex main
 
-\chapter{$BN}=,LdBj(B}
+\chapter{練習問題}
 
-\section{$B@5B'I=8=!&M-8B%*!<%H%^%H%s(B}
+\section{正則表現・有限オートマトン}
 
 \begin{exercise}
- $B<!$N8@8l$rI=$9@5B'I=8=$r<($;!#(B
+ 次の言語を表す正則表現を示せ。
  \begin{enumerate}
-  \item $B%"%k%U%!%Y%C%H(B$\{0, 1\}$$B>e$N5-9fNs$N$&$A!"(B0$B$+$i;O$^$j(B1$B$,(B0$B2s0J>eB3(B
-	$B$/$b$NA4BN$+$i$J$k8@8l(B
-  \item $B%"%k%U%!%Y%C%H(B$\{a, b, c\}$$B>e$N5-9fNs$N$&$A!"(B1$B8D0J>e$N(B$a$$B$H(B1$B8D0J(B
-	$B>e$N(B$b$$B$r4^$`$b$NA4BN$+$i$J$k8@8l(B
-  \item $B%"%k%U%!%Y%C%H(B$\{0, 1\}$$B>e$N5-9fNs$N$&$A!"(B0$B$H(B1$B$,8r8_$K=P8=$9$k$b(B
-	$B$NA4BN$+$i$J$k8@8l(B
+  \item アルファベット$\{0, 1\}$上の記号列のうち、0から始まり1が0回以上続
+	くもの全体からなる言語
+  \item アルファベット$\{a, b, c\}$上の記号列のうち、1個以上の$a$と1個以
+	上の$b$を含むもの全体からなる言語
+  \item アルファベット$\{0, 1\}$上の記号列のうち、0と1が交互に出現するも
+	の全体からなる言語
  \end{enumerate}
 \end{exercise}
 \begin{exercise}
- $B@5B'I=8=(B $(0 \mid 1)^\ast 0(0\mid 1)(0\mid 1)$ $B$,I=$98@8l$O2?$+!#8@MU$G@bL@$;$h!#(B
+ 正則表現 $(0 \mid 1)^\ast 0(0\mid 1)(0\mid 1)$ が表す言語は何か。言葉で説明せよ。
 \end{exercise}
 \begin{exercise}
- C$B8@8l$N6uGr5-9f$O!"6uGr!J(B$_{\sqcup}$$B!K!"%?%V!J(B\verb|\t|$B!K!"2~9T(B
- $B!J(B\verb|\n|$B!K$,(B1$B8D0J>eJB$s$@J8;zNs$G$"$k!#$3$l$r@5B'I=8=$GI=$;!#(B
+ C言語の空白記号は、空白（$_{\sqcup}$）、タブ（\verb|\t|）、改行
+ （\verb|\n|）が1個以上並んだ文字列である。これを正則表現で表せ。
 \end{exercise}
 \begin{exercise}
- C$B8@8l$N(B16$B?JDj?t$O(B 0x $B$"$k$$$O(B 0X $B$G;O$^$j!"?t;z$*$h$S(B a, b, c, d, e, f,
- A, B, C, D, E, F $B$,(B1$B8D0J>eB3$/!#$3$l$r@5B'I=8=$GI=$;!#(B
+ C言語の16進定数は 0x あるいは 0X で始まり、数字および a, b, c, d, e, f,
+ A, B, C, D, E, F が1個以上続く。これを正則表現で表せ。
 \end{exercise}
 \begin{exercise}
- C$B8@8l$N<1JL;R$O(BA$B!A(BZ, a$B!A(Bz, 0$B!A(B9, $B2<@~!J(B\underline{ }$B!K$+$i$J$kJ8;zNs$G$"(B
- $B$k!#$?$@$7!":G=i$NJ8;z$K?t;z$r;H$&$3$H$O$G$-$J$$!#$3$l$r@5B'I=8=$GI=$;!#(B
+ C言語の識別子はA〜Z, a〜z, 0〜9, 下線（\underline{ }）からなる文字列であ
+ る。ただし、最初の文字に数字を使うことはできない。これを正則表現で表せ。
 \end{exercise}
 \begin{exercise}
- $B%"%k%U%!%Y%C%H$r(B$\{0, 1\}$$B$H$9$k$H$-!"<!$N8@8l$r<uM}$9$kM-8B%*!<%H%^%H(B
- $B%s$r<($;!#(B
+ アルファベットを$\{0, 1\}$とするとき、次の言語を受理する有限オートマト
+ ンを示せ。
  \begin{enumerate}
-  \item $00$$B$G=*$o$k5-9fNsA4BN(B
-  \item $011$$B$rESCf$K4^$`5-9fNsA4BN(B
+  \item $00$で終わる記号列全体
+  \item $011$を途中に含む記号列全体
  \end{enumerate}
 \end{exercise}
 \begin{exercise}
- $B@5B'I=8=(B$00(0 \mid 1)^\ast$$B$KBP1~$9$kM-8B%*!<%H%^%H%s$r9=@.$;$h!#(B
+ 正則表現$00(0 \mid 1)^\ast$に対応する有限オートマトンを構成せよ。
 \end{exercise}
 
 
-\section{$BJ8L.<+M3J8K!(B}
+\section{文脈自由文法}
 
 \begin{exercise}
- $B<!$NJ8L.<+M3J8K!$K$D$$$F!"%H!<%/%sNs(B 8 - 2 + 6 $B$N2r@OLZ$r<($;!#2DG=$J$9(B
- $B$Y$F$N>l9g$r<($7!"<+A3$J<0$N0UL#$K$J$k$b$N$O$I$l$+<($;!#(B
+ 次の文脈自由文法について、トークン列 8 - 2 + 6 の解析木を示せ。可能なす
+ べての場合を示し、自然な式の意味になるものはどれか示せ。
  \[
   string \rightarrow string + string \mid string - string \mid 0 \mid 1
  \mid 2 \mid 3 \mid 4 \mid 5 \mid 6 \mid 7 \mid 8 \mid 9
  \]
 \end{exercise}
 \begin{exercise}
- $BJ8L.<+M3J8K!(B$S \rightarrow 0 S 1 \mid 0 1$$B$O$I$N$h$&$J8@8l$rI=$9$+=R$Y$h!#(B
+ 文脈自由文法$S \rightarrow 0 S 1 \mid 0 1$はどのような言語を表すか述べよ。
 \end{exercise}
 \begin{exercise}
- $B<!$NJ8K!$r9M$($k!#(B
+ 次の文法を考える。
   \begin{eqnarray*}
    S & \rightarrow & A1B \\
    A & \rightarrow & 0A \mid \epsilon \\
    B & \rightarrow & 0B \mid 1B \mid \epsilon
   \end{eqnarray*}
- $B$3$NJ8K!$KBP$7!"J8;zNs(B$00101$$B$N:G:8F3=P!":G1&F3=P$r<($;!#(B
+ この文法に対し、文字列$00101$の最左導出、最右導出を示せ。
 \end{exercise}
 \begin{exercise}
- $BJ8K!(B
+ 文法
  \begin{equation*}
   S \rightarrow aS \mid aSbS \mid \epsilon
  \end{equation*}
- $B$O[#Kf$G$"$k!#J8;zNs(B$aab$$B$KBP$7$F!"2r@OLZ!":G:8F3=P!":G1&F3=P$,$=$l$>$l(B
- 2$B$D$:$DB8:_$9$k$3$H$r<($;!#(B
+ は曖昧である。文字列$aab$に対して、解析木、最左導出、最右導出がそれぞれ
+ 2つずつ存在することを示せ。
 \end{exercise}
 \begin{exercise}
- $B;;=Q<0$KBP$9$kJ8K!(B
+ 算術式に対する文法
   \begin{eqnarray*}
    E & \rightarrow & E + T \mid T \\
    T & \rightarrow & T * F \mid F \\
    F & \rightarrow & (E) \mid {\bf id}
   \end{eqnarray*}
- $B$r!":8:F5"$G$J$$$h$&$KJQ7A$;$h!#(B
+ を、左再帰でないように変形せよ。
 \end{exercise}
 
-\section{$B9=J82r@O(B}
+\section{構文解析}
 
 \begin{exercise}
- $B<!$NJ8K!$K$D$$$F0J2<$NLd$$$KEz$($h!#(B
+ 次の文法について以下の問いに答えよ。
  \begin{align*}
   S & \rightarrow AaAb \mid BbBa \\
   A & \rightarrow \epsilon \\
   B & \rightarrow \epsilon
  \end{align*}
  \begin{enumerate}
-  \item $B$9$Y$F$NHs=*C<5-9f$K$D$$$F(B$\First$$B$H(B$\Follow$$B$r7W;;$;$h!#(B
-  \item $B$3$NJ8K!$O(BLL(1)$BJ8K!$+!#(B
+  \item すべての非終端記号について$\First$と$\Follow$を計算せよ。
+  \item この文法はLL(1)文法か。
  \end{enumerate}
 \end{exercise}
 \begin{exercise}
- $B<!$NJ8K!$,(BLL(1)$BJ8K!$+$I$&$+H=Dj$;$h!#(B
+ 次の文法がLL(1)文法かどうか判定せよ。
  \begin{align*}
   S & \rightarrow aA \mid B \mid cC \mid \epsilon \\
   A & \rightarrow aB \mid Ca \\
@@ -107,25 +107,25 @@
  \end{align*}
 \end{exercise}
 \begin{exercise}
- $B<!$NJ8K!$,(BLL(1)$BJ8K!$+$I$&$+H=Dj$;$h!#(B
+ 次の文法がLL(1)文法かどうか判定せよ。
  \begin{align*}
   S & \rightarrow aA \mid aAb \\
   A & \rightarrow \epsilon \mid baA
  \end{align*}
 \end{exercise}
 
-\section{$B0UL#2r@O(B}
+\section{意味解析}
 
 \begin{exercise}
- $B<!$NLd$$$KEz$($h!#(B
+ 次の問いに答えよ。
  \begin{enumerate}
-  \item $BCfCV5-K!$N<0(B$9*(6+2)-4$$B$r8eCV5-K!$KJQ49$;$h!#(B
-  \item $BF@$i$l$?8eCV5-K!$N<0$r%9%?%C%/(B1$BK\$rMQ$$$F7W;;$9$k$3$H$r9M$($k!#(B
-	$B7W;;$N2aDx$r=g$rDI$C$F<($;!#(B
+  \item 中置記法の式$9*(6+2)-4$を後置記法に変換せよ。
+  \item 得られた後置記法の式をスタック1本を用いて計算することを考える。
+	計算の過程を順を追って示せ。
  \end{enumerate}
 \end{exercise}
 \begin{exercise}
- $B<!$K<($9$N$O!"(B0$B0J>e$N(B2$B?J@0?t$rI=$9J8L.<+M3J8K!$r4p$K$7$?K]Lu%9%-!<%`$G$"$k!#(B
+ 次に示すのは、0以上の2進整数を表す文脈自由文法を基にした翻訳スキームである。
   \begin{align*}
    S & \rightarrow S' B && \{ S.val = S'.val * 2 + B.val; \}\\
    S & \rightarrow B && \{ S.val = B.val; \}\\
@@ -133,16 +133,16 @@
    B & \rightarrow 1 && \{ B.val = 1; \}
   \end{align*}
  \begin{enumerate}
-  \item $11001$$B$KBP$9$k(B($B0UL#F0:n$r4^$s$@(B)$B2r@OLZ$r<($;!#(B
+  \item $11001$に対する(意味動作を含んだ)解析木を示せ。
 	\label{152748_11Jul06}
-  \item \ref{152748_11Jul06}$B$G<($7$?2r@OLZ$N:,$NB0@-(B $val$ $B$r7W;;$;$h!#(B
-  \item $B$3$NK]Lu%9%-!<%`$O2?$r7W;;$9$k$b$N$+!"@bL@$;$h!#(B
+  \item \ref{152748_11Jul06}で示した解析木の根の属性 $val$ を計算せよ。
+  \item この翻訳スキームは何を計算するものか、説明せよ。
  \end{enumerate}
 \end{exercise}
 
-\section{$B<B9T;~4D6-(B}
+\section{実行時環境}
 
 \begin{exercise}
- C$B8@8lJQ?t$N5-210h3dIU$1<jK!$r(B3$B$D<($7!"$=$l$>$l$I$N$h$&$J$b$N$+@bL@(B
- $B$;$h!#(B
+ C言語変数の記憶域割付け手法を3つ示し、それぞれどのようなものか説明
+ せよ。
 \end{exercise}

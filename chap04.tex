@@ -1,25 +1,25 @@
 %#!platex main
 
-\chapter{$BJ8L.<+M3J8K!(B}
+\chapter{文脈自由文法}
 \label{151253_30Mar06}
 
-$B9=J82r@OIt$N=hM}$G$O!"2?$i$+$N7A$G86;O%W%m%0%i%`8@8l$N9=J8$r%3%s%T%e!<%?(B
-$B$G07$o$J$1$l$P$J$i$J$$!#(B\ref{175712_30Mar06}$B>O$G<h$j>e$2$?@5B'I=8=$O!"86(B
-$B;O%W%m%0%i%`8@8l$G07$&;z6gMWAG$rDj5A$9$k$3$H$O$G$-$k$,!"$=$l$i$r$I$N$h$&(B
-$B$KAH$_9g$o$;$l$PJ8K!E*$K@5$7$$$N$+!"$K$D$$$F$ODj5A$9$k$3$H$,$G$-$J$$!#(B
+構文解析部の処理では、何らかの形で原始プログラム言語の構文をコンピュータ
+で扱わなければならない。\ref{175712_30Mar06}章で取り上げた正則表現は、原
+始プログラム言語で扱う字句要素を定義することはできるが、それらをどのよう
+に組み合わせれば文法的に正しいのか、については定義することができない。
 
-$BK\>O$G$O!"%W%m%0%i%_%s%08@8l$N9=J8$r07$&$?$a$N4pK\E*$JM}O@$G$"$kJ8L.<+M3(B
-$BJ8K!$K$D$$$F@bL@$7!"9=J82r@O$KI,MW$J$$$/$D$+$N=EMW$J@-<A$K$D$$$F=R$Y$k!#(B
+本章では、プログラミング言語の構文を扱うための基本的な理論である文脈自由
+文法について説明し、構文解析に必要ないくつかの重要な性質について述べる。
 
-$B$J$*!"K\>O$G$b(B\ref{175712_30Mar06}$B>O$G=R$Y$?8@8lM}O@$K4X$9$kMQ8l$rMQ$$$k!#(B
+なお、本章でも\ref{175712_30Mar06}章で述べた言語理論に関する用語を用いる。
 
-\section{$BJ8L.<+M3J8K!(B}
+\section{文脈自由文法}
 
-\subsection{$BDj5A(B}
+\subsection{定義}
 
-$B%W%m%0%i%_%s%08@8l$N9=J8$rDj5A$9$k$K$O!"DL>o!"(B{\bfseries $BJ8L.<+M3J8(B
-$BK!(B}$B!J(Bcontext free grammar$B!K$rMQ$$$k!#Nc$($P(BC$B8@8l$N(Bif$BJ8$N9=J8$O!"(B
-$BJ8L.<+M3J8K!$G$O<!$N$h$&$K=q$/$3$H$,$G$-$k!#(B
+プログラミング言語の構文を定義するには、通常、{\bfseries 文脈自由文
+法}（context free grammar）を用いる。例えばC言語のif文の構文は、
+文脈自由文法では次のように書くことができる。
 \begin{align*}
  selection\_statement & \rightarrow {\sf if}\ {\sf (}\ expression\ 
   {\sf )}\ statement \\
@@ -28,17 +28,17 @@
  {\sf else}\ statement\ 
 \end{align*}
 
-$BLp0u(B$\rightarrow$$B$H$=$NN>JU$+$i$J$k<0$r(B{\bfseries $B@8@.5,B'(B}$B!J(Bproduction
-rule$B!K!"$b$7$/$ON,$7$F(B{\bfseries $B5,B'(B}$B!J(Brule$B!K$H$$$&!#@8@.5,B'$N:8JU$O5-(B
-$B9f(B1$B$D!"1&JU$O5-9fNs$+$i@.$C$F$$$k!#5-9f$O(B{\bfseries $BHs=*C<5-(B
-$B9f(B}$B!J(Bnonterminal symbol$B!K$H(B{\bfseries $B=*C<5-9f(B}$B!J(Bterminal symbol$B!K$KJ,$1(B
-$B$i$l$k!#$3$NNc$G$O!"(B$selection\_statement$, $expression$, $statement$$B$,Hs(B
-$B=*C<5-9f!"(B{\sf if}, {\sf (}, {\sf )}, {\sf else}$B$,=*C<5-9f$G$"$k!#@8@.5,(B
-$BB'$N:8JU$K$OHs=*C<5-9f$7$+=P8=$G$-$J$$!#1&JU$K$OHs=*C<5-9f!"=*C<5-9f$H$b(B
-$B$K=P8=$9$k$3$H$,$G$-$k!#Hs=*C<5-9f$N$&$A(B1$B$D$rFC$K(B{\bfseries $B3+;O5-(B
-$B9f(B}$B!J(Bstart symbol$B!K$H$$$&!#(B
+矢印$\rightarrow$とその両辺からなる式を{\bfseries 生成規則}（production
+rule）、もしくは略して{\bfseries 規則}（rule）という。生成規則の左辺は記
+号1つ、右辺は記号列から成っている。記号は{\bfseries 非終端記
+号}（nonterminal symbol）と{\bfseries 終端記号}（terminal symbol）に分け
+られる。この例では、$selection\_statement$, $expression$, $statement$が非
+終端記号、{\sf if}, {\sf (}, {\sf )}, {\sf else}が終端記号である。生成規
+則の左辺には非終端記号しか出現できない。右辺には非終端記号、終端記号とも
+に出現することができる。非終端記号のうち1つを特に{\bfseries 開始記
+号}（start symbol）という。
 
-$B$b$&(B1$B$DNc$H$7$F!V?t;z!"(B$+$$B!"(B$-$$B$+$i$J$k<0!W$rI=$9J8L.<+M3J8K!$r<($=$&!#(B
+もう1つ例として「数字、$+$、$-$からなる式」を表す文脈自由文法を示そう。
 \begin{equation}
  \begin{split}
  list & \rightarrow list\ {\sf +}\ digit \\
@@ -50,23 +50,23 @@ rule$B!K!"$b$7$/$ON,$7$F(B{\bfseries $B5,B'(B}$B!J(Brule$B!K$H$$$&!#@8@.5
  \end{split}\label{171007_30Mar06}
 \end{equation}
 
-$B$3$NNc$G$O(B$list$, $digit$$B$,Hs=*C<5-9f!"?t;z$H(B${\sf +}$, ${\sf -}$$B$,=*C<5-(B
-$B9f$G$"$k!#$^$?!":G8e$N5,B'$N(B$\mid$$B$O!V$^$?$O!W$N0UL#$G$"$k!#$J$*!"$3$NNc(B
-$B$+$iJ,$+$k$h$&$K!":8JU$NHs=*C<5-9f$,F1$8@8@.5,B'$N1&JU$K=P8=$7$F$b$+$^$o(B
-$B$J$$!#(B
+この例では$list$, $digit$が非終端記号、数字と${\sf +}$, ${\sf -}$が終端記
+号である。また、最後の規則の$\mid$は「または」の意味である。なお、この例
+から分かるように、左辺の非終端記号が同じ生成規則の右辺に出現してもかまわ
+ない。
 
-$B$^$H$a$k$H!"J8L.<+M3J8K!(B$G$$B$O<!$N$h$&$J9=@.MWAG$+$i$J$k!#(B
+まとめると、文脈自由文法$G$は次のような構成要素からなる。
 \begin{enumerate}
- \item $BHs=*C<5-9f$NM-8B=89g(B$V$
- \item $B=*C<5-9f$NM-8B=89g(B$T$
- \item $B@8@.5,B'$NM-8B=89g(B$P$
- \item $B3+;O5-9f(B$S \in V$$B!#Hs=*C<5-9f$N$&$A(B1$B$D(B
+ \item 非終端記号の有限集合$V$
+ \item 終端記号の有限集合$T$
+ \item 生成規則の有限集合$P$
+ \item 開始記号$S \in V$。非終端記号のうち1つ
 \end{enumerate}
 
-$B5-9f$r(B1$B$D$b4^$^$J$$Ns$b$"$k!#$3$l$r(B{\bfseries $B6uNs(B}$B!J(Bempty string$B!K$H$h$S!"(B
-$\epsilon$$B$H$$$&5-9f$GI=$9!#$^$?!"%W%m%0%i%_%s%08@8l$N9=J8$rI=$9I=8=$H$7(B
-$B$F!"$[$+$K(B{\bfseries BNF $B5-K!(B}$B!J(BBackus Naur Form$B!K$H$$$&$b$N$,$"$k$,!"J8(B
-$BL.<+M3J8K!$H$[$\F1$8$H9M$($F$h$$!#(BBNF$B5-K!$G>e$NJ8K!$r=q$/$H<!$N$h$&$K$J$k!#(B
+記号を1つも含まない列もある。これを{\bfseries 空列}（empty string）とよび、
+$\epsilon$という記号で表す。また、プログラミング言語の構文を表す表現とし
+て、ほかに{\bfseries BNF 記法}（Backus Naur Form）というものがあるが、文
+脈自由文法とほぼ同じと考えてよい。BNF記法で上の文法を書くと次のようになる。
 \begin{align*}
  list & ::= list + digit \\
  list & ::= list - digit \\
@@ -76,7 +76,7 @@ $\epsilon$$B$H$$$&5-9f$GI=$9!#$^$?!"%W%m%0%i%_%s%08@8l$N9=J8$rI=$9I=8=$H$7(B
 \end{align*}
 
 % \begin{example}
-%  $B<!$NJ8K!$O!"4JC1$J;;=Q<0$rDj5A$9$k$b$N$G$"$k!#(B
+%  次の文法は、簡単な算術式を定義するものである。
 %  \begin{eqnarray*}
 %   expr & \rightarrow & expr\ op\ expr \mid (\ expr\ )\mid -\ expr\mid
 %    {\bf id} \\
@@ -84,37 +84,37 @@ $\epsilon$$B$H$$$&5-9f$GI=$9!#$^$?!"%W%m%0%i%_%s%08@8l$N9=J8$rI=$9I=8=$H$7(B
 %  \end{eqnarray*}$\Box$
 % \end{example}
 
-$B0J9_$N@bL@$G$O!"<!$N$h$&$K5-K!$r7h$a$F$*$/$3$H$K$9$k!#(B
+以降の説明では、次のように記法を決めておくことにする。
 \begin{enumerate}
- \item $BA0$N$[$&$N1Q>.J8;z(B($a, b, c, \cdots$)$B!"1i;;;R5-9f(B($+, -, \cdots$)$B!"(B
-       $B3g8L$d%3%s%^$J$I$N6h@Z$j5-9f!"?t;z!"B@;z$N5-9fNs$O=*C<5-9f$rI=$9!#(B
- \item $BA0$N$[$&$N1QBgJ8;z(B($A, B, C, \cdots$)$B!"(B$S$ ($B3+;O5-9f(B)$B!"1Q>.J8;z$N(B
-       $B%$%?%j%C%/BN$NL>A0(B({\itshape expr}, {\itshape stmt}$B$J$I(B)$B$OHs=*C<5-(B
-       $B9f$rI=$9!#(B
- \item $B8e$m$N$[$&$N1QBgJ8;z(B($X, Y, Z, \cdots$)$B$OHs=*C<5-9f$^$?$O=*C<5-9f(B
-       $B$rI=$9!#(B
- \item $B8e$m$N$[$&$N1Q>.J8;z(B($w, x, y, z, \cdots$)$B$O=*C<5-9fNs$rI=$9!#(B
- \item $B>.J8;z$N%.%j%7%cJ8;z(B($\alpha, \beta, \gamma, \cdots$)$B$O!"5-9fNs(B($B=*(B
-       $BC<5-9f$HHs=*C<5-9f$,:.$6$C$F$$$F$h$$(B)$B$rI=$9!#(B
- \item $B:G=i$K8=$l$k@8@.5,B'$N:8JU$r3+;O5-9f$H$9$k!#$^$?!"(B$S$$B$r3+;O5-9f$H(B
-       $B$9$k$3$H$,B?$$!#(B
+ \item 前のほうの英小文字($a, b, c, \cdots$)、演算子記号($+, -, \cdots$)、
+       括弧やコンマなどの区切り記号、数字、太字の記号列は終端記号を表す。
+ \item 前のほうの英大文字($A, B, C, \cdots$)、$S$ (開始記号)、英小文字の
+       イタリック体の名前({\itshape expr}, {\itshape stmt}など)は非終端記
+       号を表す。
+ \item 後ろのほうの英大文字($X, Y, Z, \cdots$)は非終端記号または終端記号
+       を表す。
+ \item 後ろのほうの英小文字($w, x, y, z, \cdots$)は終端記号列を表す。
+ \item 小文字のギリシャ文字($\alpha, \beta, \gamma, \cdots$)は、記号列(終
+       端記号と非終端記号が混ざっていてよい)を表す。
+ \item 最初に現れる生成規則の左辺を開始記号とする。また、$S$を開始記号と
+       することが多い。
 \end{enumerate}
 
-\subsection{$BJ8L.<+M3J8K!$N0UL#(B}
+\subsection{文脈自由文法の意味}
 
-$BJ8L.<+M3J8K!(B$G = (V, T, P, S)$$B$O!"(B$T$$B!"$9$J$o$A=*C<5-9f$N=89g$r%"%k%U%!%Y%C(B
-$B%H$H$9$k8@8l$rI=$7$F$$$k!#$G$O!"6qBNE*$K$I$N$h$&$J8@8l$rI=$7$F$$$k$N$@$m(B
-$B$&$+!#(B
+文脈自由文法$G = (V, T, P, S)$は、$T$、すなわち終端記号の集合をアルファベッ
+トとする言語を表している。では、具体的にどのような言語を表しているのだろ
+うか。
 
-$BJ8K!$N8@8l$NDj5AJ}K!$K$O$$$/$D$+$"$k$,!"$=$N(B1$B$D$K!V@8@.5,B'$r=q$-49$(5,B'(B
-$B$H9M$($k!W$H$$$&$b$N$,$"$k!#$D$^$j!"3+;O5-9f(B$S$$B$r(B$S$-$B@8@.5,B'$N1&JU$N5-9f(B
-$BNs(B$\alpha$$B$GCV$-49$(!"$5$i$K(B$\alpha$$B$K4^$^$l$kHs=*C<5-9f$r!"$=$N5-9f$N@8(B
-$B@.5,B'$N1&JU$GCV$-49$($k!#$3$NA`:n$r!"5-9fNs$,=*C<5-9f$N$_$K$J$k$^$G7+$j(B
-$BJV$9!#$3$N$h$&$K$7$FF@$i$l$k=*C<5-9fNs$9$Y$F$N=89g$r!"$=$NJ8K!$N(B
-{\bfseries $B8@8l(B}$B!J(Blanguage$B!K$H$$$&!#(B
+文法の言語の定義方法にはいくつかあるが、その1つに「生成規則を書き換え規則
+と考える」というものがある。つまり、開始記号$S$を$S$-生成規則の右辺の記号
+列$\alpha$で置き換え、さらに$\alpha$に含まれる非終端記号を、その記号の生
+成規則の右辺で置き換える。この操作を、記号列が終端記号のみになるまで繰り
+返す。このようにして得られる終端記号列すべての集合を、その文法の
+{\bfseries 言語}（language）という。
 
 \begin{example}
- \eqref{171007_30Mar06}$B$NJ8K!(B
+ \eqref{171007_30Mar06}の文法
  \begin{align}
   list & \rightarrow list\ {\sf +}\ digit\label{171930_30Mar06} \\
   list & \rightarrow list\ {\sf -}\ digit\label{172048_30Mar06} \\
@@ -123,77 +123,77 @@ $\epsilon$$B$H$$$&5-9f$GI=$9!#$^$?!"%W%m%0%i%_%s%08@8l$N9=J8$rI=$9I=8=$H$7(B
   \mid {\sf 4} \mid {\sf 5} \mid {\sf 6} \mid
   {\sf 7} \mid {\sf 8} \mid {\sf 9}\label{172302_30Mar06}
  \end{align}
- $B$K$D$$$F!"(B\eqref{171930_30Mar06}$B$rMQ$$$k$H!"3+;O5-9f(B$list$$B$r1&JU$N5-9fNs(B
- $list + digit$$B$KCV$-49$($k$3$H$,$G$-$k!#$3$l$r7+$jJV$9$H!"0J2<$N$h$&$K=*(B
- $BC<5-9fNs(B$9-5+2$$B$rF@$k$3$H$,$G$-$k!#(B
+ について、\eqref{171930_30Mar06}を用いると、開始記号$list$を右辺の記号列
+ $list + digit$に置き換えることができる。これを繰り返すと、以下のように終
+ 端記号列$9-5+2$を得ることができる。
  \begin{align*}
   \underline{list} & \Rightarrow \underline{list} + digit &&
-  \text{\eqref{171930_30Mar06}$B$rE,MQ(B} \\
+  \text{\eqref{171930_30Mar06}を適用} \\
        & \Rightarrow \underline{list} - digit + digit &&
-  \text{\eqref{172048_30Mar06}$B$rE,MQ(B} \\
+  \text{\eqref{172048_30Mar06}を適用} \\
        & \Rightarrow \underline{digit} - digit + digit &&
-  \text{\eqref{172152_30Mar06}$B$rE,MQ(B} \\ 
-       & \Rightarrow 9 - \underline{digit} + digit && \text{\eqref{172302_30Mar06}$B$r(B
-  $BE,MQ(B} \\
-       & \Rightarrow 9 - 5 + \underline{digit} && \text{\eqref{172302_30Mar06}$B$rE,MQ(B} \\
-       & \Rightarrow 9 - 5 + 2 && \text{\eqref{172302_30Mar06}$B$rE,MQ(B}
+  \text{\eqref{172152_30Mar06}を適用} \\ 
+       & \Rightarrow 9 - \underline{digit} + digit && \text{\eqref{172302_30Mar06}を
+  適用} \\
+       & \Rightarrow 9 - 5 + \underline{digit} && \text{\eqref{172302_30Mar06}を適用} \\
+       & \Rightarrow 9 - 5 + 2 && \text{\eqref{172302_30Mar06}を適用}
  \end{align*}
 \end{example}
 
-$B$b$&>/$77A<0E*$K=q$/$H<!$N$h$&$K$J$k!#@8@.5,B'(B$A \rightarrow \gamma$$B$r5-(B
-$B9fNs(B$\alpha A\beta$$B$KE,MQ$7$F(B$A$$B$r(B$\gamma$$B$KCV$-49$($k$H(B
-$\alpha\gamma\beta$$B$H$J$k!#$3$N$H$-!"(B$\alpha A\beta$$B$+$i(B
-$\alpha\gamma\beta$$B$,(B{\bfseries $BF3=P$5$l$k(B}$B!J(Bderive$B!K$H$$$$!"(B$\alpha
-A\beta \Rightarrow \alpha\gamma\beta$$B$HI=$9!#(B$\alpha_1$$B$K(B0$B2s0J>eCV$-49$((B
-$B$rE,MQ$7$F(B$\alpha_n$$B$,F3=P$5$l$k$H$-!"(B$\alpha_1
-\stackrel{*}{\Rightarrow} \alpha_n$$B$H=q$/!#(B
-$S \stackrel{*}{\Rightarrow} \alpha$$B$N$H$-!"(B$\alpha$$B$r(B{\bfseries $BJ87A<0(B}
-$B!J(Bsentential form$B!K$H$$$&!#$H$/$K(B$\alpha$$B$,=*C<5-9f$N$_$+$i$J$k$H$-!"(B
-{\bfseries $BJ8(B}$B!J(Bsentence$B!K$H$$$&!#(B
+もう少し形式的に書くと次のようになる。生成規則$A \rightarrow \gamma$を記
+号列$\alpha A\beta$に適用して$A$を$\gamma$に置き換えると
+$\alpha\gamma\beta$となる。このとき、$\alpha A\beta$から
+$\alpha\gamma\beta$が{\bfseries 導出される}（derive）といい、$\alpha
+A\beta \Rightarrow \alpha\gamma\beta$と表す。$\alpha_1$に0回以上置き換え
+を適用して$\alpha_n$が導出されるとき、$\alpha_1
+\stackrel{*}{\Rightarrow} \alpha_n$と書く。
+$S \stackrel{*}{\Rightarrow} \alpha$のとき、$\alpha$を{\bfseries 文形式}
+（sentential form）という。とくに$\alpha$が終端記号のみからなるとき、
+{\bfseries 文}（sentence）という。
 
-$BJ8K!(B$G$$B$N8@8l(B$L(G)$$B$H$O!"(B$L(G) = \{w \mid S \stackrel{*}{\Rightarrow}
-w\}$$B$G$"$k!#$?$@$7(B$S$$B$O(B$G$$B$N3+;O5-9f$G$"$k!#$9$J$o$A!"(B$G$$B$N8@8l$H$O!"(B
-$G$$B$N3+;O5-9f$+$iF3=P$5$l$kJ8$N=89g$G$"$k!#(B
+文法$G$の言語$L(G)$とは、$L(G) = \{w \mid S \stackrel{*}{\Rightarrow}
+w\}$である。ただし$S$は$G$の開始記号である。すなわち、$G$の言語とは、
+$G$の開始記号から導出される文の集合である。
 
 
-\section{$B2r@OLZ$HF3=P(B}
+\section{解析木と導出}
 
-$BJ8L.<+M3J8K!$N3+;O5-9f$K$I$N$h$&$K@8@.5,B'$,E,MQ$5$l!"=*C<5-9fNs$,@8@.$5(B
-$B$l$?$N$+$r?^<($7$?$b$N$r(B{\bfseries $B2r@OLZ(B}$B!J(Bparse tree$B!K$H$$$&!#2r@OLZ$O!"(B
-$BF3=P$NMM;R$r?^<($7$?$b$N$G$"$k$H9M$($i$l!"J8$N(B ``$B9=J8E*$J9=B$(B''$B$rI=$7$?$b(B
-$B$N$@$H8@$($k!#Nc$($P!"(B\eqref{171007_30Mar06}$B$K<($7$?J8L.<+M3J8K!$K$D$$$F!"(B
-$B<0(B$9-5+2$$B$N2r@OLZ$O?^(B\ref{152653_30Mar06}$B$N$h$&$K$J$k!#(B
+文脈自由文法の開始記号にどのように生成規則が適用され、終端記号列が生成さ
+れたのかを図示したものを{\bfseries 解析木}（parse tree）という。解析木は、
+導出の様子を図示したものであると考えられ、文の ``構文的な構造''を表したも
+のだと言える。例えば、\eqref{171007_30Mar06}に示した文脈自由文法について、
+式$9-5+2$の解析木は図\ref{152653_30Mar06}のようになる。
 
 \begin{figure}
  \begin{center}
   \includegraphics{figure/parse_tree_01.pdf}
  \end{center}
- \caption{$B2r@OLZ$NNc(B}
+ \caption{解析木の例}
  \label{152653_30Mar06}
 \end{figure}
 
-$B7A<0E*$K$O!"2r@OLZ$O<!$N$h$&$JLZ$G$"$k!#(B
+形式的には、解析木は次のような木である。
 \begin{enumerate}
- \item $B:,$O3+;O5-9f$r%i%Y%k$H$7$F;}$D!#(B
- \item $BMU$O=*C<5-9f$^$?$O(B$\epsilon$$B$r%i%Y%k$H$7$F;}$D!#(B
- \item $BFbIt$N@a$OHs=*C<5-9f$r%i%Y%k$H$7$F;}$D!#(B
- \item $BHs=*C<5-9f(BA$B$r%i%Y%k$K;}$DFbIt$N@a$N;R$,:8$+$i=g$K(B$X_1, X_2,
-       \cdots, X_n$$B$H$9$k$H!"(B$A \rightarrow X_1 X_2 \cdots X_n$$B$O@8@.5,B'(B
-       $B$G$"$k!#(B$A \rightarrow \epsilon$$B$KBP$7$F$O!"@a(B$A$$B$O(B$\epsilon$$B$r%i(B
-       $B%Y%k$H$9$k;R$r;}$D!#(B
+ \item 根は開始記号をラベルとして持つ。
+ \item 葉は終端記号または$\epsilon$をラベルとして持つ。
+ \item 内部の節は非終端記号をラベルとして持つ。
+ \item 非終端記号Aをラベルに持つ内部の節の子が左から順に$X_1, X_2,
+       \cdots, X_n$とすると、$A \rightarrow X_1 X_2 \cdots X_n$は生成規則
+       である。$A \rightarrow \epsilon$に対しては、節$A$は$\epsilon$をラ
+       ベルとする子を持つ。
 \end{enumerate}
 
-$B2r@OLZ$NMU$r:8$+$i1&$KFI$s$G$$$/$H!"=*C<5-9fNs$,F@$i$l$k!#$3$l$,3+;O5-9f(B
-$B$+$i@8@.$5$l$k=*C<5-9fNs!"$9$J$o$AJ8$G$"$k!#$3$l$r2r@OLZ$N(B{\bfseries $B7k(B
-$B2L(B}$B!J(Bresult$B!K$H$$$&!#(B
+解析木の葉を左から右に読んでいくと、終端記号列が得られる。これが開始記号
+から生成される終端記号列、すなわち文である。これを解析木の{\bfseries 結
+果}（result）という。
 
-\subsection{$B2r@OLZ$N0U5A(B}
+\subsection{解析木の意義}
 
-$B2r@OLZ$O!"<0$NCM$r7W;;$7$?$j%W%m%0%i%`$rK]Lu$9$k:]$K$$$m$$$mLrN)$D!#Nc$((B
-$B$P!"@h$K=R$Y$??t<0$NCM$r7W;;$9$k$3$H$r9M$($h$&!#3FHs=*C<5-9f$,B0@-(B$v$$B$r;}(B
-$B$A!"3F@8@.5,B'$K<!$N$h$&$J%W%m%0%i%`JR$,IU$1$i$l$F$$$k$H$9$k!#$J$*!":8JU(B
-$B$H1&JU$KF1$8Hs=*C<5-9f$,=P8=$9$k>l9g$K$O!"JX59>e!"$=$l$>$l(B$l$$B$H(B$r$$B$H$$$&(B
-$BE:;z$rIU$1$F6hJL$7$F$$$k!#(B
+解析木は、式の値を計算したりプログラムを翻訳する際にいろいろ役立つ。例え
+ば、先に述べた数式の値を計算することを考えよう。各非終端記号が属性$v$を持
+ち、各生成規則に次のようなプログラム片が付けられているとする。なお、左辺
+と右辺に同じ非終端記号が出現する場合には、便宜上、それぞれ$l$と$r$という
+添字を付けて区別している。
 \begin{align*}
  list & \rightarrow list + digit \quad \{ list_l.v = list_r.v + digit.v; \} \\
  list & \rightarrow list - digit \quad \{ list_l.v = list_r.v - digit.v; \} \\
@@ -204,30 +204,30 @@ $G$$B$N3+;O5-9f$+$iF3=P$5$l$kJ8$N=89g$G$"$k!#(B
  digit & \rightarrow 9 \quad \{ digit.v = 9; \} \\
 \end{align*}
 
-$B2r@OLZ$N@aE@$NB0@-(B$v$$B$NCM$r!"$=$N@aE@$KBP1~$9$k@8@.5,B'$KIU$1$i$l$?%W%m%0(B
-$B%i%`JR$K4p$E$$$F7W;;$9$k$H!"$=$N2r@OLZ$N7k2L$G$"$k<0$NCM$,5a$a$i$l$k!#<0(B
-$9 - 5 + 2$$B$N2r@OLZ$K$h$kNc$r?^(B\ref{190545_30Mar06}$B$K<($9!#$3$N7W;;$O!"2r(B
-$B@OLZ$r?<$5M%@h$GC5:w$7!"5"$j$,$1$K%W%m%0%i%`JR$r<B9T$9$k$3$H$KAjEv$7$F$$(B
-$B$k!#(B
+解析木の節点の属性$v$の値を、その節点に対応する生成規則に付けられたプログ
+ラム片に基づいて計算すると、その解析木の結果である式の値が求められる。式
+$9 - 5 + 2$の解析木による例を図\ref{190545_30Mar06}に示す。この計算は、解
+析木を深さ優先で探索し、帰りがけにプログラム片を実行することに相当してい
+る。
 
 \begin{figure}
  \begin{center}
   \includegraphics[width=12cm]{figure/parse_tree_appl.pdf}
  \end{center}
- \caption{$B2r@OLZ$K$h$k<0$NCM$N7W;;(B}
+ \caption{解析木による式の値の計算}
  \label{190545_30Mar06}
 \end{figure}
 
-\section{$B:G:8F3=P!":G1&F3=P(B}
+\section{最左導出、最右導出}
 
-$BJ8K!(B$G$$B$N3+;O5-9f(B$S$$B$+$iF3=P$5$l$kJ87A<0$K$O!"Hs=*C<5-9f$,J#?t8D4^$^$l$k(B
-$B$3$H$,$"$k!#$3$N$&$A!"$I$NHs=*C<5-9f$+$iCV$-49$($r9T$C$F$$$/$+$OG$0U$G$"(B
-$B$k!#$I$3$+$iCV$-49$($r9T$C$F$b!":G=*E*$KF@$i$l$kJ8$OEy$7$/!"BP1~$9$k2r@O(B
-$BLZ$bEy$7$$!#(B
+文法$G$の開始記号$S$から導出される文形式には、非終端記号が複数個含まれる
+ことがある。このうち、どの非終端記号から置き換えを行っていくかは任意であ
+る。どこから置き換えを行っても、最終的に得られる文は等しく、対応する解析
+木も等しい。
 
-$BNc$($P!"J8K!(B$E \rightarrow E + E \mid E * E \mid (E) \mid -E \mid {\bf
-id}$$B$K$*$$$F!"J8(B$-({\bf id}+{\bf id})$$B$rF3=P$9$kJ}K!$O<!$N$h$&$J$b$N(B
-$B$,$"$k!#(B
+例えば、文法$E \rightarrow E + E \mid E * E \mid (E) \mid -E \mid {\bf
+id}$において、文$-({\bf id}+{\bf id})$を導出する方法は次のようなもの
+がある。
 \[
  E \Rightarrow -E \Rightarrow -(E) \Rightarrow -(E+E) \Rightarrow
   -({\bf id}+E) \Rightarrow -({\bf id}+{\bf id})
@@ -237,38 +237,38 @@ id}$$B$K$*$$$F!"J8(B$-({\bf id}+{\bf id})$$B$rF3=P$9$kJ}K!$O<!$N$h$&$J$b$N(B
   -(E+{\bf id}) \Rightarrow -({\bf id}+{\bf id})
 \]
 
-$B$3$NNc$G$O(B2$BDL$j$@$1$@$,!"0lHL$K$O$b$C$HB?$/$NF3=P$,$"$jF@$k!#$3$l$i$NF3=P(B
-$B$NCf$G!"(B``$BI8=`7A(B''$B$H8@$($k$b$N$rDj$a$F$*$/$3$H$K$7$h$&!#I,$:J87A<0$N0lHV(B
-$B:8$NHs=*C<5-9f$rCV$-49$($k$h$&$JF3=P$r(B{\bfseries $B:G:8F3=P(B}$B!J(Bleftmost
-derivation$B!K!"0lHV1&$NHs=*C<5-9f$rCV$-49$($k$h$&$JF3=P$r(B{\bfseries $B:G1&F3(B
-$B=P(B}$B!J(Brightmost derivation$B!K$H$$$&!#>e$NNc$G$O!"(B1$BHVL\$N$b$N$,:G:8F3=P!"(B2$BHV(B
-$BL\$N$b$N$,:G1&F3=P$G$"$k!#(B
+この例では2通りだけだが、一般にはもっと多くの導出があり得る。これらの導出
+の中で、``標準形''と言えるものを定めておくことにしよう。必ず文形式の一番
+左の非終端記号を置き換えるような導出を{\bfseries 最左導出}（leftmost
+derivation）、一番右の非終端記号を置き換えるような導出を{\bfseries 最右導
+出}（rightmost derivation）という。上の例では、1番目のものが最左導出、2番
+目のものが最右導出である。
 
-$B9=J82r@O$G$O!":G:8F3=P$,Hs>o$K=EMW$JLr3d$r2L$?$9(B\footnote{$BK\9V5A$G?($l$J(B
-$B$+$C$?>e8~$-9=J82r@O$H$$$&<jK!$G$O!":G1&F3=P$,=EMW$JLr3d$r2L$?$9!#(B}$B!#(B
+構文解析では、最左導出が非常に重要な役割を果たす\footnote{本講義で触れな
+かった上向き構文解析という手法では、最右導出が重要な役割を果たす。}。
 
-\section{$B[#Kf$JJ8K!(B}
+\section{曖昧な文法}
 \label{121131_31Mar06}
 
-1$B$D$NJ8$KBP$7$F(B2$B$D0J>e$N2r@OLZ$,:n$l$kJ8K!$r(B{\bfseries $B[#Kf$G$"(B
-$B$k(B}$B!J(Bambiguous$B!K$H$$$&!#9=J82r@O$G$O(B2$B$D0J>e$N2r@OLZ$,$G$-$F$7$^$&$N$O:$$k(B
-$B$N$G!"[#Kf$G$J$$J8K!$KJQ49$7$?$j!"$"$k<o$N5,B'$r@_$1$FJ#?t$N2r@OLZ$+$i(B1$B$D(B
-$B$rA*$V$h$&$K$7$?$j$9$k!#(B
+1つの文に対して2つ以上の解析木が作れる文法を{\bfseries 曖昧であ
+る}（ambiguous）という。構文解析では2つ以上の解析木ができてしまうのは困る
+ので、曖昧でない文法に変換したり、ある種の規則を設けて複数の解析木から1つ
+を選ぶようにしたりする。
 
-$B[#Kf$5$r2r>C$9$kJ}K!$O!"$"$^$jBN7OE*$K$O$J$C$F$$$J$$!#LdBj(B
-\ref{ex:cfg_03}$B$NJ8K!$O[#Kf$G$"$k$,!"(B\eqref{171007_30Mar06}$B$NJ8K!$KJQ7A$9(B
-$B$l$P[#Kf$5$O2r>C$G$-$k!#(B
+曖昧さを解消する方法は、あまり体系的にはなっていない。問題
+\ref{ex:cfg_03}の文法は曖昧であるが、\eqref{171007_30Mar06}の文法に変形す
+れば曖昧さは解消できる。
 
-$B$b$&(B1$B$DNc$r5s$2$h$&!#(B
+もう1つ例を挙げよう。
 \begin{align*}
  stmt & \rightarrow  {\bf if}\ (expr)\ stmt\  \\
       & \quad \mid {\bf if}\ (expr)\ stmt\ {\bf else}\ stmt \\
       & \quad \mid S_1 \mid S_2 \mid S_3 \\
  expr & \rightarrow  E_1 \mid E_2
 \end{align*}
-$B>e$K<($7$?$N$O(Bif$BJ8$rI=$9J8K!$G$"$k!#$7$+$7!"?^(B
-\ref{fig:ambiguous_grammar}$B$GJ,$+$k$h$&$K!"$3$NJ8K!$O<!$NJ8$KBP$7$F(B2$B$D$N(B
-$B2r@OLZ$r@8@.$9$k$N$G!"[#Kf$G$"$k!#(B
+上に示したのはif文を表す文法である。しかし、図
+\ref{fig:ambiguous_grammar}で分かるように、この文法は次の文に対して2つの
+解析木を生成するので、曖昧である。
 \[
  {\bf if}\ (E_1)\ S_1\ {\bf else}\ {\bf if}\ (E_2)\ S_2\ {\bf else}\ S_3
 \]
@@ -277,14 +277,14 @@ derivation$B!K!"0lHV1&$NHs=*C<5-9f$rCV$-49$($k$h$&$JF3=P$r(B{\bfseries $B:G1&
  \begin{center}
   \includegraphics[scale=0.8]{figure/fig46.pdf}
  \end{center}
- \caption{$B[#Kf$JJ8K!$KBP$9$k(B2$B$D$N2r@OLZ(B}
+ \caption{曖昧な文法に対する2つの解析木}
  \label{fig:ambiguous_grammar}
 \end{figure}
 
-$B$3$N$h$&$J>r7oJ8$NJ8K!$G$OIaDL!"!V3F(Belse$B$OA0$N$[$&$K$"$kL$BP1~$N(Bthen$BJ8$N(B
-$B$&$A!"$b$C$H$b6a$$$b$N$HBP1~$9$k!W$H$$$&5,B'$r@_$1!"[#Kf@-$r2r>C$9$k!#$D(B
-$B$^$j?^(B\ref{fig:ambiguous_grammar}$B$N2r@OLZ$N$&$A!">e$N$[$&$r:NMQ$9$k!#<!$N(B
-$B$h$&$KJ8K!$r=q$-49$($k$3$H$G!"[#Kf$5$,2r>C$G$-$k!#(B
+このような条件文の文法では普通、「各elseは前のほうにある未対応のthen文の
+うち、もっとも近いものと対応する」という規則を設け、曖昧性を解消する。つ
+まり図\ref{fig:ambiguous_grammar}の解析木のうち、上のほうを採用する。次の
+ように文法を書き換えることで、曖昧さが解消できる。
 
 \begin{align*}
  stmt & \rightarrow matched\_stmt \\
@@ -298,75 +298,75 @@ derivation$B!K!"0lHV1&$NHs=*C<5-9f$rCV$-49$($k$h$&$JF3=P$r(B{\bfseries $B:G1&
  expr & \rightarrow E_1 \mid E_2
 \end{align*}
 
-\section{$B:8:F5"(B}
+\section{左再帰}
 \label{121145_31Mar06}
 
-$A \stackrel{*}{\Rightarrow} A\alpha$$B$H$$$&F3=P$,B8:_$9$k$H$-!"$3$NJ8K!$O(B
-{\bfseries $B:8:F5"(B}$B$G$"$k$H$$$&!#8e=R$9$k$,!":8:F5"$NJ8K!$O9=J82r@O$G$O07(B
-$B$$$,$d$C$+$$$G$"$k!#FC$KK\9V5A$G=R$Y$k<jK!$G$O!"9=J82r@O$,Dd;_$7$J$$>u67(B
-$B$,5/$3$C$F$7$^$&!#(B
+$A \stackrel{*}{\Rightarrow} A\alpha$という導出が存在するとき、この文法は
+{\bfseries 左再帰}であるという。後述するが、左再帰の文法は構文解析では扱
+いがやっかいである。特に本講義で述べる手法では、構文解析が停止しない状況
+が起こってしまう。
 
-$B9,$$!":8:F5"J8K!$O!"$=$l$HEy2A!JF1$88@8l$r@8@.$9$k!K$G:8:F5"$r4^$^$J$$J8(B
-$BK!$KI,$:JQ7A$9$k$3$H$,$G$-$k!#$3$3$G$O!"(B$A \rightarrow A\alpha$$B$H$$$&7A$N(B
-$B@8@.5,B'$r;}$D:8:F5"J8K!$r!":8:F5"$G$O$J$$J8K!$KJQ49$9$kJ}K!$N$_<($9!#:8(B
-$B:F5"$NJ8K!$N(BA-$B@8@.5,B'$O!"0lHL$K(B
+幸い、左再帰文法は、それと等価（同じ言語を生成する）で左再帰を含まない文
+法に必ず変形することができる。ここでは、$A \rightarrow A\alpha$という形の
+生成規則を持つ左再帰文法を、左再帰ではない文法に変換する方法のみ示す。左
+再帰の文法のA-生成規則は、一般に
 \[
  A \rightarrow A\alpha_1 \mid A\alpha_2 \mid \cdots \mid A\alpha_m \mid \beta_1 \mid
  \beta_2 \mid \cdots \mid \beta_n
 \]
-$B$H=q$1$k!#$3$3$G(B$\beta_i$$B$O(B$A$$B0J30$N5-9f$G;O$^$k5-9fNs$G$"$k!#$3$N$H$-!"(B
-$B$3$N(BA-$B@8@.5,B'$r<!$N$h$&$KJQ7A$9$k!#(B
+と書ける。ここで$\beta_i$は$A$以外の記号で始まる記号列である。このとき、
+このA-生成規則を次のように変形する。
 \begin{eqnarray*}
  A & \rightarrow & \beta_1 A' \mid \beta_2 A' \mid \cdots \mid \beta_n A' \\
  A' & \rightarrow & \alpha_1 A' \mid \alpha_2 A' \mid \cdots \mid \alpha_m A' \mid \epsilon
 \end{eqnarray*}
-$B$3$NJ8K!$O!"JQ7AA0$N$b$N$HF1$88@8l$r@8@.$7!"$+$D:8:F5"$r4^$^$J$$!#(B
+この文法は、変形前のものと同じ言語を生成し、かつ左再帰を含まない。
 
-\section{$BJ8L.<+M3J8K!$N8B3&(B}
+\section{文脈自由文法の限界}
 \label{110128_3Apr06}
 
-$B8@8l(B$L = \{wcw \mid w \in (a \mid b)^* \}$$B$O!V(B$c$$B$NA08e$KF1$8J8;zNs(B$w$$B$,(B
-$B=P8=$9$k$h$&$J8@8l!W$G$"$j!"%W%m%0%i%_%s%08@8l$G$N!VJQ?t$r;H$&$H$-$K$O!"(B
-$B$=$l$h$jA0$K@k8@$r$7$F$*$+$J$1$l$P$J$i$J$$!W$H$$$&7h$^$j$rCj>]2=$7$?$b$N(B
-$B$H8@$($k!#$H$3$m$,!"<B$O(B$L$$B$OJ8L.<+M3J8K!$G$OI=8=$G$-$J$$!#$D$^$j!"JQ?t$r(B
-$B;H$&A0$K@k8@$5$l$F$$$k$+8!::$9$k$N$O!"9=J82r@OIt$G$O9T$&$3$H$,$G$-$J$$!#(B
-$B<B:]!"$3$N8!::$O!"0UL#2r@OIt$G9T$o$l$F$$$k!#(B
+言語$L = \{wcw \mid w \in (a \mid b)^* \}$は「$c$の前後に同じ文字列$w$が
+出現するような言語」であり、プログラミング言語での「変数を使うときには、
+それより前に宣言をしておかなければならない」という決まりを抽象化したもの
+と言える。ところが、実は$L$は文脈自由文法では表現できない。つまり、変数を
+使う前に宣言されているか検査するのは、構文解析部では行うことができない。
+実際、この検査は、意味解析部で行われている。
 
-$B$3$N$h$&$K!"%W%m%0%i%_%s%08@8l$N@)8B$K$O9=J82r@OIt$G8!::$G$-$J$$$b$N$,$"(B
-$B$j!"$=$l$i$O0UL#2r@OIt$G8!::$5$l$k$3$H$,B?$$!#(B
+このように、プログラミング言語の制限には構文解析部で検査できないものがあ
+り、それらは意味解析部で検査されることが多い。
 
-\section*{$BN}=,LdBj(B}
+\section*{練習問題}
 
 \begin{exercise}
  \label{ex:cfg_03}
- $B<!$NJ8L.<+M3J8K!$K$D$$$F!"%H!<%/%sNs(B 8 - 2 + 6 $B$N2r@OLZ$r<($;!#2DG=$J$9(B
- $B$Y$F$N>l9g$r<($7!"<+A3$J<0$N0UL#$K$J$k$b$N$O$I$l$+<($;!#(B
+ 次の文脈自由文法について、トークン列 8 - 2 + 6 の解析木を示せ。可能なす
+ べての場合を示し、自然な式の意味になるものはどれか示せ。
  \[
   string \rightarrow string + string \mid string - string \mid 0 \mid 1
  \mid 2 \mid 3 \mid 4 \mid 5 \mid 6 \mid 7 \mid 8 \mid 9
  \]
 \end{exercise}
 \begin{exercise}
- $BJ8L.<+M3J8K!(B$S \rightarrow 0 S 1 \mid 0 1$$B$O$I$N$h$&$J8@8l$rI=$9$+=R$Y$h!#(B
+ 文脈自由文法$S \rightarrow 0 S 1 \mid 0 1$はどのような言語を表すか述べよ。
  \label{ex:cfg_04}
 \end{exercise}
 \begin{exercise}
- $B<!$NJ8K!$r9M$($k!#(B
+ 次の文法を考える。
   \begin{eqnarray*}
    S & \rightarrow & A1B \\
    A & \rightarrow & 0A \mid \epsilon \\
    B & \rightarrow & 0B \mid 1B \mid \epsilon
   \end{eqnarray*}
- $B$3$NJ8K!$KBP$7!"J8;zNs(B$00101$$B$N:G:8F3=P!":G1&F3=P$r<($;!#(B
+ この文法に対し、文字列$00101$の最左導出、最右導出を示せ。
  \label{ex:cfg_01}
 \end{exercise}
 \begin{exercise}
- $B;;=Q<0$KBP$9$kJ8K!(B
+ 算術式に対する文法
   \begin{eqnarray*}
    E & \rightarrow & E + T \mid T \\
    T & \rightarrow & T * F \mid F \\
    F & \rightarrow & (E) \mid {\bf id}
   \end{eqnarray*}
- $B$r!":8:F5"$G$J$$$h$&$KJQ7A$;$h!#(B
+ を、左再帰でないように変形せよ。
  \label{ex:cfg_02}
 \end{exercise}

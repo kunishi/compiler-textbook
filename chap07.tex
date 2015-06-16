@@ -1,61 +1,61 @@
 %#!platex main
 
-\chapter{$B<B9T;~4D6-(B}
+\chapter{実行時環境}
 \label{083441_12Apr06}
-% 7.3$B@a$^$G(B
+% 7.3節まで
 
-$B0J9_$N>O$G$O!"0UL#2r@OIt$^$G$GF@$i$l$?2r@OLZ$r$b$H$K5!3#8lL?NaNs$r@8@.$9(B
-$B$kItJ,!J(B{\bf $B%3!<%I@8@.It(B}$B!K$K$D$$$F@bL@$r9T$&!#(B
+以降の章では、意味解析部までで得られた解析木をもとに機械語命令列を生成す
+る部分（{\bf コード生成部}）について説明を行う。
 
-$B<B:]$K@8@.$5$l$k5!3#8lL?NaNs$O!"BP>]$H$9$k(BCPU$B$K$h$C$F0[$J$k!#$7$?$,$C$F!"(B
-$B%3!<%I@8@.It$N>\:Y$O!"BP>]$H$9$k(BCPU$B$K$h$C$F$b0[$J$C$F$/$k!#$3$3$G$O!"6qBN(B
-$B@-$r;}$?$;$k$?$a$K!"(BPentium$B%W%m%;%C%5$rBP>]$H$7!"$^$?(B\icode{gcc}$B%3%s%Q%$(B
-$B%i$G@8@.$5$l$k%"%;%s%V%j8@8l$rNc$H$7$FMQ$$$k!#$?$@$7!"@bL@$9$k<jK!$OFCDj(B
-$B$N(BCPU$B$K0MB8$7$J$$HFMQE*$J$b$N$G$"$k!#(B
+実際に生成される機械語命令列は、対象とするCPUによって異なる。したがって、
+コード生成部の詳細は、対象とするCPUによっても異なってくる。ここでは、具体
+性を持たせるために、Pentiumプロセッサを対象とし、また\icode{gcc}コンパイ
+ラで生成されるアセンブリ言語を例として用いる。ただし、説明する手法は特定
+のCPUに依存しない汎用的なものである。
 
-C$B$d(BML, Java$B$N$h$&$K!"2f!9$,DL>o%W%m%0%i%_%s%0$r9T$&8@8l$r9b5i8@8l$H$$$&$3(B
-$B$H$,$"$k!#$3$l$O!"%"%;%s%V%j8@8l$d5!3#8l$KHf$Y$FO@M}E*$K9bEY$J35G0$,07$((B
-$B$k$3$H$KM3Mh$9$kMQ8l$G$"$k!#Nc$($P!"4X?t!"7?!"9=B$BN$J$I$O$9$Y$F9b5i8@8l(B
-$B$K$7$+$J$$!V9bEY$J35G0!W$H8@$($k!#(B
+CやML, Javaのように、我々が通常プログラミングを行う言語を高級言語というこ
+とがある。これは、アセンブリ言語や機械語に比べて論理的に高度な概念が扱え
+ることに由来する用語である。例えば、関数、型、構造体などはすべて高級言語
+にしかない「高度な概念」と言える。
 
-$BK\9V5A$r<u9V$7$F$$$k=t7/$O!"$9$G$K(BC$B$J$I$N9b5i8@8l$K$h$k%W%m%0%i%_%s%0$O=<(B
-$BJ,=,F@$7$F$$$k$3$H$G$"$m$&!#$^$?!"%"%;%s%V%j8@8l$d!"$=$l$r(BCPU$B$,$$$+$K$7$F(B
-$B<B9T$9$k$+$b3X=,$7$F$$$k$3$H$G$"$m$&(B\footnote{$B7W;;5!%"!<%-%F%/%A%c(BA}$B!#$7(B
-$B$+$7!"$3$N(B2$B$D$N%W%m%0%i%`<B9T$N4V$K$O!"O@M}E*$KBg$-$J:9$,$"$k!#Nc$($P!"(BC
-$B8@8l$N4X?t$N8F$S=P$7!"<B9T!"JV$jCM$N=hM}$J$I$,!"0lBN$I$&$$$&5!3#8lNs$K$J(B
-$B$j!"$I$N$h$&$K<B9T$5$l$F$$$k$N$+!"A[A|$,$D$/$@$m$&$+!#$3$N%.%c%C%W$rKd$a!"(B
-$B%3!<%I@8@.$NM}2r$N$?$a$N=`Hw$r$9$k$N$,!"K\>O$NL\E*$G$"$k!#(B
+本講義を受講している諸君は、すでにCなどの高級言語によるプログラミングは充
+分習得していることであろう。また、アセンブリ言語や、それをCPUがいかにして
+実行するかも学習していることであろう\footnote{計算機アーキテクチャA}。し
+かし、この2つのプログラム実行の間には、論理的に大きな差がある。例えば、C
+言語の関数の呼び出し、実行、返り値の処理などが、一体どういう機械語列にな
+り、どのように実行されているのか、想像がつくだろうか。このギャップを埋め、
+コード生成の理解のための準備をするのが、本章の目的である。
 
-\section{$BM=HwCN<1(B}
+\section{予備知識}
 
-\subsection{$B%a%b%jNN0h(B}
+\subsection{メモリ領域}
 
-$B2f!9$,:#F|MQ$$$kHFMQ%3%s%T%e!<%?$O!"%W%m%0%i%`$N5!3#8lNs$d%G!<%?$r%a%b%j(B
-$B>e$KCV$-!"$=$N5!3#8lNs$r(BCPU$B$,<B9T$7$F$$$/!"$H$$$&7A<0$N$b$N$,$[$H$s$I$G$"(B
-$B$k!#%W%m%0%i%`$N5!3#8lNs$b%a%b%j>e$KCV$+$l$F$$$k$?$a!"%a%b%j>e$N5!3#8lNs(B
-$B$rCV$-49$($k$@$1$G!"0c$&%W%m%0%i%`$,<B9T$G$-$k(B\footnote{$B$3$N$h$&$J%3%s(B
-$B%T%e!<%?$N$3$H$r(B{\bf $B%U%)%s!&%N%$%^%s7?7W;;5!(B}$B$H$$$&!#(B}$B!#%a%b%j$ODL>o(B1$B%P(B
-$B%$%HC10L$GFI$_=q$-$,2DG=$G$"$j!"3F%P%$%H$K$O0l0U$KDj$^$kHV9f$,?6$i$l$F$$(B
-$B$k!#$3$NHV9f$N$3$H$r(B{\bf $BHVCO(B}$B!J%"%I%l%9!"(Baddress$B!K$H$$$&!#HVCO$O(B0$BHV$+$i(B
-$B;O$^$j!"Nc$($P(B32$B%S%C%H7W;;5!$G$"$l$P(B$2^{32}-1$$BHVCO$^$G$G$"$k!#(B
+我々が今日用いる汎用コンピュータは、プログラムの機械語列やデータをメモリ
+上に置き、その機械語列をCPUが実行していく、という形式のものがほとんどであ
+る。プログラムの機械語列もメモリ上に置かれているため、メモリ上の機械語列
+を置き換えるだけで、違うプログラムが実行できる\footnote{このようなコン
+ピュータのことを{\bf フォン・ノイマン型計算機}という。}。メモリは通常1バ
+イト単位で読み書きが可能であり、各バイトには一意に定まる番号が振られてい
+る。この番号のことを{\bf 番地}（アドレス、address）という。番地は0番から
+始まり、例えば32ビット計算機であれば$2^{32}-1$番地までである。
 
-$B%a%b%j$O$$$/$D$+$NO"B3$7$?NN0h!J(B{\bf $B%a%b%jNN0h(B}$B!K$KJ,3d$7$F;HMQ$5$l$k!#(B
+メモリはいくつかの連続した領域（{\bf メモリ領域}）に分割して使用される。
 \begin{itemize}
- \item OS$B@lMQ$NNN0h!#8D!9$N7W;;5!!"(BOS$B$4$H$KBg$-$5$O8GDj$5$l$F$$$k!#(B
- \item {\bfseries $B%f!<%6NN0h(B}$B!DDL>o$N%W%m%0%i%`$r<B9T$9$k$N$K;HMQ$5$l$kNN0h(B
+ \item OS専用の領域。個々の計算機、OSごとに大きさは固定されている。
+ \item {\bfseries ユーザ領域}…通常のプログラムを実行するのに使用される領域
        \begin{itemize}
-	\item {\bfseries $B%3!<%INN0h(B}$B!D<B9T$9$k%W%m%0%i%`$r3JG<$9$kNN0h!#(B
-	      $B$$$C$?$s%W%m%0%i%`$,%a%b%j>e$K%m!<%I$5$l$l$P!"JQ99$5$l$J$$!#(B
-	      $B$9$J$o$A!"FI$_<h$j@lMQ$NNN0h$G$"$k!#(B
-	\item {\bfseries $B%G!<%?NN0h(B}$B!D%W%m%0%i%`<B9T$KI,MW$J%G!<%?$r3JG<(B
-	      $B$9$kNN0h!#%W%m%0%i%`$N<B9T$H$H$b$KFbMF$,JQ2=$9$k!#$9$J$o$A(B
-	      $BFI$_=q$-2DG=$JNN0h$G$"$k!#(B
+	\item {\bfseries コード領域}…実行するプログラムを格納する領域。
+	      いったんプログラムがメモリ上にロードされれば、変更されない。
+	      すなわち、読み取り専用の領域である。
+	\item {\bfseries データ領域}…プログラム実行に必要なデータを格納
+	      する領域。プログラムの実行とともに内容が変化する。すなわち
+	      読み書き可能な領域である。
 	      \begin{itemize}
-	       \item {\bfseries $BBg0h%G!<%?NN0h(B}$B!DBg0hJQ?t$r3d$jEv$F$kNN0h(B
-	       \item {\bfseries $B<B9T;~%9%?%C%/(B}$B!D6I=jJQ?t$d4X?t$X$N<B0z?t(B
-		     $B$r3d$jEv$F$kNN0h(B
-	       \item {\bfseries $B%R!<%W(B}$B!D(B\icode{malloc()}$B$J$I$K$h$j<B9T;~(B
-		     $B$KF0E*$K@8@.$5$l$k%G!<%?$r3d$jEv$F$kNN0h(B
+	       \item {\bfseries 大域データ領域}…大域変数を割り当てる領域
+	       \item {\bfseries 実行時スタック}…局所変数や関数への実引数
+		     を割り当てる領域
+	       \item {\bfseries ヒープ}…\icode{malloc()}などにより実行時
+		     に動的に生成されるデータを割り当てる領域
 	      \end{itemize}
        \end{itemize}
 \end{itemize}
@@ -64,123 +64,123 @@ C$B$d(BML, Java$B$N$h$&$K!"2f!9$,DL>o%W%m%0%i%_%s%0$r9T$&8@8l$r9b5i8@8l$H$$$&
  \begin{center}
   \includegraphics{figure/memory_area.pdf}
  \end{center}
- \caption{$B%a%b%jNN0h$NJ,3dNc(B}
+ \caption{メモリ領域の分割例}
  \label{104220_11Apr06}
 \end{figure}
 
-$B%f!<%6NN0h$N$&$A!"%3!<%INN0h$HBg0h%G!<%?NN0h$NBg$-$5$O%3%s%Q%$%k;~$K7hDj(B
-$B$5$l!"%W%m%0%i%`<B9T;~$K$OJQ2=$7$J$$!#0lJ}!"<B9T;~%9%?%C%/$H%R!<%W$NBg$-(B
-$B$5$O<B9T;~$KJQ2=$9$k!#$3$N$h$&$J@-<A$rK~$?$9$h$&$J%a%b%jNN0h$N;H$$J}$N0l(B
-$BNc$r?^(B\ref{104220_11Apr06}$B$K<($9!#$3$NNc$G$O!"%a%b%j$N2<0LHVCO$+$i(BOS$BNN0h!"(B
-$B%3!<%INN0h!"Bg0h%G!<%?NN0h!"%R!<%W$r3d$jEv$F!"<B9T;~%9%?%C%/$O5U$K%a%b%j(B
-$B$N>e0LHVCO$+$i3d$jEv$F$k!#(B
+ユーザ領域のうち、コード領域と大域データ領域の大きさはコンパイル時に決定
+され、プログラム実行時には変化しない。一方、実行時スタックとヒープの大き
+さは実行時に変化する。このような性質を満たすようなメモリ領域の使い方の一
+例を図\ref{104220_11Apr06}に示す。この例では、メモリの下位番地からOS領域、
+コード領域、大域データ領域、ヒープを割り当て、実行時スタックは逆にメモリ
+の上位番地から割り当てる。
 
-$BBg0hJQ?t$,3d$jEv$F$i$l$kHVCO$O%3%s%Q%$%k;~$K7hDj$5$l$k(B\footnote{$B8=Be$N%3(B
-$B%s%T%e!<%?$G$O!"J#?t$N%W%m%0%i%`$rF1;~$K<B9T$5$;$k$3$H$,$G$-$k!#$=$N$?$a!"(B
-$B<B:]$K$O!"%3!<%INN0h$dBg0h%G!<%?NN0h$K$D$$$F$b!"%3!<%INN0h$N@hF,$+$i$NAj(B
-$BBPHVCO$N$_7hDj$7$F$*$-!"%W%m%0%i%`!J5!3#8lL?NaNs!K$r%a%b%j>e$N$I$3$K$bG[(B
-$BCV$G$-$k$h$&$K$7$F$*$/$3$H$,B?$$!#$3$N$h$&$J5!3#8lL?NaNs$N$3$H$r(B
-{\bfseries $B:FG[CV2DG=(B}$B!J(Brelocatable$B!K$G$"$k$H8@$&!#(B}$B!#0lJ}6I=jJQ?t$d<B0z(B
-$B?t$O!"%W%m%0%i%`<B9TCf$K4X?t$,8F$S=P$5$l$?$H$-!"<B9T;~%9%?%C%/>e$K3d$jEv(B
-$B$F$i$l$k$N$G!"$=$l$^$GHVCO$O7hDj$G$-$J$$!#$^$?(B\icode{malloc()}$B$J$I$K$h$j(B
-$BF0E*$K3NJ]$5$l$?NN0h$b!"<B9T;~$K<B:]$K%R!<%W$K3d$jEv$F$i$l$k$^$G!"HVCO$O(B
-$B7hDj$G$-$J$$!#(B
+大域変数が割り当てられる番地はコンパイル時に決定される\footnote{現代のコ
+ンピュータでは、複数のプログラムを同時に実行させることができる。そのため、
+実際には、コード領域や大域データ領域についても、コード領域の先頭からの相
+対番地のみ決定しておき、プログラム（機械語命令列）をメモリ上のどこにも配
+置できるようにしておくことが多い。このような機械語命令列のことを
+{\bfseries 再配置可能}（relocatable）であると言う。}。一方局所変数や実引
+数は、プログラム実行中に関数が呼び出されたとき、実行時スタック上に割り当
+てられるので、それまで番地は決定できない。また\icode{malloc()}などにより
+動的に確保された領域も、実行時に実際にヒープに割り当てられるまで、番地は
+決定できない。
 
-\subsection{CPU$B$H%l%8%9%?(B}
+\subsection{CPUとレジスタ}
 
-$B%a%b%j>e$KG[CV$5$l$?5!3#8l%W%m%0%i%`$O(BCPU$B!JCf1{1i;;=hM}AuCV!K$,<B9T$9$k!#(B
-$B6qBNE*$K$O!"5!3#8l%W%m%0%i%`$r=g$K(B1$BL?Na$:$DFI$_=P$7!"$=$NL?Na$K=q$+$l$?;X(B
-$B<($K=>$C$F%a%b%jNN0h$d%l%8%9%?$+$iCM$rFI$_=P$7$F;;=Q1i;;$dHf3S1i;;$r9T$$!"(B
-$B7k2L$r%a%b%jNN0h$d%l%8%9%?$K3JG<$9$k!#$3$l$r7+$jJV$9!#(B
+メモリ上に配置された機械語プログラムはCPU（中央演算処理装置）が実行する。
+具体的には、機械語プログラムを順に1命令ずつ読み出し、その命令に書かれた指
+示に従ってメモリ領域やレジスタから値を読み出して算術演算や比較演算を行い、
+結果をメモリ領域やレジスタに格納する。これを繰り返す。
 
-Pentium$B%W%m%;%C%5$K$O!"<!$N$h$&$J%l%8%9%?$,MQ0U$5$l$F$$$k!#(B
+Pentiumプロセッサには、次のようなレジスタが用意されている。
 \begin{enumerate}
- \item {\bfseries $BHFMQ%l%8%9%?(B}$B!J(Bgeneral-purpose register$B!K!D;;=Q1i;;$d(B
-       $BHf3S1i;;$J$I$N1i;;?t$H$7$FMQ$$$k$3$H$N$G$-$k%l%8%9%?!#K\9V5A$G$N(B
-       $B5!3#8lL?Na$K$O!"(B\icode{\%eax}, \icode{\%ebx}, \icode{\%ecx},
-       \icode{\%edx}$B$J$I$N%l%8%9%?$NB>!"<B9T;~%9%?%C%/$rA`:n$9$k$N$KMQ$$(B
-       $B$i$l$k(B{\bfseries $B%Y!<%9%]%$%s%?(B}$B!J(Bbase pointer$B!K(B\icode{\%ebp}$B$H(B
-       {\bfseries $B%9%?%C%/%]%$%s%?(B}$B!J(Bstack pointer$B!K(B\icode{\%esp}$B$,$"$k!#(B
- \item {\bfseries $B>r7o%U%i%0(B}$B!J(Bcondition flag$B!K!DHf3SL?Na$N7k2L$r3JG<$9$k(B
-       $B%l%8%9%?!#%<%m%U%i%0(B\icode{\%zf}$B$dId9f%U%i%0(B\icode{\%sf}$B$J$I$,$"$k!#(B
-       $BK\9V5A$G07$&5!3#8lL?Na$G$O!"Hf3SL?Na$,<+F0E*$K@_Dj$7!">r7oIU$-%8%c(B
-       $B%s%WL?Na$,E,@Z$J%U%i%0$r<+F0E*$K;2>H$9$k!#$7$?$,$C$F!"5!3#8lL?Na$K(B
-       $BL@<(E*$K8=$l$k$3$H$O$J$$!#(B
- \item {\bfseries $BL?Na%]%$%s%?(B}$B!J(Binstruction pointer$B!K!D(B{\bfseries $B%W%m%0(B
-       $B%i%`%+%&%s%?(B}$B!J(Bprogram counter$B!K$H$b8@$&!#(BCPU$B$,<!$K<B9T$9$Y$-L?Na(B
-       $B$N3JG<HVCO$r;X$9%l%8%9%?!#(B\icode{\%eip}$B$H$$$&5-K!$rMQ$$$k!#$3$NCM(B
-       $B$b<+F0E*$K99?7$5$l$k$?$a!"L?Na%]%$%s%?$,5!3#8lL?Na$KL@<(E*$K8=$l$k(B
-       $B$3$H$O$J$$!#(B
+ \item {\bfseries 汎用レジスタ}（general-purpose register）…算術演算や
+       比較演算などの演算数として用いることのできるレジスタ。本講義での
+       機械語命令には、\icode{\%eax}, \icode{\%ebx}, \icode{\%ecx},
+       \icode{\%edx}などのレジスタの他、実行時スタックを操作するのに用い
+       られる{\bfseries ベースポインタ}（base pointer）\icode{\%ebp}と
+       {\bfseries スタックポインタ}（stack pointer）\icode{\%esp}がある。
+ \item {\bfseries 条件フラグ}（condition flag）…比較命令の結果を格納する
+       レジスタ。ゼロフラグ\icode{\%zf}や符号フラグ\icode{\%sf}などがある。
+       本講義で扱う機械語命令では、比較命令が自動的に設定し、条件付きジャ
+       ンプ命令が適切なフラグを自動的に参照する。したがって、機械語命令に
+       明示的に現れることはない。
+ \item {\bfseries 命令ポインタ}（instruction pointer）…{\bfseries プログ
+       ラムカウンタ}（program counter）とも言う。CPUが次に実行すべき命令
+       の格納番地を指すレジスタ。\icode{\%eip}という記法を用いる。この値
+       も自動的に更新されるため、命令ポインタが機械語命令に明示的に現れる
+       ことはない。
 \end{enumerate}
 
-\subsection{$B5!3#8lL?Na(B}
+\subsection{機械語命令}
 
-$B0J9_$N@bL@$rM}2r$9$k$N$KI,MW$J5!3#8lL?Na$K$D$$$F!"4JC1$K$^$H$a$F$*$/!#$J(B
-$B$*!"K\9V5A$G$O(B Pentium $B%W%m%;%C%5$N5!3#8l$r5-=R$9$k$N$K!"(BAT\&T$B7A<0$H8F$P(B
-$B$l$k%"%;%s%V%j8@8l$rMQ$$$F$$$k!#(B
+以降の説明を理解するのに必要な機械語命令について、簡単にまとめておく。な
+お、本講義では Pentium プロセッサの機械語を記述するのに、AT\&T形式と呼ば
+れるアセンブリ言語を用いている。
 
-$B8D!9$N5!3#8lL?Na$O!"<!$N$h$&$J=q<0$r$7$F$$$k!#(B[]$B$O!"$=$NItJ,$,>JN,2DG=$G(B
-$B$"$k$3$H$rI=$7$F$$$k!#(B
+個々の機械語命令は、次のような書式をしている。[]は、その部分が省略可能で
+あることを表している。
 \begin{quote}
- [$B%i%Y%k(B:] $BL?NaL>(B $BBh(B1$B1i;;?t(B[, $BBh(B2$B1i;;?t(B, $\cdots$, $BBh(B$n$$B1i;;?t(B]
+ [ラベル:] 命令名 第1演算数[, 第2演算数, $\cdots$, 第$n$演算数]
 \end{quote}
 
-$B%i%Y%k$O!"%3!<%INN0hCf$G$3$N5!3#8lL?Na$,CV$+$l$F$$$kHVCO$rI=$9$?$a$N%7%s(B
-$B%\%k$G$"$j!"@hF,$,(B\icode{\underline{ }}$B$G$"$k$h$&$JJ8;zNs$rMQ$$$k!#4X?t$K(B
-$BAjEv$9$k5!3#8lL?NaNs$N@hF,$K$O!"(B\icode{\underline{ }$B4X?tL>(B}$B$H$$$&%i%Y%k$,(B
-$BI,$:IU$1$i$l$k!#$J$*!"?^(B\ref{143232_11Apr06}$B$N(B3$B9TL\$N$h$&$K!"%i%Y%k$@$1$,(B
-1$B9T$K=q$+$l$F$$$F$b9=$o$J$$!#(B
+ラベルは、コード領域中でこの機械語命令が置かれている番地を表すためのシン
+ボルであり、先頭が\icode{\underline{ }}であるような文字列を用いる。関数に
+相当する機械語命令列の先頭には、\icode{\underline{ }関数名}というラベルが
+必ず付けられる。なお、図\ref{143232_11Apr06}の3行目のように、ラベルだけが
+1行に書かれていても構わない。
 
-$B1i;;?t$H$7$FMQ$$$k$3$H$N$G$-$k$N$O!"HFMQ%l%8%9%?!"%a%b%jHVCO!"@0?tDj?t$N(B
-$B$_$G$"$k(B\footnote{$B@0?tDj?t0J30$NDj?t!JJ8;zNs!"IbF0>.?tE@?t$J$I!K$O!"%3!<(B
-$B%INN0h$dBg0h%G!<%?NN0h$J$I$KCM$r3JG<$7$F$*$-!"$=$NHVCO$r%i%Y%k$G;2>H$9(B
-$B$k!#(B}$B!#%a%b%jHVCO$N;XDj$O!"0J2<$N(B2$BDL$j$NJ}K!$,$"$k!#(B
+演算数として用いることのできるのは、汎用レジスタ、メモリ番地、整数定数の
+みである\footnote{整数定数以外の定数（文字列、浮動小数点数など）は、コー
+ド領域や大域データ領域などに値を格納しておき、その番地をラベルで参照す
+る。}。メモリ番地の指定は、以下の2通りの方法がある。
 \begin{enumerate}
- \item $B$=$NHVCO$KIU$1$i$l$?%i%Y%kL>(B
- \item $BHFMQ%l%8%9%?$NCM$rHVCO$H8+$J$7!"$=$NHVCO$+$i$NAjBPHVCO$r;XDj$9$k!#(B
-       $BNc$($P!"(B$($B%l%8%9%?(BR$B$NCM(B)$$BHVCO$r(B$(\%R)$$B!"(B$($B%l%8%9%?(BR$B$NCM(B + n)$$BHVCO(B
-       $B$r(B$n(\%R)$$B$H$$$&$h$&$K5-=R$9$k!#3g8L$,$D$/$3$H$G!"%l%8%9%?$=$N$b$N(B
-       $B$G$O$J$/!"%l%8%9%?$NCM$NHVCO$H$$$&0UL#$K$J$k$3$H$KCm0U$7$F$[$7$$(B
-       \footnote{$B4V@\;2>H$H$$$&!#(B}$B!#(B
+ \item その番地に付けられたラベル名
+ \item 汎用レジスタの値を番地と見なし、その番地からの相対番地を指定する。
+       例えば、$(レジスタRの値)$番地を$(\%R)$、$(レジスタRの値 + n)$番地
+       を$n(\%R)$というように記述する。括弧がつくことで、レジスタそのもの
+       ではなく、レジスタの値の番地という意味になることに注意してほしい
+       \footnote{間接参照という。}。
 \end{enumerate}
-$B$^$?@0?tDj?t$N@hF,$K$O(B\$$B$rIU$1$k!#(B
+また整数定数の先頭には\$を付ける。
 
-$BK\9V5A$G$O!"<B:]$N(B Pentium $B%W%m%;%C%5$N5!3#8l$N$&$A$4$/0lIt$@$1$rMQ$$$k!#(B
+本講義では、実際の Pentium プロセッサの機械語のうちごく一部だけを用いる。
 \begin{description}
- \item[2$B9`;;=QL?Na(B] $B1i;;?t$r(B2$B$D$H$k;;=Q1i;;!#(B\icode{addl}$B!J2C;;!K(B,
-	    \icode{subl}$B!J8:;;!K(B, \icode{imull}$B!J>h;;!K$J$I$,$"$k!#7k2L$O(B
-	    $BBh(B2$B1i;;?t$K3JG<$5$l$k!#Nc$($P(B\icode{add~\%ebx,\%eax}$B$O!"%l%8(B
-	    $B%9%?(B\icode{\%ebx}$B$NCM$r%l%8%9%?(B\icode{\%eax}$B$NCM$K2C$(!"7k2L(B
-	    $B$r%l%8%9%?(B\icode{\%eax}$B$K3JG<$9$k!#(B
- \item[$BC19`;;=QL?Na(B] $B1i;;?t$r(B1$B$D$H$k;;=Q1i;;!#(B\icode{neg}$B!JId9f$NH?E>!K!"(B
-	    \icode{dec}$B!J(B1$B0z$/!K!"(B\icode{inc}$B!J(B1$BB-$9!K$J$I$,$"$k!#7k2L$O(B
-	    $BBh(B1$B1i;;?t$K3JG<$5$l$k!#Nc$($P(B\icode{inc~\%eax}$B$O!"%l%8%9%?(B
-	    \icode{\%eax}$B$NCM$K(B1$B$r2C$(!"7k2L$r(B\icode{\%eax}$B$K3JG<$9$k!#(B
- \item[$B0\F0L?Na(B] $B1i;;?t$r(B2$B$D$H$j!"Bh(B1$B1i;;?t$NCM$rBh(B2$B1i;;?t$K3JG<$9$k!#K\(B
-	    $B9V5A$G$O(B\icode{movl}$B$N$_07$&!#Nc$($P(B\icode{movl~\%eax,\%ebx}
-	    $B$O!"%l%8%9%?(B\icode{\%eax}$B$NCM$r%l%8%9%?(B\icode{\%ebx}$B$K3JG<$9(B
-	    $B$k!#(B
- \item[$BHf3SL?Na(B] $B1i;;?t$r(B2$B$D$H$j!"Bh(B1$B1i;;?t$HBh(B2$B1i;;?t$rHf3S$7!"7k2L$r>r(B
-	    $B7o%U%i%0$K@_Dj$9$k!#Dj?t$OBh(B1$B1i;;?t$G$N$_;H$($k!#K\9V5A$G$O(B
-	    \icode{cmpl}$B$N$_MQ$$$k!#Nc$($P(B\icode{cmpl~\$4,\%eax}$B$O!"Dj?t(B4$B$H(B
-	    $B%l%8%9%?(B\icode{\%eax}$B$NCM$H$rHf3S$7!"<!$N$h$&$K>r7o%U%i%0$r@_(B
-	    $BDj$9$k!#(B
+ \item[2項算術命令] 演算数を2つとる算術演算。\icode{addl}（加算）,
+	    \icode{subl}（減算）, \icode{imull}（乗算）などがある。結果は
+	    第2演算数に格納される。例えば\icode{add~\%ebx,\%eax}は、レジ
+	    スタ\icode{\%ebx}の値をレジスタ\icode{\%eax}の値に加え、結果
+	    をレジスタ\icode{\%eax}に格納する。
+ \item[単項算術命令] 演算数を1つとる算術演算。\icode{neg}（符号の反転）、
+	    \icode{dec}（1引く）、\icode{inc}（1足す）などがある。結果は
+	    第1演算数に格納される。例えば\icode{inc~\%eax}は、レジスタ
+	    \icode{\%eax}の値に1を加え、結果を\icode{\%eax}に格納する。
+ \item[移動命令] 演算数を2つとり、第1演算数の値を第2演算数に格納する。本
+	    講義では\icode{movl}のみ扱う。例えば\icode{movl~\%eax,\%ebx}
+	    は、レジスタ\icode{\%eax}の値をレジスタ\icode{\%ebx}に格納す
+	    る。
+ \item[比較命令] 演算数を2つとり、第1演算数と第2演算数を比較し、結果を条
+	    件フラグに設定する。定数は第1演算数でのみ使える。本講義では
+	    \icode{cmpl}のみ用いる。例えば\icode{cmpl~\$4,\%eax}は、定数4と
+	    レジスタ\icode{\%eax}の値とを比較し、次のように条件フラグを設
+	    定する。
 	    \begin{align*}
-	     {\sf zf}=0, {\sf sf=0} &&& 4<{\sf \%eax}$B$N$H$-(B \\
-	     {\sf zf}=1, {\sf sf=0} &&& 4={\sf \%eax}$B$N$H$-(B \\
-	     {\sf zf}=0, {\sf sf=1} &&& 4>{\sf \%eax}$B$N$H$-(B
+	     {\sf zf}=0, {\sf sf=0} &&& 4<{\sf \%eax}のとき \\
+	     {\sf zf}=1, {\sf sf=0} &&& 4={\sf \%eax}のとき \\
+	     {\sf zf}=0, {\sf sf=1} &&& 4>{\sf \%eax}のとき
 	    \end{align*}
- \item[$BL5>r7o%8%c%s%WL?Na(B] \icode{jmp}$BL?Na!#Bh(B1$B1i;;?t$K%i%Y%k$r$H$j!"$=$N(B
-	    $B%i%Y%k$NHVCO$K%8%c%s%W$9$k!#<B:]$K$O!"%i%Y%k$NHVCO$rL?Na%]%$(B
-	    $B%s%?(B\icode{\%eip}$B$K3JG<$9$k!"$H$$$&F0:n$r$9$k!#$3$l$K$h$j!"%i(B
-	    $B%Y%k$NHVCO$N5!3#8lL?Na$,<!$K<B9T$5$l$k$3$H$K$J$k!#(B
- \item[$B>r7o%8%c%s%WL?Na(B] $BBh(B1$B1i;;?t$K%i%Y%k$r$H$k!#I,$:Hf3SL?Na$HBP$K$7$F(B
-	    $B;H$o$l$k!#8=:_$N>r7o%U%i%0$NCM$r;2>H$7!"%8%c%s%W>r7o$H0lCW$9(B
-	    $B$l$P%i%Y%k$NHVCO$K%8%c%s%W$9$k!#0lCW$7$J$1$l$P<!$NL?Na$K?J$`!#(B
-	    $BNc$($P(B\icode{jge}$B$H$$$&>r7o%8%c%s%WL?Na$O!"(B${\sf sf}=0$$B$N$H$-!"(B
-	    $B$9$J$o$AD>A0$NHf3SL?Na$G(B$$BBh(B1$B1i;;?t(B \leq $BBh(B2$B1i;;?t(B$$B$G$"$C$?$H(B
-	    $B$-$K%8%c%s%W$9$k!#>r7o%8%c%s%WL?Na$H!"$=$N%8%c%s%W>r7o$r0J2<(B
-	    $B$K$^$H$a$F$*$/!#(B($x, y$$B$O$=$l$>$lBh(B1$B1i;;?t!"Bh(B2$B1i;;?t$rI=$9(B)
+ \item[無条件ジャンプ命令] \icode{jmp}命令。第1演算数にラベルをとり、その
+	    ラベルの番地にジャンプする。実際には、ラベルの番地を命令ポイ
+	    ンタ\icode{\%eip}に格納する、という動作をする。これにより、ラ
+	    ベルの番地の機械語命令が次に実行されることになる。
+ \item[条件ジャンプ命令] 第1演算数にラベルをとる。必ず比較命令と対にして
+	    使われる。現在の条件フラグの値を参照し、ジャンプ条件と一致す
+	    ればラベルの番地にジャンプする。一致しなければ次の命令に進む。
+	    例えば\icode{jge}という条件ジャンプ命令は、${\sf sf}=0$のとき、
+	    すなわち直前の比較命令で$第1演算数 \leq 第2演算数$であったと
+	    きにジャンプする。条件ジャンプ命令と、そのジャンプ条件を以下
+	    にまとめておく。($x, y$はそれぞれ第1演算数、第2演算数を表す)
 	    \begin{align*}
 	     {\sf jg} &&& {\sf zf}=0 \wedge {\sf sf}=0 & (x < y)\\
 	     {\sf jge} &&& {\sf sf}=0 & (x \leq y)\\
@@ -189,67 +189,67 @@ Pentium$B%W%m%;%C%5$K$O!"<!$N$h$&$J%l%8%9%?$,MQ0U$5$l$F$$$k!#(B
 	     {\sf jl} & & & {\sf sf}=1 & (x > y)\\
 	     {\sf jle} & & & {\sf zf}=1 \vee {\sf sf}=1 & (x \geq y)
 	    \end{align*}
- \item[$B<B9T;~%9%?%C%/A`:nL?Na(B] $B<B9T;~%9%?%C%/$N0lHV>e$NHVCO$O%9%?%C%/%]%$(B
-	    $B%s%?(B\icode{\%esp}$B$K3JG<$5$l$F$$$k!#$3$NCM$rJQ99$7!"<B9T;~%9%?%C(B
-	    $B%/$KMWAG$r@Q$s$@$j!J(B\icode{push}$BL?Na!K!"@hF,$NMWAG$r$*$m$7$?(B
-	    $B$j!J(B\icode{pop}$BL?Na!K$9$kL?Na$G$"$k!#?^(B\ref{104220_11Apr06}$B$G(B
-	    $BJ,$+$kDL$j!"HVCO$N2<0LJ}8~$K<B9T;~%9%?%C%/$,?-$S$k$3$H$KCm0U(B
-	    $B$7$F$*$$$F$[$7$$!#$7$?$,$C$F!"Nc$($P(B\icode{push~\%eax}$B$O!"%l(B
-	    $B%8%9%?(B\icode{\%eax}$B$NCM$r<B9T;~%9%?%C%/$N0lHV>e$K@Q$_!"(B
-	    \icode{\%esp}$B$NCM$r(B1$BMWAGJ,!"$9$J$o$A(B4$B8:$i$9(B\footnote{$B$3$3$G$O(B
-	    1$BMWAG$,(B32$B%S%C%H!"$9$J$o$A(B4$B%P%$%H$G$"$k$H2>Dj$7$F$$$k!#(B}$B!#5U$K(B
-	    \icode{pop~\%ebx}$B$O!"<B9T;~%9%?%C%/$N@hF,$NMWAG$NCM$r%l%8%9%?(B
-	    \icode{\%ebx}$B$K3JG<$7!"(B\icode{\%esp}$B$NCM$r(B4$BA}$d$9!#(B
- \item[$B4X?t8F$S=P$7L?Na(B] \icode{call}$BL?Na!#Bh(B1$B1i;;?t$K4X?t$rI=$9%i%Y%k$r(B
-	    $B;XDj$7!"$=$N4X?t$r8F$S=P$9!#<!@a$G>\$7$/@bL@$9$k!#(B
- \item[$B4X?t$+$i$NLa$jL?Na(B] \icode{ret}$BL?Na!#4X?t$N<B9T$r=*N;$7!"4X?t8F$S(B
-	    $B=P$7A0$NHVCO$K@)8f$r0\$9!#<!@a$G>\$7$/@bL@$9$k!#(B
+ \item[実行時スタック操作命令] 実行時スタックの一番上の番地はスタックポイ
+	    ンタ\icode{\%esp}に格納されている。この値を変更し、実行時スタッ
+	    クに要素を積んだり（\icode{push}命令）、先頭の要素をおろした
+	    り（\icode{pop}命令）する命令である。図\ref{104220_11Apr06}で
+	    分かる通り、番地の下位方向に実行時スタックが伸びることに注意
+	    しておいてほしい。したがって、例えば\icode{push~\%eax}は、レ
+	    ジスタ\icode{\%eax}の値を実行時スタックの一番上に積み、
+	    \icode{\%esp}の値を1要素分、すなわち4減らす\footnote{ここでは
+	    1要素が32ビット、すなわち4バイトであると仮定している。}。逆に
+	    \icode{pop~\%ebx}は、実行時スタックの先頭の要素の値をレジスタ
+	    \icode{\%ebx}に格納し、\icode{\%esp}の値を4増やす。
+ \item[関数呼び出し命令] \icode{call}命令。第1演算数に関数を表すラベルを
+	    指定し、その関数を呼び出す。次節で詳しく説明する。
+ \item[関数からの戻り命令] \icode{ret}命令。関数の実行を終了し、関数呼び
+	    出し前の番地に制御を移す。次節で詳しく説明する。
 \end{description}
 
-\section{$B4X?t$N8F$S=P$7(B}
+\section{関数の呼び出し}
 \label{181902_17Apr06}
 
-$B4X?t8F$S=P$7$N:]$K$O!"9MN8$7$J$1$l$P$J$i$J$$E@$,$$$/$D$b$"$k!#@bL@$N$?$a!"(B
-\icode{main}$B4X?t$+$i(B\icode{foo}$B4X?t$r8F$S=P$9$H$9$k!#(B
+関数呼び出しの際には、考慮しなければならない点がいくつもある。説明のため、
+\icode{main}関数から\icode{foo}関数を呼び出すとする。
 \begin{itemize}
- \item \icode{foo}$B$r8F$S=P$9A0$K!"<B0z?t$r@_Dj$7$J$1$l$P$J$i$J$$!#$3$l$O(B
-       \icode{main}$BB&$G9T$o$l$k:n6H$G$"$j!"$+$D<B9T;~%9%?%C%/$rMQ$$$J$1$l(B
-       $B$P$J$i$J$$!#(B
- \item \icode{foo}$B$N=*N;;~$KJV$jCM$r@_Dj$7!"(B\icode{main}$B$KEO$5$J$1$l$P$J(B
-       $B$i$J$$!#(B
- \item \icode{foo}$B$N<B9T$r;O$a$kA0$K!"6I=jJQ?t$NNN0h$r<B9T;~%9%?%C%/$K3N(B
-       $BJ]$7!"I,MW$J$i=i4|2=$r9T$o$J$1$l$P$J$i$J$$!#(B
- \item \icode{foo}$B$r8F$S=P$9A0$H(B\icode{foo}$B$r8F$S=P$7$?8e$G!"%l%8%9%?$d<B(B
-       $B9T;~%9%?%C%/$N>uBV$OJQ2=$7$F$O$J$i$J$$!JJV$jCM$N@_Dj$r=|$/!K(B
-       \footnote{$BBg0h%G!<%?NN0h$d%R!<%W$OJQ2=$7$F$b9=$o$J$$!#(B}$B!#$D$^$j!"(B
-       \icode{foo}$B$r8F$S=P$9A0$KHFMQ%l%8%9%?!"L?Na%]%$%s%?!"%9%?%C%/%]%$(B
-       $B%s%?!"%Y!<%9%]%$%s%?$J$I$NFbMF$r<B9T;~%9%?%C%/$KB`Hr$7!"(B
-       \icode{foo}$B$N=*N;;~$KB`Hr$7$?FbMF$rE,@Z$KI|5"$7$J$1$l$P$J$i$J$$!#(B
+ \item \icode{foo}を呼び出す前に、実引数を設定しなければならない。これは
+       \icode{main}側で行われる作業であり、かつ実行時スタックを用いなけれ
+       ばならない。
+ \item \icode{foo}の終了時に返り値を設定し、\icode{main}に渡さなければな
+       らない。
+ \item \icode{foo}の実行を始める前に、局所変数の領域を実行時スタックに確
+       保し、必要なら初期化を行わなければならない。
+ \item \icode{foo}を呼び出す前と\icode{foo}を呼び出した後で、レジスタや実
+       行時スタックの状態は変化してはならない（返り値の設定を除く）
+       \footnote{大域データ領域やヒープは変化しても構わない。}。つまり、
+       \icode{foo}を呼び出す前に汎用レジスタ、命令ポインタ、スタックポイ
+       ンタ、ベースポインタなどの内容を実行時スタックに退避し、
+       \icode{foo}の終了時に退避した内容を適切に復帰しなければならない。
 \end{itemize}
 
-$B<B:]$N5!3#8lL?Na$r8+$J$,$i!"4X?t8F$S=P$7$N$H$-$K2?$,5/$3$k$+@bL@$9$k!#<!(B
-$B$N$h$&$JHs>o$K4JC1$J(BC$B%W%m%0%i%`$r9M$($k!#(B
+実際の機械語命令を見ながら、関数呼び出しのときに何が起こるか説明する。次
+のような非常に簡単なCプログラムを考える。
 
 \begin{quote}
  \lstinputlisting{code/foo.c} 
 \end{quote}
 
-$B$3$N4X?t$r(B\icode{main}$B$+$i8F$S=P$9>l9g!"<!$N$h$&$J(BC$B%W%m%0%i%`$K$J$k$@$m(B
-$B$&!#(B
+この関数を\icode{main}から呼び出す場合、次のようなCプログラムになるだろ
+う。
 
 \begin{quote}
  \lstinputlisting{code/callfoo.c}
 \end{quote}
 
-$B$5$F!"4X?t(B\icode{foo}$B$KBP1~$9$k5!3#8lL?NaNs$O<!$N$h$&$K$J$k!JI,MWItJ,$N$_(B
-$BH4?h!K!#(B
+さて、関数\icode{foo}に対応する機械語命令列は次のようになる（必要部分のみ
+抜粋）。
 
 \begin{quote}
  \lstinputlisting[language={[x86masm]Assembler},numbers=left,firstline=3,lastline=14]{code/foo.s}
 \end{quote}
 
-$B$^$?!"(B\icode{main}$BB&$G(B\icode{foo}$B$r8F$S=P$9ItJ,$O!"<!$N$h$&$J5!3#8lL?NaNs(B
-$B$K$J$k!JI,MWItJ,$N$_H4?h!K!#(B
+また、\icode{main}側で\icode{foo}を呼び出す部分は、次のような機械語命令列
+になる（必要部分のみ抜粋）。
 
 \begin{quote}
  \lstinputlisting[language={[x86masm]Assembler},numbers=left,firstline=7,lastline=8]{code/callfoo.s}
@@ -259,80 +259,80 @@ Pentium$B%W%m%;%C%5$K$O!"<!$N$h$&$J%l%8%9%?$,MQ0U$5$l$F$$$k!#(B
  \begin{center}
   \includegraphics[width=12cm]{figure/function_call.pdf}
  \end{center}
- \caption{$B4X?t(B\icode{foo}$B8F$S=P$7;~$N<B9T;~%9%?%C%/4IM}(B}
+ \caption{関数\icode{foo}呼び出し時の実行時スタック管理}
  \label{185859_11Apr06}
 \end{figure}
 
-\icode{foo}$B$r8F$S=P$9$H$-!"(B\icode{foo}$B$N=*N;;~$=$l$>$l$K$D$$$F!">e$K<($7(B
-$B$?5!3#8lL?Na$rDI$C$F$$$3$&!#$^$:(B\icode{foo}$B$N8F$S=P$7;~$G$"$k!J?^(B
-\ref{185859_11Apr06}$B!K!#(B
+\icode{foo}を呼び出すとき、\icode{foo}の終了時それぞれについて、上に示し
+た機械語命令を追っていこう。まず\icode{foo}の呼び出し時である（図
+\ref{185859_11Apr06}）。
 \begin{enumerate}
- \item \icode{main}$B$N(B7$B9TL\(B: $B<B0z?t$N@_Dj!#(B\icode{(\%esp)}$B!"$9$J$o$A%9%?%C(B
-       $B%/%]%$%s%?$N;X$7<($7$F$$$k<B9T;~%9%?%C%/NN0h!J<B9T;~%9%?%C%/$N@hF,!K(B
-       $B$K(B1$B$r3JG<$9$k!#$3$l$,(B$x$$B$KBP1~$9$k<B0z?t$K$J$k(B\footnote{$B$3$3$G$O<((B
-       $B$7$F$$$J$$$,!"(B6$B9TL\0JA0$G$O!"<B9T;~%9%?%C%/$N@hF,$K$O2?$bCM$,3JG<(B
-       $B$5$l$F$$$J$$!#$7$?$,$C$F!"<B9T;~%9%?%C%/$N@hF,$NCM$,>e=q$-$5$l$k$3(B
-       $B$H$O$J$$!#(B}$B!#(B
- \item \icode{main}$B$N(B8$B9TL\(B: \icode{foo}$B4X?t$N8F$S=P$7!#(B\icode{call}$BL?Na$G(B
-       $B$O!"(B($BL?Na%]%$%s%?(B\icode{\%eip}$B$NCM(B$+1$)$B$,<B9T;~%9%?%C%/$K%W%C%7%e(B
-       $B$5$l!J(B\icode{\%eip}$B$NB`Hr!K!"(B\icode{\_foo}$B%i%Y%k!"$9$J$o$A4X?t(B
-       \icode{foo}$B$N(B3$B9TL\$NHVCO$,(B\icode{\%eip}$B$K3JG<$5$l$k!#$7$?$,$C$F!"(B
-       $B<!$K<B9T$5$l$k5!3#8lL?Na$O(B\icode{foo}$B$N(B3$B9TL\$K$J$k!#(B
+ \item \icode{main}の7行目: 実引数の設定。\icode{(\%esp)}、すなわちスタッ
+       クポインタの指し示している実行時スタック領域（実行時スタックの先頭）
+       に1を格納する。これが$x$に対応する実引数になる\footnote{ここでは示
+       していないが、6行目以前では、実行時スタックの先頭には何も値が格納
+       されていない。したがって、実行時スタックの先頭の値が上書きされるこ
+       とはない。}。
+ \item \icode{main}の8行目: \icode{foo}関数の呼び出し。\icode{call}命令で
+       は、(命令ポインタ\icode{\%eip}の値$+1$)が実行時スタックにプッシュ
+       され（\icode{\%eip}の退避）、\icode{\_foo}ラベル、すなわち関数
+       \icode{foo}の3行目の番地が\icode{\%eip}に格納される。したがって、
+       次に実行される機械語命令は\icode{foo}の3行目になる。
        \label{181636_11Apr06}
- \item \icode{foo}$B$N(B3$B9TL\(B: $B%i%Y%k$@$1$J$N$G!"2?$b9T$o$l$J$$!#(B
- \item \icode{foo}$B$N(B4$B9TL\(B: $B%Y!<%9%]%$%s%?(B\icode{\%ebp}$B$N8=:_$NCM!"$9$J$o(B
-       $B$A(B\icode{foo}$B8F$S=P$7A0$N%Y!<%9%]%$%s%?$NCM$r<B9T;~%9%?%C%/$K%W%C(B
-       $B%7%e$9$k!#!J(B\icode{\%ebp}$B$NB`Hr!K(B
+ \item \icode{foo}の3行目: ラベルだけなので、何も行われない。
+ \item \icode{foo}の4行目: ベースポインタ\icode{\%ebp}の現在の値、すなわ
+       ち\icode{foo}呼び出し前のベースポインタの値を実行時スタックにプッ
+       シュする。（\icode{\%ebp}の退避）
        \label{181349_11Apr06}
- \item \icode{foo}$B$N(B5$B9TL\(B: $B%9%?%C%/%]%$%s%?(B\icode{\%esp}$B$N8=:_$NCM$r(B
-       \icode{\%ebp}$B$K3JG<$9$k!#$3$l$K$h$j!"(B\icode{foo}$B$N<B9T$KF~$kA0$N%9(B
-       $B%?%C%/%]%$%s%?$NCM$,%Y!<%9%]%$%s%?(B\icode{\%ebp}$B$KB`Hr$5$l$?$3$H$K(B
-       $B$J$k!#!J(B\icode{\%esp}$B$NB`Hr!K(B
+ \item \icode{foo}の5行目: スタックポインタ\icode{\%esp}の現在の値を
+       \icode{\%ebp}に格納する。これにより、\icode{foo}の実行に入る前のス
+       タックポインタの値がベースポインタ\icode{\%ebp}に退避されたことに
+       なる。（\icode{\%esp}の退避）
        \label{181051_11Apr06}
- \item \icode{foo}$B$N(B6$B9TL\(B: $B%9%?%C%/%]%$%s%?(B\icode{\%esp}$B$NCM$r(B24$B8:$i$9!#(B
-       $B$3$l$O!"<B9T;~%9%?%C%/$KMWAG$r(B6$B8D@Q$s$@$3$H$KAjEv$7$F$$$k!#$3$NCf(B
-       $B$K$O!"6I=jJQ?t(B$y$$B$NNN0h(B\footnote{\icode{-12(\%ebp)}$B!"$9$J$o$A$3$N;~(B
-       $BE@$G$N%Y!<%9%]%$%s%?$+$i(B3$BMWAGJ,>e$NNN0h$G$"$k!#(B}$B$J$I$b4^$^$l$F$$(B
-       $B$k!#(B
- \item \icode{foo}$B$N(B7-9$B9TL\(B: $B6I=jJQ?t(B$y$$B$N=i4|2=!#<B0z?t(B$x$$B$NNN0h$O(B
-       \icode{8(\%ebp)}$B!"$D$^$j$3$N;~E@$G$N%Y!<%9%]%$%s%?$+$i(B2$BMWAGJ,2<$N(B
-       $BNN0h$G$"$k$3$H$KCm0U$;$h!#(B
+ \item \icode{foo}の6行目: スタックポインタ\icode{\%esp}の値を24減らす。
+       これは、実行時スタックに要素を6個積んだことに相当している。この中
+       には、局所変数$y$の領域\footnote{\icode{-12(\%ebp)}、すなわちこの時
+       点でのベースポインタから3要素分上の領域である。}なども含まれてい
+       る。
+ \item \icode{foo}の7-9行目: 局所変数$y$の初期化。実引数$x$の領域は
+       \icode{8(\%ebp)}、つまりこの時点でのベースポインタから2要素分下の
+       領域であることに注意せよ。
 \end{enumerate}
 
 \begin{figure}
  \begin{center}
   \includegraphics[width=12cm]{figure/function_return.pdf}
  \end{center} 
- \caption{$B4X?t(B\icode{foo}$B$+$i$NLa$j=hM}(B}
+ \caption{関数\icode{foo}からの戻り処理}
  \label{191124_11Apr06}
 \end{figure}
 
-$B<!$K4X?t(B\icode{foo}$B$N=*N;;~$N=hM}$rDI$C$F$_$k!J?^(B\ref{191124_11Apr06}$B!K!#(B
+次に関数\icode{foo}の終了時の処理を追ってみる（図\ref{191124_11Apr06}）。
 
 \begin{enumerate}
- \item \icode{foo}$B$N(B10-11$B9TL\(B: $BJV$jCM$N@_Dj!#(BPentium$B%W%m%;%C%5$G$ODL>o!"(B
-       $B4X?t$+$i$NJV$jCM$OHFMQ%l%8%9%?(B\icode{\%eax}$B$r;H$C$F!"8F$S=P$785$K(B
-       $B<u$1EO$5$l$k!#$3$3$G$b!"(B$y+2$$B$N7W;;7k2L$,(B\icode{\%eax}$B$K3JG<$5$l$F(B
-       $B$$$k!#(B
- \item \icode{foo}$B$N(B12$B9TL\(B: $B8=:_$N%Y!<%9%]%$%s%?(B\icode{\%ebp}$B$NCM$r%9%?%C(B
-       $B%/%]%$%s%?(B\icode{\%esp}$B$K3JG<$9$k!#8F$S=P$7;~$N=hM}(B
-       \ref{181051_11Apr06}$B$G!"8F$S=P$7A0$N%9%?%C%/%]%$%s%?$NCM$r(B
-       \icode{\%ebp}$B$KB`Hr$7$F$$$?$3$H$KCm0U$;$h!#$D$^$j!"$3$3$G(B
-       \icode{\%esp}$B$r8F$S=P$7A0$N>uBV$KI|5"$7$F$$$k!#(B
- \item \icode{foo}$B$N(B13$B9TL\(B: $B<B9T;~%9%?%C%/$N@hF,$NMWAG$r%]%C%W$7!"%Y!<%9(B
-       $B%]%$%s%?(B\icode{\%ebp}$B$K3JG<$7$F$$$k!#8F$S=P$7A0$N=hM}(B
-       \ref{181349_11Apr06}$B$G!"8F$S=P$7A0$N%Y!<%9%]%$%s%?$NCM$r<B9T;~%9%?%C(B
-       $B%/$KB`Hr$7$F$$$?$3$H$KCm0U$;$h!#$D$^$j!"$3$3$G(B\icode{\%ebp}$B$r8F$S(B
-       $B=P$7A0$N>uBV$KI|5"$7$F$$$k!#(B
- \item \icode{foo}$B$N(B14$B9TL\(B: \icode{foo}$B4X?t$+$i$NLa$j!#(B\icode{ret}$BL?Na$G(B
-       $B$O!"<B9T;~%9%?%C%/$N@hF,$NMWAG$r%]%C%W$7!"L?Na%]%$%s%?(B
-       \icode{\%eip}$B$K3JG<$9$k!#8F$S=P$7A0$N=hM}(B\ref{181636_11Apr06}$B$G!"(B
-       $B8F$S=P$7A0$N(B\icode{\%eip}$B$NCM$r<B9T;~%9%?%C%/$KB`Hr$7$F$$$?$3$H$K(B
-       $BCm0U$;$h!#$D$^$j!"$3$3$G(B\icode{\%eip}$B$r8F$S=P$7A0$N>uBV$KI|5"$7$F(B
-       $B$$$k!#$7$?$,$C$F!"<!$N5!3#8lL?Na$O(B\icode{call}$BL?Na$NHVCO(B$+1$$B!"$9$J(B
-       $B$o$A(B\icode{call}$BL?Na$N<!$N5!3#8lL?Na$K$J$k!#(B
+ \item \icode{foo}の10-11行目: 返り値の設定。Pentiumプロセッサでは通常、
+       関数からの返り値は汎用レジスタ\icode{\%eax}を使って、呼び出し元に
+       受け渡される。ここでも、$y+2$の計算結果が\icode{\%eax}に格納されて
+       いる。
+ \item \icode{foo}の12行目: 現在のベースポインタ\icode{\%ebp}の値をスタッ
+       クポインタ\icode{\%esp}に格納する。呼び出し時の処理
+       \ref{181051_11Apr06}で、呼び出し前のスタックポインタの値を
+       \icode{\%ebp}に退避していたことに注意せよ。つまり、ここで
+       \icode{\%esp}を呼び出し前の状態に復帰している。
+ \item \icode{foo}の13行目: 実行時スタックの先頭の要素をポップし、ベース
+       ポインタ\icode{\%ebp}に格納している。呼び出し前の処理
+       \ref{181349_11Apr06}で、呼び出し前のベースポインタの値を実行時スタッ
+       クに退避していたことに注意せよ。つまり、ここで\icode{\%ebp}を呼び
+       出し前の状態に復帰している。
+ \item \icode{foo}の14行目: \icode{foo}関数からの戻り。\icode{ret}命令で
+       は、実行時スタックの先頭の要素をポップし、命令ポインタ
+       \icode{\%eip}に格納する。呼び出し前の処理\ref{181636_11Apr06}で、
+       呼び出し前の\icode{\%eip}の値を実行時スタックに退避していたことに
+       注意せよ。つまり、ここで\icode{\%eip}を呼び出し前の状態に復帰して
+       いる。したがって、次の機械語命令は\icode{call}命令の番地$+1$、すな
+       わち\icode{call}命令の次の機械語命令になる。
 \end{enumerate}
 
-$B4X?t8F$S=P$7;~!"$*$h$S4X?t=*N;;~$K$O!">o$K>e5-$N$h$&$J=hM}$,9T$o$l$k!#$?(B
-$B$@$7<B:]$K$O!"B>$NHFMQ%l%8%9%?$NB`Hr!&I|5"$N$?$a$N5!3#8lL?NaNs$b2C$($i$l(B
-$B$k$3$H$,$"$k!#(B
+関数呼び出し時、および関数終了時には、常に上記のような処理が行われる。た
+だし実際には、他の汎用レジスタの退避・復帰のための機械語命令列も加えられ
+ることがある。

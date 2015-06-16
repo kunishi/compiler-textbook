@@ -1,126 +1,126 @@
 %#!platex main
 
-\chapter{$B@5B'I=8=$HM-8B%*!<%H%^%H%s(B}
+\chapter{正則表現と有限オートマトン}
 \label{175712_30Mar06}
 
-$B%3%s%Q%$%i$N5;K!$N$&$A!";z6g2r@O$H9=J82r@O$O8@8lM}O@$H4XO"$,?<$$!#$3$3$G(B
-$B$O8@8lM}O@$GMQ$$$i$l$kMQ8l$r4JC1$K@bL@$7!"<!$$$G;z6g2r@O$GMQ$$$i$l$k@5B'(B
-$BI=8=$HM-8B%*!<%H%^%H%s$K$D$$$F=R$Y$k!#9=J82r@O$GMQ$$$i$l$kJ8L.<+M3J8K!$K(B
-$B$D$$$F$O(B\ref{151253_30Mar06}$B>O$G=R$Y$k!#(B
+コンパイラの技法のうち、字句解析と構文解析は言語理論と関連が深い。ここで
+は言語理論で用いられる用語を簡単に説明し、次いで字句解析で用いられる正則
+表現と有限オートマトンについて述べる。構文解析で用いられる文脈自由文法に
+ついては\ref{151253_30Mar06}章で述べる。
 
-\section{$B%"%k%U%!%Y%C%H$H5-9fNs(B}
+\section{アルファベットと記号列}
 
-$BIaCJ$o$l$o$l$,!VJ8;z!W$H8F$s$G$$$k$b$N(B
-$B$r!"8@8lM}O@$G$O(B{\bfseries $B5-9f(B}$B!J(Bsymbol$B!K$H$$$$!"$^$?!"5-9f$NM-8B=89g$r(B
-{\bf $B%"%k%U%!%Y%C%H(B}$B!J(Balphabet$B!K$H$$$&(B\footnote{$BF|>o@83h$G1QJ8;z$r(B
-$BI=$9$H$-$KMQ$$$k!V%"%k%U%!%Y%C%H!W$H$O0UL#$,0[$J$k!#(B}$B!#(B
+普段われわれが「文字」と呼んでいるもの
+を、言語理論では{\bfseries 記号}（symbol）といい、また、記号の有限集合を
+{\bf アルファベット}（alphabet）という\footnote{日常生活で英文字を
+表すときに用いる「アルファベット」とは意味が異なる。}。
 \begin{example}
- $\{a, b, \cdots, z\}$$B$d(B$\{0, 1\}$$B$O%"%k%U%!%Y%C%H$G$"$k!#(B$\Box$
+ $\{a, b, \cdots, z\}$や$\{0, 1\}$はアルファベットである。$\Box$
 \end{example}
-$B5-9f$,!VJ8;z!W$rI=$5$J$$$3$H$b$"$k!#Nc$($P!"%3%s%Q%$%i$N;z6g2r@OIt$G$O5-9f$r(B
-$B!VJ8;z!W$H9M$($F$h$$$,!"9=J82r@OIt$G$O!"5-9f$O86;O8@8l$G0UL#$N$"$kJ8;zNs!"(B
-$B$9$J$o$A%H!<%/%s$G$"$k!#(B
+記号が「文字」を表さないこともある。例えば、コンパイラの字句解析部では記号を
+「文字」と考えてよいが、構文解析部では、記号は原始言語で意味のある文字列、
+すなわちトークンである。
 
-$B%"%k%U%!%Y%C%H(B$\Sigma$\footnote{$B%"%k%U%!%Y%C%H$O$7$P$7$P(B$\Sigma$$B$HI=$5$l(B
-$B$k!#(B}$BCf$N5-9f$+$i$J$kM-8BNs$r!"(B$\Sigma$$B>e$N(B{\bf $B5-9fNs(B}$B!J(Bstring$B!K$H(B
-$B$$$&(B\footnote{$BJ8;zNs!"$"$k$$$O8l!J(Bword$B!K$H$$$&$3$H$b$"$k!#(B}$B!#(B$\Sigma$$B>e$N(B
-$B5-9fNs(B$s$$B$K$D$$$F!"(B$s$$B$K8=$l$k5-9f$N?t$r(B$s$$B$N(B{\bf $BD9$5(B}$B$H$$$$!"(B
-$|s|$$B$GI=$9!#(B
+アルファベット$\Sigma$\footnote{アルファベットはしばしば$\Sigma$と表され
+る。}中の記号からなる有限列を、$\Sigma$上の{\bf 記号列}（string）と
+いう\footnote{文字列、あるいは語（word）ということもある。}。$\Sigma$上の
+記号列$s$について、$s$に現れる記号の数を$s$の{\bf 長さ}といい、
+$|s|$で表す。
 
 \begin{example}
- $main$$B$d(B$exercise$$B$O%"%k%U%!%Y%C%H(B$\{a, b, \cdots, z\}$$B>e$N5-9fNs$G$"$j!"(B
- $BD9$5$O$=$l$>$l(B$4, 8$$B$G$"$k!#$^$?(B$\epsilon, 0, 11, 01011$$B$O$$$:$l$b%"%k%U%!(B
- $B%Y%C%H(B$\{0, 1\}$$B>e$N5-9fNs$G$"$j!"D9$5$O$=$l$>$l(B$0, 1, 2, 5$$B$G$"$k!#(B
+ $main$や$exercise$はアルファベット$\{a, b, \cdots, z\}$上の記号列であり、
+ 長さはそれぞれ$4, 8$である。また$\epsilon, 0, 11, 01011$はいずれもアルファ
+ ベット$\{0, 1\}$上の記号列であり、長さはそれぞれ$0, 1, 2, 5$である。
  $\Box$
 \end{example}
 
-$BD9$5(B0$B$N5-9fNs!"$D$^$j(B1$B$D$b5-9f$r4^$^$J$$5-9fNs$r(B{\bf $B6uNs(B}$B!J(Bempty string$B!K(B
-$B$H$$$$!"(B$\epsilon$$B$H$$$&5-K!$GI=$9!#(B$|\epsilon| = 0$$B$G$"$k!#(B
+長さ0の記号列、つまり1つも記号を含まない記号列を{\bf 空列}（empty string）
+といい、$\epsilon$という記法で表す。$|\epsilon| = 0$である。
 
-\section{$B8@8l(B}
+\section{言語}
 
-$B8@8lM}O@$G$N(B{\bf $B8@8l(B}$B!J(Blanguage$B!K$H$O!"F|K\8l$d1Q8l!"%W%m%0%i%_%s(B
-$B%08@8l$J$I$rCj>]2=$7$?$b$N$G$"$k!#(B
+言語理論での{\bf 言語}（language）とは、日本語や英語、プログラミン
+グ言語などを抽象化したものである。
 
-$B%"%k%U%!%Y%C%H(B$\Sigma$$B>e$N(B{\bf $B8@8l(B}$B!J(Blanguage$B!K$H$O!"(B$\Sigma$$B>e$N(B
-$B5-9fNs$N=89g$G$"$k!#8@8l$K4^$^$l$k5-9fNs$O2D;;L58B$G$b9=$o$J$$!#(B
-
-\begin{example}
- $\{0\}$, $\{00, 01, 10, 11\}$, $\{1, 11, 111, 1111, \cdots\}$$B$O$$$:$l$b(B
- $B%"%k%U%!%Y%C%H(B$\{0, 1\}$$B>e$N8@8l$G$"$j!"$=$l$>$l5-9fNs(B$0$$B!"D9$5(B2$B$N$9$Y$F(B
- $B$N5-9fNs!"5-9f(B$1$$B$N$_$+$i$J$k$9$Y$F$N5-9fNs$rI=$9!#(B$\Box$
-\end{example}
-
-$B8@8l$O5-9fNs$N=89g$G$"$k$+$i!"6u=89g(B$\emptyset$$B$d!"6uNs$7$+4^$^$J$$=89g(B
-$\{\epsilon\}$$B$b8@8l$G$"$k!#$3$N(B2 $B$D$N8@8l$OA4$/0[$J$k$b$N$G$"$k$3$H$K=<(B
-$BJ,Cm0U$7$F$*$$$F$[$7$$!#(B$\emptyset$$B$K$OMWAG$O(B1$B$D$b4^$^$l$J$$$,!"(B
-$\{\epsilon\}$$B$K$O(B$\epsilon$$B$H$$$&MWAG$,(B1$B$D4^$^$l$F$$$k!#(B
-
-\section{$B8@8l$KBP$9$k1i;;(B}
-
-$B8@8l$O!J5-9fNs$N!K=89g$G$"$k$N$G!"(B$\cup,\; \cap,\; \bar{\;}$$B!JJd=89g!K$J$I$N(B
-$B=89g1i;;$O$b$A$m$sE,MQ$G$-$k!#$=$NB>$K!"5-9fNs$KM3Mh$9$k=EMW$J1i;;$,$$$/(B
-$B$D$+$"$k!#(B
-
-\subsection{$BO"@\(B}
-
-$B$^$:!"(B{\bf $BO"@\(B}$B$H$$$&1i;;$r>R2p$7$h$&!#$=$N$?$a$K!"5-9fNs$KBP$9$kO"@\$rDj5A$7(B
-$B$F$*$/!#(B2$B$D$N5-9fNs(B$x, y$$B$K$D$$$F!"(B$x$$B$N8e$m$K(B$y$$B$,B3$/5-9fNs$r(B$x$
-$B$H(B$y$$B$N(B{\bf $BO"@\(B}$B!J(Bconcatenation$B!K$H$$$$!"(B$x\cdot y$$B$^$?$O(B$xy$$B$H=q(B
-$B$/!#(B
-\begin{example}
- $00\cdot 11 = 0011$, $111\cdot \epsilon = \epsilon\cdot 111 = 111$$B$G$"(B
- $B$k!#(B$\Box$
-\end{example}
-
-$BG$0U$N5-9fNs(B$x$$B$KBP$7$F(B$\epsilon\cdot x = x\cdot\epsilon = x$$B$,@.$jN)$D!#(B
-$B$D$^$j!"(B$\epsilon$$B$OO"@\$K4X$9$kC10L85$G$"$k!#(B
-
-$B5-9fNs(B$x$$B<+?H$r(B$n$$B8DO"@\$7$?5-9fNs$r(B$x^n$$B$HI=$7!"FC$K(B
-$x^0=\epsilon$$B$HDj5A$7$F$*$/!#$3$N7k2L!"(B$i\geq 0,\, j\geq 0$$B$KBP$7$F(B
-$x^{i+j} = x^i\cdot x^j$$B$,@.N)$9$k!#(B
+アルファベット$\Sigma$上の{\bf 言語}（language）とは、$\Sigma$上の
+記号列の集合である。言語に含まれる記号列は可算無限でも構わない。
 
 \begin{example}
- $(01)^2 = 0101, (01)^3 = 010101$ $B$G$"$k!#(B$\Box$
+ $\{0\}$, $\{00, 01, 10, 11\}$, $\{1, 11, 111, 1111, \cdots\}$はいずれも
+ アルファベット$\{0, 1\}$上の言語であり、それぞれ記号列$0$、長さ2のすべて
+ の記号列、記号$1$のみからなるすべての記号列を表す。$\Box$
 \end{example}
 
-$B$5$F!"(B2$B$D$N8@8l(B$L, M$$B$KBP$9$kO"@\(B$\cdot$$B$r<!$N$h$&$KDj5A$9$k!#(B
+言語は記号列の集合であるから、空集合$\emptyset$や、空列しか含まない集合
+$\{\epsilon\}$も言語である。この2 つの言語は全く異なるものであることに充
+分注意しておいてほしい。$\emptyset$には要素は1つも含まれないが、
+$\{\epsilon\}$には$\epsilon$という要素が1つ含まれている。
+
+\section{言語に対する演算}
+
+言語は（記号列の）集合であるので、$\cup,\; \cap,\; \bar{\;}$（補集合）などの
+集合演算はもちろん適用できる。その他に、記号列に由来する重要な演算がいく
+つかある。
+
+\subsection{連接}
+
+まず、{\bf 連接}という演算を紹介しよう。そのために、記号列に対する連接を定義し
+ておく。2つの記号列$x, y$について、$x$の後ろに$y$が続く記号列を$x$
+と$y$の{\bf 連接}（concatenation）といい、$x\cdot y$または$xy$と書
+く。
+\begin{example}
+ $00\cdot 11 = 0011$, $111\cdot \epsilon = \epsilon\cdot 111 = 111$であ
+ る。$\Box$
+\end{example}
+
+任意の記号列$x$に対して$\epsilon\cdot x = x\cdot\epsilon = x$が成り立つ。
+つまり、$\epsilon$は連接に関する単位元である。
+
+記号列$x$自身を$n$個連接した記号列を$x^n$と表し、特に
+$x^0=\epsilon$と定義しておく。この結果、$i\geq 0,\, j\geq 0$に対して
+$x^{i+j} = x^i\cdot x^j$が成立する。
+
+\begin{example}
+ $(01)^2 = 0101, (01)^3 = 010101$ である。$\Box$
+\end{example}
+
+さて、2つの言語$L, M$に対する連接$\cdot$を次のように定義する。
 \begin{equation*}
   L\cdot M = \{s\cdot t \mid s \in L, t \in M\}
 \end{equation*}
-$B5-9fNs$NO"@\$HF1MM!"(B$\cdot$$B$r>JN,$7$F(B$LM$$B$H=q$/$3$H$b$G$-$k!#(B
+記号列の連接と同様、$\cdot$を省略して$LM$と書くこともできる。
 
 \begin{example}
- $L = \{0, 1\}, M = \{0, 01, 111\}$$B$H$9$k$H!"(B
- $L\cdot M = \{00, 001, 0111, 10, 101, 1111\}$$B$G$"$k!#$^$?(B
+ $L = \{0, 1\}, M = \{0, 01, 111\}$とすると、
+ $L\cdot M = \{00, 001, 0111, 10, 101, 1111\}$である。また
  $L \cdot \{\epsilon\} = \{\epsilon\}\cdot L = L$, 
- $M\cdot \emptyset = \emptyset \cdot M = \emptyset$$B$G$"$k!#(B$\Box$
+ $M\cdot \emptyset = \emptyset \cdot M = \emptyset$である。$\Box$
 \end{example}
 
-$BG$0U$N8@8l(B$L$$B$KBP$7(B$L\cdot \{\epsilon\} = \{\epsilon\}\cdot L
-= L$$B$,@.$jN)$D!#$^$?(B$L\cdot \emptyset = \emptyset\cdot L = \emptyset$$B$,@.(B
-$B$jN)$D!#$D$^$j!"8@8l$NO"@\$G$O!"(B$\{\epsilon\}$$B$,C10L85!"(B$\emptyset$$B$,Nm85(B
-$B$G$"$k!#(B
+任意の言語$L$に対し$L\cdot \{\epsilon\} = \{\epsilon\}\cdot L
+= L$が成り立つ。また$L\cdot \emptyset = \emptyset\cdot L = \emptyset$が成
+り立つ。つまり、言語の連接では、$\{\epsilon\}$が単位元、$\emptyset$が零元
+である。
 
-$B8@8l(B$L$$B$r(B$n$$B8DO"@\$7$FF@$i$l$k8@8l$r(B$L^n$$B$HI=$7!"FC$K(B$L^0=\{\epsilon\}$$B$H(B
-$B$9$k!#$3$l$K$h$j(B$i\geq 0,\, j\geq 0$$B$K$D$$$F(B$L^{i+j} = L^i L^j$$B$,@.$jN)$D!#(B
+言語$L$を$n$個連接して得られる言語を$L^n$と表し、特に$L^0=\{\epsilon\}$と
+する。これにより$i\geq 0,\, j\geq 0$について$L^{i+j} = L^i L^j$が成り立つ。
 
-\subsection{$BJDJq(B}
+\subsection{閉包}
 
-$B8@8l(B$L$$B$K$D$$$F!"<!$N<0$GDj5A$5$l$k8@8l(B$L^\ast$$B$r(B$L$$B$N(B{\bfseries Kleene$BJD(B
-$BJq(B}$B!J(BKleene closure$B!K$H$$$&!#(B
+言語$L$について、次の式で定義される言語$L^\ast$を$L$の{\bfseries Kleene閉
+包}（Kleene closure）という。
 \[
  L^\ast = L^0 \cup L^1 \cup L^2 \cup \cdots = \bigcup_{i=0}^{\infty} L^i
 \]
-$B$^$?<!$N<0$GDj5A$5$l$k8@8l(B$L^+$$B$r(B$L$$B$N(B{\bfseries $B@5JDJq(B}$B!J(Bpositive
-closure$B!K$H$$$&!#(B
+また次の式で定義される言語$L^+$を$L$の{\bfseries 正閉包}（positive
+closure）という。
 \begin{align*}
  L^+ & = L^1 \cup L^2 \cup L^3 \cup \cdots = \bigcup_{i=1}^{\infty} L^i \\
      & = L^\ast - \{\epsilon\}
 \end{align*}
 
 \begin{example}
- $L=\{a\}$$B$H$9$k$H(B
+ $L=\{a\}$とすると
  \begin{align*}
   L^0 & = \{\epsilon\} \\
   L^1 & = \{a\} \\
@@ -128,103 +128,103 @@ closure$B!K$H$$$&!#(B
   L^3 & = \{aaa\} \\
   \cdots
  \end{align*}
- $B$G$"$j!"(B$L^\ast = \{\epsilon, a, aa, aaa, \cdots\}$,
- $L^+ = \{a, aa, aaa, \cdots\}$$B$G$"$k!#(B
+ であり、$L^\ast = \{\epsilon, a, aa, aaa, \cdots\}$,
+ $L^+ = \{a, aa, aaa, \cdots\}$である。
 
- $B$^$?(B$L = \{a, b\}$$B$H$9$k$H(B
+ また$L = \{a, b\}$とすると
  \begin{align*}
   L^0 & = \{\epsilon\} \\
   L^1 & = \{a, b\} \\
   L^2 & = \{aa, ab, ba, bb\} \\
   \cdots & 
  \end{align*}
- $B$G$"$j!"(B$L^\ast = \{\epsilon, a, b, aa, ab, ba, bb, \cdots\}$, $L^+ =
- \{a, b, aa, ab, ba, bb, \cdots\}$$B$G$"$k!#$3$NNc$+$iJ,$+$k$h$&$K!"3F!9$N(B
- $L$$B$+$i0[$J$kMWAG$rA*$s$G$b9=$o$J$$!#(B$\Box$
+ であり、$L^\ast = \{\epsilon, a, b, aa, ab, ba, bb, \cdots\}$, $L^+ =
+ \{a, b, aa, ab, ba, bb, \cdots\}$である。この例から分かるように、各々の
+ $L$から異なる要素を選んでも構わない。$\Box$
 \end{example}
 
-$BFC$K!"%"%k%U%!%Y%C%H(B$\Sigma$$B$N(BKleene$BJDJq(B$\Sigma^\ast$
-$B$O(B$\Sigma$$B>e$ND9$5(B0$B0J>e$N$9$Y$F$N5-9fNs$+$i$J$k=89g$G$"$k!#(B
+特に、アルファベット$\Sigma$のKleene閉包$\Sigma^\ast$
+は$\Sigma$上の長さ0以上のすべての記号列からなる集合である。
 \begin{align*}
  \Sigma^* & = \Sigma^0 \cup \Sigma^1 \cup \Sigma^2 \cup \cdots
 \end{align*}
-$B$^$?(B$\Sigma$$B$N@5JDJq(B$\Sigma^+$$B$O(B$\Sigma$$B>e$ND9$5(B1$B0J>e$N$9$Y$F$N5-9fNs$+(B
-$B$i$J$k=89g$G$"$k!#(B
+また$\Sigma$の正閉包$\Sigma^+$は$\Sigma$上の長さ1以上のすべての記号列か
+らなる集合である。
 \begin{align*}
  \Sigma^+ & = \Sigma^1 \cup \Sigma^2 \cup \cdots \\
           & = \Sigma^* - \{\epsilon\}
 \end{align*}
 
 \begin{example}
- $\Sigma = \{0, 1\}$$B$H$9$k$H$-!"(B$\Sigma^\ast = \{\epsilon, 0, 1, 00, 01,
- 10, 11, 000, \cdots\}$$B$G$"$k!#$^$?(B$\Sigma^+ = \{0, 1, 00, 01, 10, 11,
- 000, \cdots\}$$B$G$"$k!#(B$\Box$
+ $\Sigma = \{0, 1\}$とするとき、$\Sigma^\ast = \{\epsilon, 0, 1, 00, 01,
+ 10, 11, 000, \cdots\}$である。また$\Sigma^+ = \{0, 1, 00, 01, 10, 11,
+ 000, \cdots\}$である。$\Box$
 \end{example}
 
-\section{$B@5B'I=8=(B}
+\section{正則表現}
 
-{\bfseries $B@5B'I=8=(B}\footnote{{\bfseries $B@55,I=8=(B}$B$H$b8@$&!#(B}$B!J(Bregular
-expression$B!K$O!"5-9fNs$N=89g$r4J7i$KI=8=$9$k5-K!$G$"$k!#$^$:5-K!$NDj5A$r(B
-$B<($=$&!#(B
+{\bfseries 正則表現}\footnote{{\bfseries 正規表現}とも言う。}（regular
+expression）は、記号列の集合を簡潔に表現する記法である。まず記法の定義を
+示そう。
 
 \begin{definition}
  \label{def:regexp}
- $B%"%k%U%!%Y%C%H(B$\Sigma$$B>e$N@5B'I=8=$H$O!"0J2<$N5,B'$+$i:F5"E*$K9=@.$5$l$k<0(B
- $B$G$"$k!#(B
+ アルファベット$\Sigma$上の正則表現とは、以下の規則から再帰的に構成される式
+ である。
  \begin{enumerate}
-  \item $\emptyset$$B$O@5B'I=8=$G$"$k!#(B
-  \item $\epsilon$$B$O@5B'I=8=$G$"$k!#(B
-  \item $a$$B!J$?$@$7(B$a \in \Sigma$$B!K$O@5B'I=8=$G$"$k!#(B
-  \item $r,\, r'$$B$r@5B'I=8=$H$9$k$H$-!"(B$r \mid r'$$B$O@5B'I=8=$G$"$k!#(B
+  \item $\emptyset$は正則表現である。
+  \item $\epsilon$は正則表現である。
+  \item $a$（ただし$a \in \Sigma$）は正則表現である。
+  \item $r,\, r'$を正則表現とするとき、$r \mid r'$は正則表現である。
 	\label{182200_29Mar06}
-  \item $r,\, r'$$B$r@5B'I=8=$H$9$k$H$-!"(B$r \cdot r'$$B$O@5B'I=8=$G$"$k!#(B
+  \item $r,\, r'$を正則表現とするとき、$r \cdot r'$は正則表現である。
 	\label{182346_29Mar06}
-  \item $r$$B$r@5B'I=8=$H$9$k$H$-!"(B$r^\ast$$B$O@5B'I=8=$G$"$k!#(B
+  \item $r$を正則表現とするとき、$r^\ast$は正則表現である。
 	\label{182310_29Mar06}
-  \item $r$$B$r@5B'I=8=$H$9$k$H$-!"(B$(r)$$B$O@5B'I=8=$G$"$k!#(B
+  \item $r$を正則表現とするとき、$(r)$は正則表現である。
 	\label{182237_29Mar06}
  \end{enumerate}$\Box$
 \end{definition}
 
 \begin{example}\label{ex:regexp}
-$0\cdot(0\mid 1)^\ast$$B$O%"%k%U%!%Y%C%H(B$\{0, 1\}$$B>e$N@5B'I=8=$G$"$k!#$J$<$J(B
-$B$i(B:
+$0\cdot(0\mid 1)^\ast$はアルファベット$\{0, 1\}$上の正則表現である。なぜな
+ら:
 \begin{enumerate}
- \item $BDj5A(B\ref{def:regexp}$B$N(B\ref{182015_29Mar06}$B$K$h$j(B$0,\, 1$$B$O$=$l$>$l@5(B
-       $BB'I=8=$G$"$k!#(B
- \item $BDj5A(B\ref{def:regexp}$B$N(B\ref{182200_29Mar06}$B$K$h$j(B$0 \mid 1$$B$O@5B'I=(B
-       $B8=$G$"$k!#(B
- \item $BDj5A(B\ref{def:regexp}$B$N(B\ref{182237_29Mar06}$B$K$h$j(B$(0 \mid 1)$$B$O@5B'(B
-       $BI=8=$G$"$k!#(B
- \item $BDj5A(B\ref{def:regexp}$B$N(B\ref{182310_29Mar06}$B$K$h$j(B$(0 \mid 1)^\ast$$B$O@5(B
-       $BB'I=8=$G$"$k!#(B
- \item $BDj5A(B\ref{def:regexp}$B$N(B\ref{182346_29Mar06}$B$K$h$j(B$0\cdot(0 \mid 1)^\ast$$B$O(B
-       $B@5B'I=8=$G$"$k!#(B
+ \item 定義\ref{def:regexp}の\ref{182015_29Mar06}により$0,\, 1$はそれぞれ正
+       則表現である。
+ \item 定義\ref{def:regexp}の\ref{182200_29Mar06}により$0 \mid 1$は正則表
+       現である。
+ \item 定義\ref{def:regexp}の\ref{182237_29Mar06}により$(0 \mid 1)$は正則
+       表現である。
+ \item 定義\ref{def:regexp}の\ref{182310_29Mar06}により$(0 \mid 1)^\ast$は正
+       則表現である。
+ \item 定義\ref{def:regexp}の\ref{182346_29Mar06}により$0\cdot(0 \mid 1)^\ast$は
+       正則表現である。
 \end{enumerate}$\Box$
 \end{example}
 
-$B%"%k%U%!%Y%C%H(B$\Sigma$$B>e$N@5B'I=8=$O!"(B$\Sigma$$B>e$N$"$k8@8l$rI=$7$F$$$k!#(B
+アルファベット$\Sigma$上の正則表現は、$\Sigma$上のある言語を表している。
 
 \begin{definition}
- $B%"%k%U%!%Y%C%H(B$\Sigma$$B>e$N@5B'I=8=(B$R$$B$NI=$98@8l(B$L(R)$$B$O!"0J2<$N$h$&$K:F(B
- $B5"E*$KDj5A$5$l$k!#(B
+ アルファベット$\Sigma$上の正則表現$R$の表す言語$L(R)$は、以下のように再
+ 帰的に定義される。
  \begin{enumerate}
   \item $L(\emptyset) = \emptyset$
   \item $L(\epsilon) = \{\epsilon\}$
   \item $L(a) = \{a\}$
 	\label{182015_29Mar06}
-  \item $r,\, r'$$B$NI=$98@8l$r$=$l$>$l(B$L(r),\, L(r')$$B$H$9$k$H$-!"(B
+  \item $r,\, r'$の表す言語をそれぞれ$L(r),\, L(r')$とするとき、
 	$L(r \mid r') = L(r) \cup L(r')$
-  \item $r,\, r'$$B$NI=$98@8l$r$=$l$>$l(B$L(r),\, L(r')$$B$H$9$k$H$-!"(B
+  \item $r,\, r'$の表す言語をそれぞれ$L(r),\, L(r')$とするとき、
 	$L(r \cdot r') = L(r) \cdot L(r')$
-  \item $r$$B$NI=$98@8l$r(B$L(r)$$B$H$9$k$H$-(B$L(r^*) = L(r)^*$
-  \item $r$$B$NI=$98@8l$r(B$L(r)$$B$H$9$k$H$-(B$L((r)) = L(r)$
+  \item $r$の表す言語を$L(r)$とするとき$L(r^*) = L(r)^*$
+  \item $r$の表す言語を$L(r)$とするとき$L((r)) = L(r)$
  \end{enumerate}$\Box$
 \end{definition}
 
 \begin{example}
- $BNc(B\ref{ex:regexp}$B$N@5B'I=8=$O8@8l(B$\{0, 00, 01, 000, 001, 010, 011, 0000, \cdots\}$$B!"$D$^(B
- $B$j!"(B0$B$N8e$m$K(B0$B$H(B1$B$,(B0$B8D0J>eB3$/$h$&$J5-9fNsA4BN$rI=$7$F$$$k!#$J$<$J$i(B:
+ 例\ref{ex:regexp}の正則表現は言語$\{0, 00, 01, 000, 001, 010, 011, 0000, \cdots\}$、つま
+ り、0の後ろに0と1が0個以上続くような記号列全体を表している。なぜなら:
  \begin{align*}
  L(0\cdot (0\mid 1)^\ast) & = L(0) \cdot L((0 \mid 1)^\ast) \\
                  & = L(0) \cdot L((0 \mid 1))^\ast \\
@@ -236,11 +236,11 @@ $0\cdot(0\mid 1)^\ast$$B$O%"%k%U%!%Y%C%H(B$\{0, 1\}$$B>e$N@5B'I=8=$G$"$k!#$J$
  \end{align*}$\Box$
 \end{example}
 
-$B@5B'I=8=$KMQ$$$i$l$k1i;;;R(B$\ast,\;\cdot,\;\mid$$B$NM%@h=g0L$O!"(B$\ast$$B$,:G$b(B
-$B9b$/!"$D$$$G(B$\cdot$$B!":G$bDc$$$N$,(B$\mid$$B$H$J$k!#$^$?(B$r\cdot r'$$B$O(B$rr'$$B$H=q(B
-$B$$$F$b$h$$!#(B
+正則表現に用いられる演算子$\ast,\;\cdot,\;\mid$の優先順位は、$\ast$が最も
+高く、ついで$\cdot$、最も低いのが$\mid$となる。また$r\cdot r'$は$rr'$と書
+いてもよい。
 
-$B0J9_!"@5B'I=8=$K4X$7$F<!$NN,5-K!$rMQ$$$k$3$H$,$"$k!#(B
+以降、正則表現に関して次の略記法を用いることがある。
 \begin{align*}
  r^+ & \equiv rr^\ast \\
  r? & \equiv r \mid \epsilon \\
@@ -249,125 +249,125 @@ $0\cdot(0\mid 1)^\ast$$B$O%"%k%U%!%Y%C%H(B$\{0, 1\}$$B>e$N@5B'I=8=$G$"$k!#$J$
 \end{align*}
 
 \begin{example}
- C$B8@8l$N(B10$B?JDj?t$O(B0$B0J30$N?t;z$G;O$^$j!"$=$N8e$K(B0$B8D0J>e$N?t;z$,B3$/$N$G!"@5B'I=8=(B
-$[1\,\mbox{-}\,9]\,[0\,\mbox{-}\,9]^\ast$$B$GI=$;$k!JN}=,LdBj(B\ref{ex:regexp_03},
-\ref{ex:regexp_04}, \ref{ex:regexp_05}$B;2>H!K!#(B$\Box$
+ C言語の10進定数は0以外の数字で始まり、その後に0個以上の数字が続くので、正則表現
+$[1\,\mbox{-}\,9]\,[0\,\mbox{-}\,9]^\ast$で表せる（練習問題\ref{ex:regexp_03},
+\ref{ex:regexp_04}, \ref{ex:regexp_05}参照）。$\Box$
 \end{example}
 
-\section{$BM-8B%*!<%H%^%H%s(B}
+\section{有限オートマトン}
 
-$B@5B'I=8=$O!"(B{\bfseries $BM-8B%*!<%H%^%H%s(B}$B!J(Bfinite automaton$B!K$H$$$&7W;;%b(B
-$B%G%k$H6K$a$F4XO"$,?<$$!#(B
+正則表現は、{\bfseries 有限オートマトン}（finite automaton）という計算モ
+デルと極めて関連が深い。
 
 \begin{figure}
  \begin{center}
   \includegraphics[width=12cm]{figure/finite_automaton.pdf}
  \end{center}
- \caption{$BM-8B%*!<%H%^%H%s(B}
+ \caption{有限オートマトン}
  \label{162900_30Mar06}
 \end{figure}
 
-$BD>4QE*$K$O!"M-8B%*!<%H%^%H%s$O$$$/$D$+$N(B{\bfseries $B>uBV(B}$B!J(Bstate$B!K$H>uBV4V(B
-$B$N(B{\bfseries $BA+0\(B}$B!J(Btransition$B!K$+$i$J$kM-8~%0%i%U$GI=$5$l$k!J?^(B
-\ref{162900_30Mar06}$B!K!#>uBV$K$O(B1$B$D$N(B{\bfseries $B=i4|>uBV(B}$B!J(Binitial state$B!K!"(B
-$BJ#?t8D$N(B{\bfseries $B<uM}>uBV(B}$B!J(Baccepting state$B!K$,$"$j!"$^$?!"3FA+0\$K$O(B
-$B%"%k%U%!%Y%C%HCf$N(B1$BJ8;z!J%i%Y%k!K$,IU$1$i$l$F$$$k!#:G=i!"M-8B%*!<%H%^%H%s$O=i4|>uBV$K@)8f$,$"$k!#$=$7(B
-$B$F!"F~NO$r(B1$BJ8;zFI$`$4$H$K!"F~NO$r8=:_@)8f$,CV$+$l$F$$$k>uBV$+$i?-$S$kA+0\(B
-$B$N%i%Y%k$H>H9g$7!"9gCW$9$kA+0\@h$N>uBV$K@)8f$r0\$9!#$3$N$h$&$K>uBV4V$NA+(B
-$B0\$r7+$jJV$7!"F~NO$rFI$_@Z$C$?$H$-$K<uM}>uBV$K@)8f$,$"$l$P!"$=$NF~NO$r<u(B
-$BM}$9$k!#?^(B\ref{162900_30Mar06}$B$NM-8B%*!<%H%^%H%s$O!"(B0$B$G;O$^$j!"<!$K(B1$B$,(B0$B8D(B
-$B0J>eB3$-!"(B00$B$G=*$o$k$h$&$J5-9fNs$r$9$Y$F<uM}$9$k!#$J$*!"0J2<$G$O!"(B
-$\epsilon$$B$r%i%Y%k$K;}$DA+0\$O$J$/!"$+$D3F>uBV$K$D$$$F!"F~NO$H$J$k5-9f$H(B
-$B>H9g$5$l$kA+0\$O>o$K(B1$B$D$@$1$G$"$k$H2>Dj$9$k(B\footnote{$B$9$J$o$A!"$3$3$G9M$((B
-$B$kM-8B%*!<%H%^%H%s$O(B{\bfseries $B7hDj@-(B}$B!J(Bdeterministic$B!K$G$"$k$H2>Dj$9(B
-$B$k!#(B}$B!#(B
+直観的には、有限オートマトンはいくつかの{\bfseries 状態}（state）と状態間
+の{\bfseries 遷移}（transition）からなる有向グラフで表される（図
+\ref{162900_30Mar06}）。状態には1つの{\bfseries 初期状態}（initial state）、
+複数個の{\bfseries 受理状態}（accepting state）があり、また、各遷移には
+アルファベット中の1文字（ラベル）が付けられている。最初、有限オートマトンは初期状態に制御がある。そし
+て、入力を1文字読むごとに、入力を現在制御が置かれている状態から伸びる遷移
+のラベルと照合し、合致する遷移先の状態に制御を移す。このように状態間の遷
+移を繰り返し、入力を読み切ったときに受理状態に制御があれば、その入力を受
+理する。図\ref{162900_30Mar06}の有限オートマトンは、0で始まり、次に1が0個
+以上続き、00で終わるような記号列をすべて受理する。なお、以下では、
+$\epsilon$をラベルに持つ遷移はなく、かつ各状態について、入力となる記号と
+照合される遷移は常に1つだけであると仮定する\footnote{すなわち、ここで考え
+る有限オートマトンは{\bfseries 決定性}（deterministic）であると仮定す
+る。}。
 
 \begin{definition}
- $B!J7hDj@-!KM-8B%*!<%H%^%H%s(B$A$$B$O(B5$B$DAH(B$(Q, \Sigma, \delta, q_0, F)$$B$G$"$k!#(B
- $B$3$3$G!"(B
+ （決定性）有限オートマトン$A$は5つ組$(Q, \Sigma, \delta, q_0, F)$である。
+ ここで、
  \begin{itemize}
-  \item $Q$$B!'>uBV$NM-8B=89g(B
-  \item $\Sigma$$B!'F~NO5-9f$NM-8B=89g(B
-  \item $\delta$$B!'A+0\4X?t!J(Btransition function$B!K!#>uBV$HF~NO5-9f$rM?$($k(B
-	$B$H>uBV(B1$B$D$rJV$9(B
-  \item $q_0 \in Q$$B!'=i4|>uBV(B
-  \item $F \subseteq Q$$B!'<uM}>uBV$N=89g(B
+  \item $Q$：状態の有限集合
+  \item $\Sigma$：入力記号の有限集合
+  \item $\delta$：遷移関数（transition function）。状態と入力記号を与える
+	と状態1つを返す
+  \item $q_0 \in Q$：初期状態
+  \item $F \subseteq Q$：受理状態の集合
  \end{itemize}$\Box$
 \end{definition}
 
-% $BM-8B%*!<%H%^%H%s$NNc(B
+% 有限オートマトンの例
 
-$B<B$O!"@5B'I=8=$HM-8B%*!<%H%^%H%s$OEy2A(B\footnote{$BG$0U$N@5B'I=8=$KBP$7$F!"(B
-$B$=$NI=$98@8l$r<uM}$9$kM-8B%*!<%H%^%H%s$,B8:_$9$k!#$^$?!"G$0U$NM-8B%*!<%H(B
-$B%^%H%s$KBP$7$F!"$=$l$,<uM}$9$k8@8l$rI=$9@5B'I=8=$,B8:_$9$k!#(B}$B$G$"$j!"G$0U(B
-$B$N@5B'I=8=$+$iEy2A$JM-8B%*!<%H%^%H%s$r9=@.$7$?$j!"G$0U$NM-8B%*!<%H%^%H%s(B
-$B$+$iEy2A$J@5B'I=8=$r9=@.$9$k$3$H$,$G$-$k!#<jK!$N>\:Y$OJL$N=q@R$r;2>H$5$l(B
-$B$?$$!JNc$($P(B\cite{$B%[%C%W%/%m%U%H(B03:automaton}$B!K!#$3$N9V5A$GI,MW$K$J$k$N$O!"(B
-$B6K$a$F4JC1$J7A<0$N@5B'I=8=$+$iM-8B%*!<%H%^%H%s$r9=@.$9$k$3$H$@$1$J$N$G!"(B
-$B$3$l$K$D$$$FD>4QE*$J@bL@$r$9$k$K$H$I$a$k!#(B
+実は、正則表現と有限オートマトンは等価\footnote{任意の正則表現に対して、
+その表す言語を受理する有限オートマトンが存在する。また、任意の有限オート
+マトンに対して、それが受理する言語を表す正則表現が存在する。}であり、任意
+の正則表現から等価な有限オートマトンを構成したり、任意の有限オートマトン
+から等価な正則表現を構成することができる。手法の詳細は別の書籍を参照され
+たい（例えば\cite{ホップクロフト03:automaton}）。この講義で必要になるのは、
+極めて簡単な形式の正則表現から有限オートマトンを構成することだけなので、
+これについて直観的な説明をするにとどめる。
 
-$B4pK\E*$J@5B'I=8=$K$D$$$F!"BP1~$9$kM-8B%*!<%H%^%H%s$O?^(B
-\ref{125936_30Mar06}$B$N$h$&$K$J$k!#$3$l$r:F5"E*$KMQ$$$F!"M-8B%*!<%H%^%H%s(B
-$B$r=g$K9=@.$7!":G8e$K=i4|>uBV$H<uM}>uBV$rDj$a$l$P$h$$!#$?$@$7(B$\epsilon$$B$N(B
-$B07$$$OCm0U$,I,MW$G$"$k!#(B$\epsilon\cdot a = a\cdot\epsilon = a$$B$J$I$N@-<A(B
-$B$rMQ$$$F!"$"$i$+$8$a@5B'I=8=$+$i(B$\epsilon$$B$r=|5n$7!"M-8B%*!<%H%^%H%s$r9=(B
-$B@.$7$J$1$l$P$J$i$J$$(B\footnote{$\epsilon$$B$K$D$$$F$O!"$3$NJ}K!$G$O$&$^$/$$(B
-$B$+$J$$>l9g$,$"$k$+$b$7$l$J$$!#87L)$K$O!"@5B'I=8=(B$\rightarrow$ $\epsilon$
-$BA+0\$D$-Hs7hDj@-M-8B%*!<%H%^%H%s(B $\rightarrow$ $BHs7hDj@-M-8B%*!<%H%^%H%s(B
-$\rightarrow$ $B7hDj@-M-8B%*!<%H%^%H%s$N=g$KJQ49$r9T$o$J$1$l$P$J$i$J$$!#>\(B
-$B:Y$O(B\cite{$B%[%C%W%/%m%U%H(B03:automaton}$B$J$I$r;2>H$5$l$?$$!#(B}$B!#(B
+基本的な正則表現について、対応する有限オートマトンは図
+\ref{125936_30Mar06}のようになる。これを再帰的に用いて、有限オートマトン
+を順に構成し、最後に初期状態と受理状態を定めればよい。ただし$\epsilon$の
+扱いは注意が必要である。$\epsilon\cdot a = a\cdot\epsilon = a$などの性質
+を用いて、あらかじめ正則表現から$\epsilon$を除去し、有限オートマトンを構
+成しなければならない\footnote{$\epsilon$については、この方法ではうまくい
+かない場合があるかもしれない。厳密には、正則表現$\rightarrow$ $\epsilon$
+遷移つき非決定性有限オートマトン $\rightarrow$ 非決定性有限オートマトン
+$\rightarrow$ 決定性有限オートマトンの順に変換を行わなければならない。詳
+細は\cite{ホップクロフト03:automaton}などを参照されたい。}。
 
 \begin{figure}
  \begin{center}
   \includegraphics[width=12cm]{figure/regexp_and_fa.pdf}
  \end{center}
- \caption{$B@5B'I=8=$HBP1~$9$kM-8B%*!<%H%^%H%s(B}
+ \caption{正則表現と対応する有限オートマトン}
  \label{125936_30Mar06}
 \end{figure}
 
-\section{$BN}=,LdBj(B}
+\section{練習問題}
 
 \begin{exercise}
  \label{ex:regexp_01}
- $B<!$N8@8l$rI=$9@5B'I=8=$r<($;!#(B
+ 次の言語を表す正則表現を示せ。
  \begin{enumerate}
-  \item $B%"%k%U%!%Y%C%H(B$\{0, 1\}$$B>e$N5-9fNs$N$&$A!"(B0$B$+$i;O$^$j(B1$B$,(B0$B2s0J>eB3(B
-	$B$/$b$NA4BN$+$i$J$k8@8l(B
-  \item $B%"%k%U%!%Y%C%H(B$\{a, b, c\}$$B>e$N5-9fNs$N$&$A!"(B1$B8D0J>e$N(B$a$$B$H(B1$B8D0J(B
-	$B>e$N(B$b$$B$r4^$`$b$NA4BN$+$i$J$k8@8l(B
-  \item $B%"%k%U%!%Y%C%H(B$\{0, 1\}$$B>e$N5-9fNs$N$&$A!"(B0$B$H(B1$B$,8r8_$K=P8=$9$k$b(B
-	$B$NA4BN$+$i$J$k8@8l(B
+  \item アルファベット$\{0, 1\}$上の記号列のうち、0から始まり1が0回以上続
+	くもの全体からなる言語
+  \item アルファベット$\{a, b, c\}$上の記号列のうち、1個以上の$a$と1個以
+	上の$b$を含むもの全体からなる言語
+  \item アルファベット$\{0, 1\}$上の記号列のうち、0と1が交互に出現するも
+	の全体からなる言語
  \end{enumerate}
 \end{exercise}
 \begin{exercise}
  \label{ex:regexp_02}
- $B@5B'I=8=(B $(0 \mid 1)^\ast 0(0\mid 1)(0\mid 1)$ $B$,I=$98@8l$O2?$+!#8@MU$G@bL@$;$h!#(B
+ 正則表現 $(0 \mid 1)^\ast 0(0\mid 1)(0\mid 1)$ が表す言語は何か。言葉で説明せよ。
 \end{exercise}
 \begin{exercise}
  \label{ex:regexp_03}
- C$B8@8l$N6uGr5-9f$O!"6uGr!J(B$_{\sqcup}$$B!K!"%?%V!J(B\verb|\t|$B!K!"2~9T(B
- $B!J(B\verb|\n|$B!K$,(B1$B8D0J>eJB$s$@J8;zNs$G$"$k!#$3$l$r@5B'I=8=$GI=$;!#(B
+ C言語の空白記号は、空白（$_{\sqcup}$）、タブ（\verb|\t|）、改行
+ （\verb|\n|）が1個以上並んだ文字列である。これを正則表現で表せ。
 \end{exercise}
 \begin{exercise}
  \label{ex:regexp_04}
- C$B8@8l$N(B16$B?JDj?t$O(B 0x $B$"$k$$$O(B 0X $B$G;O$^$j!"?t;z$*$h$S(B a, b, c, d, e, f,
- A, B, C, D, E, F $B$,(B1$B8D0J>eB3$/!#$3$l$r@5B'I=8=$GI=$;!#(B
+ C言語の16進定数は 0x あるいは 0X で始まり、数字および a, b, c, d, e, f,
+ A, B, C, D, E, F が1個以上続く。これを正則表現で表せ。
 \end{exercise}
 \begin{exercise}
  \label{ex:regexp_05}
- C$B8@8l$N<1JL;R$O(BA$B!A(BZ, a$B!A(Bz, 0$B!A(B9, $B2<@~!J(B\underline{ }$B!K$+$i$J$kJ8;zNs$G$"(B
- $B$k!#$?$@$7!":G=i$NJ8;z$K?t;z$r;H$&$3$H$O$G$-$J$$!#$3$l$r@5B'I=8=$GI=$;!#(B
+ C言語の識別子はA〜Z, a〜z, 0〜9, 下線（\underline{ }）からなる文字列であ
+ る。ただし、最初の文字に数字を使うことはできない。これを正則表現で表せ。
 \end{exercise}
 \begin{exercise}
  \label{ex:regexp_06}
- $B%"%k%U%!%Y%C%H$r(B$\{0, 1\}$$B$H$9$k$H$-!"<!$N8@8l$r<uM}$9$kM-8B%*!<%H%^%H(B
- $B%s$r<($;!#(B
+ アルファベットを$\{0, 1\}$とするとき、次の言語を受理する有限オートマト
+ ンを示せ。
  \begin{enumerate}
-  \item $00$$B$G=*$o$k5-9fNsA4BN(B
-  \item $011$$B$rESCf$K4^$`5-9fNsA4BN(B
+  \item $00$で終わる記号列全体
+  \item $011$を途中に含む記号列全体
  \end{enumerate}
 \end{exercise}
 \begin{exercise}
  \label{ex:regexp_07}
- $B@5B'I=8=(B$00(0 \mid 1)^\ast$$B$KBP1~$9$kM-8B%*!<%H%^%H%s$r9=@.$;$h!#(B
+ 正則表現$00(0 \mid 1)^\ast$に対応する有限オートマトンを構成せよ。
 \end{exercise}

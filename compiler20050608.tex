@@ -5,23 +5,23 @@
 \usepackage{amsmath}
 \usepackage{ascmac}
 
-\newtheorem{example}{$BNc(B}
+\newtheorem{example}{例}
 
-\title{$B%3%s%Q%$%i9V5A%N!<%H(B}
-\author{$B9qEg>f@8(B}
+\title{コンパイラ講義ノート}
+\author{国島丈生}
 \date{2005-06-08}
 
 \begin{document}
 \maketitle
-\section*{$BN}=,LdBj$N2rEz(B}
+\section*{練習問題の解答}
 \begin{enumerate}
- \item $B<!$NJ8K!$r9M$($k!#(B
+ \item 次の文法を考える。
        \begin{eqnarray*}
 	S & \rightarrow & A1B \\
 	A & \rightarrow & 0A | \epsilon \\
 	B & \rightarrow & 0B | 1B | \epsilon
        \end{eqnarray*}
-       $B$3$NJ8K!$KBP$7!"J8;zNs(B$00101$$B$N:G:8F3=P!":G1&F3=P$r<($;!#(B
+       この文法に対し、文字列$00101$の最左導出、最右導出を示せ。
 
        \[
 	S \Rightarrow A1B \Rightarrow 0A1B \Rightarrow 00A1B \Rightarrow
@@ -31,13 +31,13 @@
 	S \Rightarrow A1B \Rightarrow A10B \Rightarrow A101B \Rightarrow
        A101 \Rightarrow 0A101 \Rightarrow 00A101 \Rightarrow 00101
        \]
- \item $B;;=Q<0$KBP$9$kJ8K!(B
+ \item 算術式に対する文法
        \begin{eqnarray*}
 	E & \rightarrow & E + T | T \\
 	T & \rightarrow & T * F | F \\
 	F & \rightarrow & (E) | {\bf id}
        \end{eqnarray*}
-       $B$r!":8:F5"$G$J$$$h$&$KJQ7A$;$h!#(B
+       を、左再帰でないように変形せよ。
        \begin{eqnarray*}
 	E & \rightarrow & TE' \\
 	E' & \rightarrow & + TE' | \epsilon \\
@@ -47,46 +47,46 @@
        \end{eqnarray*}
 \end{enumerate}
 
-\section{$B2<8~$-9=J82r@O(B}
-$B2<8~$-9=J82r@O$O2r@OLZ$r:,$+$iMU$K8~$+$C$F9=C[$7$F$$$/9=J82r@O<jK!$G$"$j!"(B
-$BF~NO5-9fNs$N:G:8F3=P$r8+$D$1$k$3$H!"$H9M$($F$h$$!#(B
+\section{下向き構文解析}
+下向き構文解析は解析木を根から葉に向かって構築していく構文解析手法であり、
+入力記号列の最左導出を見つけること、と考えてよい。
 
-$B9=J82r@O$N;kE@$+$i$_$k$H!"0lHLE*$JJ8L.<+M3J8K!$K$O<!$N$h$&$JLdBjE@$,$"$k!#(B
+構文解析の視点からみると、一般的な文脈自由文法には次のような問題点がある。
 \begin{enumerate}
- \item \textbf{$B:8:F5"(B}:$B:8:F5"J8K!$+$i:F5"2<9_9=J82r@O%k!<%A%s$r:n$k$H!"Dd(B
-       $B;_$7$J$$:F5"4X?t$,$G$-$F$7$^$&!#(B($BA0!92s;qNA!"A02s;qNA(B1.5$B@a;2>H(B)
- \item \textbf{$B8eLa$j(B}:$BJ8K!$K$h$C$F$O!"2r@O$K<:GT$7$?$H$-$K5-9fNs$r$$$/$i(B
-       $B$+La$7!"=hM}$r$d$jD>$5$J$1$l$P$J$i$J$$$3$H$,$"$k!#8eLa$j$O0lHL$K(B
-       $B=hM}%3%9%H$,9b$/!"$J$k$Y$/Hr$1$k$N$,K>$^$7$$!#(B
+ \item \textbf{左再帰}:左再帰文法から再帰下降構文解析ルーチンを作ると、停
+       止しない再帰関数ができてしまう。(前々回資料、前回資料1.5節参照)
+ \item \textbf{後戻り}:文法によっては、解析に失敗したときに記号列をいくら
+       か戻し、処理をやり直さなければならないことがある。後戻りは一般に
+       処理コストが高く、なるべく避けるのが望ましい。
 \end{enumerate}
 
 \begin{screen}
 \begin{example}
- $BJ8K!(B$S \rightarrow aBd, B\rightarrow b | bc$$B$KBP$7!":F5"2<9_9=J82r@O$r;n(B
- $B$_$k!#$3$NJ8K!$KBP$9$k9=J82r@O%W%m%0%i%`$O<!$N$h$&$K$J$k!#(B
+ 文法$S \rightarrow aBd, B\rightarrow b | bc$に対し、再帰下降構文解析を試
+ みる。この文法に対する構文解析プログラムは次のようになる。
  \begin{verbatim}
 	void S() { match(a); B(); match(d); }
-	void B() { match(b); $B$^$?$O(B { match(b); match(c); } }\end{verbatim}
- $B$3$3$G(B\textsf{match()}$B$OA0!92s$N;qNA$G<($7$?4X?t$G$"$k!#$^$?!"!V$^$?$O!W(B
- $B$H=q$$$?ItJ,$O!V(B\textsf{match(b)}$B$,<:GT$7$?$i(B\textsf{match(b);
- match(c);}$B!W$H$$$&0UL#$G$"$k(B\footnote{$B8e$G=R$Y$kDL$j!"DL>o$O$3$N$h$&$J8e(B
- $BLa$j$r4^$`%W%m%0%i%`$O:n$i$J$$$?$a!"J,$+$j$d$9$5$r=E;k$7$F!"$"$($FF|K\8l(B
- $B$G<($7$?!#(B}$B!#(B
+	void B() { match(b); または { match(b); match(c); } }\end{verbatim}
+ ここで\textsf{match()}は前々回の資料で示した関数である。また、「または」
+ と書いた部分は「\textsf{match(b)}が失敗したら\textsf{match(b);
+ match(c);}」という意味である\footnote{後で述べる通り、通常はこのような後
+ 戻りを含むプログラムは作らないため、分かりやすさを重視して、あえて日本語
+ で示した。}。
 
- $B$3$NJ8K!$K$h$j5-9fNs(B$abcd$$B$r9=J82r@O$9$k2aDx$O<!$N$h$&$K$J$k!#(B
+ この文法により記号列$abcd$を構文解析する過程は次のようになる。
  \begin{enumerate}
-  \item \textsf{S()}$B$r8F$S=P$9!#(B
-  \item \textsf{S()}$B$NCf$+$i(B\textsf{B()}$B$r8F$S=P$9!#(B
-  \item \textsf{B()}$B$NCf$+$i(B\textsf{match(b)}$B$r8F$S=P$9!#$3$N7k2L!"J8(B$abd$
-	$B$,F@$i$l$k$,!"$3$l$O(B$abcd$$B$H0lCW$7$J$$$?$a!"9=J82r@O$O<:GT$G$"$j!"(B
-	$BF~NO5-9f(B$b$$B$rFI$`A0$N>uBV$K8eLa$j$7!"(B\textsf{B()}$B$KLa$k!#(B
-  \item \textsf{B()}$B$NCf$+$i(B\textsf{match(b); match(c);}$B$r8F$S=P$9!#$3$N(B
-	$B7k2L!"J8(B$abcd$$B$,F@$i$l!"9=J82r@O$O@.8y$9$k!#(B
+  \item \textsf{S()}を呼び出す。
+  \item \textsf{S()}の中から\textsf{B()}を呼び出す。
+  \item \textsf{B()}の中から\textsf{match(b)}を呼び出す。この結果、文$abd$
+	が得られるが、これは$abcd$と一致しないため、構文解析は失敗であり、
+	入力記号$b$を読む前の状態に後戻りし、\textsf{B()}に戻る。
+  \item \textsf{B()}の中から\textsf{match(b); match(c);}を呼び出す。この
+	結果、文$abcd$が得られ、構文解析は成功する。
  \end{enumerate}
 
- $B$3$NJ8K!$G$O!":8C<$N3g$j=P$7$r9T$&$3$H$G8eLa$j$,2sHr$G$-$k!#$D$^$jJ8K!$r(B
- $S \rightarrow aBd, B \rightarrow b(c|\epsilon)$$B$H=q$-D>$9!#$9$k$H9=J82r(B
- $B@O%W%m%0%i%`$O<!$N$h$&$K$J$j!"8eLa$j$,H/@8$7$J$$!#(B
+ この文法では、左端の括り出しを行うことで後戻りが回避できる。つまり文法を
+ $S \rightarrow aBd, B \rightarrow b(c|\epsilon)$と書き直す。すると構文解
+ 析プログラムは次のようになり、後戻りが発生しない。
  \begin{verbatim}
 	void S() { match(a); B(); match(d); }
 	void B() { match(b); { if (lookahead == 'c') match(c); } }\end{verbatim}
@@ -95,43 +95,43 @@
 
 \begin{screen}
 \begin{example}
- $BJ8K!(B$S \rightarrow aBc, B \rightarrow b(c|\epsilon)$$B$K$D$$$F!"5-9fNs(B
- $abc$$B$r:F5"9=J82r@O$7$F$_$h$&!#(B
+ 文法$S \rightarrow aBc, B \rightarrow b(c|\epsilon)$について、記号列
+ $abc$を再帰構文解析してみよう。
  \begin{enumerate}
-  \item \textsf{S()}$B$r8F$S=P$9!#(B
-  \item \textsf{S()}$B$NCf$G(B\textsf{B()}$B$r8F$S=P$9!#(B
-  \item \textsf{B()}$B$NCf$G(B\textsf{match(b)}$B$r8F$S=P$7!"<!$$$G(B
-	\textsf{match(c)}$B$r8F$S=P$9!#$3$3$^$G$O@.8y$G$"$k!#(B
+  \item \textsf{S()}を呼び出す。
+  \item \textsf{S()}の中で\textsf{B()}を呼び出す。
+  \item \textsf{B()}の中で\textsf{match(b)}を呼び出し、次いで
+	\textsf{match(c)}を呼び出す。ここまでは成功である。
 	\label{151554_7Jun05}
-  \item \textsf{S()}$B$KLa$j!"(B\textsf{match(c)}$B$r8F$S=P$9!#$7$+$7!"$3$N$H$-(B
-	$BF~NO5-9f$O?T$-$F$$$k$N$G!"9=J82r@O$O<:GT$G$"$j!"(B
-	\ref{151554_7Jun05}$B$K8eLa$j$7!"(B$\epsilon$$B$KAjEv$9$k=hM}$r;n$_$k!#(B
-	$B$D$^$j!"2?$b$;$:!"(B\textsf{S()}$B$KLa$k!#(B
-  \item \textsf{match(c)}$B$r8F$S=P$9!#$3$N7k2L!"9=J82r@O$O@.8y$G$"$k!#(B
+  \item \textsf{S()}に戻り、\textsf{match(c)}を呼び出す。しかし、このとき
+	入力記号は尽きているので、構文解析は失敗であり、
+	\ref{151554_7Jun05}に後戻りし、$\epsilon$に相当する処理を試みる。
+	つまり、何もせず、\textsf{S()}に戻る。
+  \item \textsf{match(c)}を呼び出す。この結果、構文解析は成功である。
  \end{enumerate}
- $B$3$N8eLa$j$O!":8C<$N3g$j=P$7$G$O2r7h$G$-$J$$!#(B
+ この後戻りは、左端の括り出しでは解決できない。
 \end{example}
 \end{screen}
 
-\section{LL(1)$BJ8K!(B}
+\section{LL(1)文法}
 
-$B8eLa$j$N$J$$:F5"9=J82r@O(B(\textbf{$BM=B,7?9=J82r@O(B})$B$r<B8=$9$k$?$a!"J8L.<+M3(B
-$BJ8K!$K$$$/$i$+@)8B$r2C$($F$_$k!#$3$l$r(B\textbf{LL(1)$BJ8K!(B}$B$H$$$$!"B?$/$N%W(B
-$B%m%0%i%_%s%08@8l$NJ8K!$O$3$NHO0O$K<}$^$k$3$H$,CN$i$l$F$$$k!#(B
+後戻りのない再帰構文解析(\textbf{予測型構文解析})を実現するため、文脈自由
+文法にいくらか制限を加えてみる。これを\textbf{LL(1)文法}といい、多くのプ
+ログラミング言語の文法はこの範囲に収まることが知られている。
 
-\subsection{FIRST$B$H(BFOLLOW}
+\subsection{FIRSTとFOLLOW}
 
-$B$^$:(B\textsf{FIRST}$B$H(B\textsf{FOLLOW}$B$H$$$&(B2$B$D$N4X?t$rF3F~$7$F$*$3$&!#(B
+まず\textsf{FIRST}と\textsf{FOLLOW}という2つの関数を導入しておこう。
 
-$BG$0U$N5-9fNs(B$\alpha$$B$KBP$7!"(B$\alpha$$B$+$iF3=P$5$l$k5-9fNs$NCf$G@hF,$K8=$l(B
-$B$k=*C<5-9f$N=89g$r(B$\mathsf{FIRST(\alpha)}$$B$H$9$k!#$?$@$7(B$S
-\stackrel{*}{\Rightarrow} \epsilon$$B$N>l9g$O(B$\epsilon$$B$b(B
-$\mathsf{FIRST(\alpha)}$$B$K4^$a$k!#(B
+任意の記号列$\alpha$に対し、$\alpha$から導出される記号列の中で先頭に現れ
+る終端記号の集合を$\mathsf{FIRST(\alpha)}$とする。ただし$S
+\stackrel{*}{\Rightarrow} \epsilon$の場合は$\epsilon$も
+$\mathsf{FIRST(\alpha)}$に含める。
 
-$BHs=*C<5-9f(B$A$$B$KBP$7!"J87A<0$NCf$G!"(B$A$$B$N$9$08e$m$K8=$l$k$3$H$N$"$k=*C<5-(B
-$B9f$N=89g$r(B$\mathsf{FOLLOW(A)}$$B$H$9$k!#(B$A$$B$,J87A<0$N0lHV8e$m$K$J$k$3$H$,$"(B
-$B$k>l9g$K$O!"5-9fNs$NKvHx$rI=$9FC<l$J=*C<5-9f(B$\$$$B$r(B$\mathsf{FOLLOW(A)}$$B$K(B
-$B4^$a$k!#(B
+非終端記号$A$に対し、文形式の中で、$A$のすぐ後ろに現れることのある終端記
+号の集合を$\mathsf{FOLLOW(A)}$とする。$A$が文形式の一番後ろになることがあ
+る場合には、記号列の末尾を表す特殊な終端記号$\$$を$\mathsf{FOLLOW(A)}$に
+含める。
 
 \begin{screen}
  \begin{example}\label{ex:first_follow}
@@ -142,7 +142,7 @@ $\mathsf{FIRST(\alpha)}$$B$K4^$a$k!#(B
    T' & \rightarrow & * FT' | \epsilon \\
    F & \rightarrow & (E) | \mathbf{id}
   \end{eqnarray*}
-  $B$3$NJ8K!$KBP$7!"(B\textsf{FIRST, FOLLOW}$B$N0lIt$r5a$a$k$H<!$N$h$&$K$J$k!#(B
+  この文法に対し、\textsf{FIRST, FOLLOW}の一部を求めると次のようになる。
   \begin{eqnarray*}
    & & \mathsf{FIRST}(E) = \mathsf{FIRST}(T) = \mathsf{FIRST}(F) = \{(,
     \mathbf{id}\} \\
@@ -155,118 +155,118 @@ $\mathsf{FIRST(\alpha)}$$B$K4^$a$k!#(B
  \end{example}
 \end{screen}
 
-\subsection{LL(1)$BJ8K!(B}
+\subsection{LL(1)文法}
 
-$BJ8K!(B$G$$B$N@8@.5,B'$N$&$A!"(B$A \rightarrow \alpha | \beta$$B$N7A$N$b$N$K$D$$$F(B
-$B>o$K<!$N@-<A$,@.N)$9$k$H$-!"(B$G$$B$r(B\textbf{LL(1)$BJ8K!(B}$B$H$$$&!#(B
+文法$G$の生成規則のうち、$A \rightarrow \alpha | \beta$の形のものについて
+常に次の性質が成立するとき、$G$を\textbf{LL(1)文法}という。
 \begin{enumerate}
- \item $\alpha$$B$H(B$\beta$$B$OF1$8=*C<5-9f$G;O$^$k5-9fNs$rF3=P$9$k$3$H$,$J$$!#(B
+ \item $\alpha$と$\beta$は同じ終端記号で始まる記号列を導出することがない。
        \[
        (\mathsf{FIRST(\alpha) - \{\epsilon\}) \cap
        (\mathsf{FIRST}(\beta) - \{\epsilon\}) = \emptyset}
        \]
- \item $\alpha$$B$H(B$\beta$$B$N$&$A!"(B$\epsilon$$B$rF3=P$9$k$N$O$?$+$@$+0lJ}$@$1(B
-       $B$G$"$k!#(B
- \item $\beta \stackrel{*}{\Rightarrow} \epsilon$$B$N$H$-!"(B$\alpha$$B$+$i(B
-       $B$O(B$\mathsf{FOLLOW}(A)$$B$K4^$^$l$k=*C<5-9f$G;O$^$k5-9fNs$OF3=P$5$l$J(B
-       $B$$!#$D$^$j(B
+ \item $\alpha$と$\beta$のうち、$\epsilon$を導出するのはたかだか一方だけ
+       である。
+ \item $\beta \stackrel{*}{\Rightarrow} \epsilon$のとき、$\alpha$から
+       は$\mathsf{FOLLOW}(A)$に含まれる終端記号で始まる記号列は導出されな
+       い。つまり
        \[
-	\beta \stackrel{*}{\Rightarrow} \epsilon $B$N$H$-(B 
+	\beta \stackrel{*}{\Rightarrow} \epsilon のとき 
        \mathsf{FIRST}(\alpha) \cap \mathsf{FOLLOW}(A) = \emptyset
        \]
-       $\alpha \stackrel{*}{\Rightarrow} \epsilon$$B$N$H$-$bF1MM!#(B
+       $\alpha \stackrel{*}{\Rightarrow} \epsilon$のときも同様。
 \end{enumerate}
 
 \begin{screen}
 \begin{example}
- $BNc(B\ref{ex:first_follow}$B$NJ8K!$G$O(B
+ 例\ref{ex:first_follow}の文法では
  \begin{eqnarray*}
   & & \mathsf{FIRST}(+TE') = \{+\},\; \mathsf{FOLLOW}(E') = \{), \$\} \\
   & & \mathsf{FIRST}(*FT') = \{*\},\; \mathsf{FOLLOW}(T') = \{+, ),
    \$\} \\
   & & \mathsf{FIRST}((E)) = \{(\},\; \mathsf{FIRST}(\mathbf{id}) = \{\mathbf{id}\}
  \end{eqnarray*}
- $B$7$?$,$C$F$3$NJ8K!$O(BLL(1)$B$G$"$k!#(B
+ したがってこの文法はLL(1)である。
 \end{example}
 \end{screen}
 
-$BM?$($i$l$?J8L.<+M3J8K!$+$i(B(1)$B[#Kf@-$r<h$j=|$-(B(2)$B:8:F5"$r<h$j=|$-(B(3)$B:8C<$N(B
-$B3g$j=P$7$r9T$$!"(BLL(1)$BJ8K!$K$J$l$P!"A0!92s$K<($7$?J}K!$GM=B,7?9=J82r@O%W%m(B
-$B%0%i%`$,I,$::n$l$k!#(B
+与えられた文脈自由文法から(1)曖昧性を取り除き(2)左再帰を取り除き(3)左端の
+括り出しを行い、LL(1)文法になれば、前々回に示した方法で予測型構文解析プロ
+グラムが必ず作れる。
 
-\subsection{FIRST$B$N7W;;J}K!(B}
+\subsection{FIRSTの計算方法}
 
 \begin{enumerate}
- \item $B=*C<5-9f(B$a$$B$K$D$$$F(B$\mathsf{FIRST}(a) = \{a\}$
- \item $B@8@.5,B'(B$X \rightarrow a\alpha$$B$K$D$$$F!"(B$a$$B$r(B$\mathsf{FIRST}(X)$
-       $B$K2C$($k!#(B
- \item $B@8@.5,B'(B$X \rightarrow \epsilon$$B$K$D$$$F!"(B$\epsilon$$B$r(B
-       $\mathsf{FIRST}(X)$$B$K2C$($k!#(B
- \item $B@8@.5,B'(B$X \rightarrow Y_1Y_2\cdots Y_n$$B$K$D$$$F(B
+ \item 終端記号$a$について$\mathsf{FIRST}(a) = \{a\}$
+ \item 生成規則$X \rightarrow a\alpha$について、$a$を$\mathsf{FIRST}(X)$
+       に加える。
+ \item 生成規則$X \rightarrow \epsilon$について、$\epsilon$を
+       $\mathsf{FIRST}(X)$に加える。
+ \item 生成規則$X \rightarrow Y_1Y_2\cdots Y_n$について
        \begin{itemize}
-	\item $Y_1$$B$,(B$\epsilon$$B$rF3=P$7$J$$$J$i$P(B$\mathsf{FIRST}(Y_1)$$B$r(B
-	      $\mathsf{FIRST}(X)$$B$K2C$($k(B
-	\item $Y_1 \stackrel{*}{\Rightarrow} \epsilon$$B$G$"$l$P!"(B
-	      $\mathsf{FIRST}(Y_1) - \{\epsilon\}$$B$r(B$\mathsf{FIRST}(X)$$B$K2C$($k!#$5$i$K(B$Y_2$$B$,(B$\epsilon$$B$rF3=P$7$J$$$J$i$P!"(B$\mathsf{FIRST}(Y_2)$$B$r(B
-	      $\mathsf{FIRST}(X)$$B$K2C$(!"(B$Y_2 \stackrel{*}{\Rightarrow}
-	      \epsilon$$B$J$i$P(B$\mathsf{FIRST}(Y_2) - \{\epsilon\}$$B$r(B$\mathsf{FIRST}(X)$$B$K2C$($k!#(B($B0J2<F1MM(B)
-	\item $Y_1Y_2\cdots Y_n \stackrel{*}{\Rightarrow} \epsilon$$B$J$i$P!"(B
-	      $\epsilon$$B$r(B$\mathsf{FIRST}(X)$$B$K2C$($k(B
+	\item $Y_1$が$\epsilon$を導出しないならば$\mathsf{FIRST}(Y_1)$を
+	      $\mathsf{FIRST}(X)$に加える
+	\item $Y_1 \stackrel{*}{\Rightarrow} \epsilon$であれば、
+	      $\mathsf{FIRST}(Y_1) - \{\epsilon\}$を$\mathsf{FIRST}(X)$に加える。さらに$Y_2$が$\epsilon$を導出しないならば、$\mathsf{FIRST}(Y_2)$を
+	      $\mathsf{FIRST}(X)$に加え、$Y_2 \stackrel{*}{\Rightarrow}
+	      \epsilon$ならば$\mathsf{FIRST}(Y_2) - \{\epsilon\}$を$\mathsf{FIRST}(X)$に加える。(以下同様)
+	\item $Y_1Y_2\cdots Y_n \stackrel{*}{\Rightarrow} \epsilon$ならば、
+	      $\epsilon$を$\mathsf{FIRST}(X)$に加える
 	      \label{170823_7Jun05}
        \end{itemize}
- \item $\mathsf{FIRST}(X_1X_2\cdots X_n)$$B$O(B\ref{170823_7Jun05}$B$HF1MM$K7W;;(B
+ \item $\mathsf{FIRST}(X_1X_2\cdots X_n)$は\ref{170823_7Jun05}と同様に計算
 \end{enumerate}
 
-\subsection{FOLLOW$B$N7W;;J}K!(B}
+\subsection{FOLLOWの計算方法}
 
 \begin{enumerate}
- \item $\mathsf{FOLLOW}(S)$$B$K(B$\$$$B$r2C$($k!#(B
- \item $B$I$N(B\textsf{FOLLOW}$B$K$b5-9f$,DI2C$5$l$J$/$J$k$^$G!"0J2<$r7+$jJV$9!#(B
+ \item $\mathsf{FOLLOW}(S)$に$\$$を加える。
+ \item どの\textsf{FOLLOW}にも記号が追加されなくなるまで、以下を繰り返す。
        \begin{itemize}
-	\item $A \rightarrow \alpha B\beta$$B$K$D$$$F!"(B$\mathsf{FIRST}(\beta)
-	      - \{\epsilon\}$$B$r(B$\mathsf{FOLLOW}(B)$$B$K2C$($k!#(B
-	\item $A \rightarrow \alpha B\beta$$B!"$+$D(B$\mathsf{FIRST}(\beta)$
-	      $B$,(B$\epsilon$$B$r4^$s$G$$$k$H$-!"(B$\mathsf{FOLLOW}(A)$$B$r(B
-	      $\mathsf{FOLLOW}(B)$$B$K2C$($k!#(B
-	\item $A \rightarrow \alpha B$$B$N$H$-!"(B$\mathsf{FOLLOW}(A)$$B$r(B
-	      $\mathsf{FOLLOW}(B)$$B$K2C$($k!#(B
+	\item $A \rightarrow \alpha B\beta$について、$\mathsf{FIRST}(\beta)
+	      - \{\epsilon\}$を$\mathsf{FOLLOW}(B)$に加える。
+	\item $A \rightarrow \alpha B\beta$、かつ$\mathsf{FIRST}(\beta)$
+	      が$\epsilon$を含んでいるとき、$\mathsf{FOLLOW}(A)$を
+	      $\mathsf{FOLLOW}(B)$に加える。
+	\item $A \rightarrow \alpha B$のとき、$\mathsf{FOLLOW}(A)$を
+	      $\mathsf{FOLLOW}(B)$に加える。
        \end{itemize}
 \end{enumerate}
 
-\section{LL(1)$B$G$J$$J8K!$N9=J82r@O(B}
+\section{LL(1)でない文法の構文解析}
 
-LL(1)$B$G$J$$J8K!$KBP$9$k0lHLE*$J9=J82r@O<jK!$O!"K\9V5A$NHO0O$r1[$($k$N$G>J(B
-$BN,$9$k!#$?$@$7!"$"$k<o$N(BLL(1)$B$G$J$$J8K!$G$O!"@8@.5,B'$NE,MQ=g$KM%@hEY$r@_(B
-$B$1$k$3$H$GM=B,7?9=J82r@O$,9T$($k>l9g$,$"$k!#(B
+LL(1)でない文法に対する一般的な構文解析手法は、本講義の範囲を越えるので省
+略する。ただし、ある種のLL(1)でない文法では、生成規則の適用順に優先度を設
+けることで予測型構文解析が行える場合がある。
 
 \begin{screen}
  \begin{example}
-  C$B8@8l$N(Bif$BJ8$r0lHL2=$7$?<!$NJ8K!$r9M$($k!#(B
+  C言語のif文を一般化した次の文法を考える。
   \begin{eqnarray*}
    & & S \rightarrow iES | iESeS | a \\
    & & E \rightarrow b
   \end{eqnarray*}
-  $B$3$l$KBP$7:8C<$N3g$j=P$7$r9T$&$H!"<!$N$h$&$JJ8K!$,F@$i$l$k!#(B
+  これに対し左端の括り出しを行うと、次のような文法が得られる。
   \begin{eqnarray*}
    & & S \rightarrow iESS' | a \\
    & & S' \rightarrow eS | \epsilon \\
    & & E \rightarrow b
   \end{eqnarray*}
-  $B$3$l$G$b$^$@(BLL(1)$BJ8K!$G$O$J$$!#<B$O$3$NJ8K!$O!"$I$&JQ7A$7$F$b(BLL(1)$B$K$O(B
-  $B$J$i$J$$$3$H$,$o$+$C$F$$$k!#$7$+$7!"(B$S' \rightarrow eS$$B$r(B$S'
-  \rightarrow \epsilon$$B$h$jM%@h$7$FE,MQ$9$k$3$H$K$9$l$P!"M=B,7?9=J82r@O$,(B
-  $B9T$($k!#(B$S'$$B$KBP1~$9$k4X?t$O<!$N$h$&$K$J$k!#(B
+  これでもまだLL(1)文法ではない。実はこの文法は、どう変形してもLL(1)には
+  ならないことがわかっている。しかし、$S' \rightarrow eS$を$S'
+  \rightarrow \epsilon$より優先して適用することにすれば、予測型構文解析が
+  行える。$S'$に対応する関数は次のようになる。
   \begin{verbatim}
 	void S_dash() { match(e); S(); }\end{verbatim}
  \end{example}
- $B>e$G<($7$?M%@hEY$O!"A02s=R$Y$?5,B'!V3F(B else $B$OA0$N$[$&$K$"$kL$BP1~$N(B
- then $BJ8$N$&$A!"$b$C$H$b6a$$$b$N$HBP1~$9$k!W$HF1$8F/$-$r$7$F$$$k!#(B
+ 上で示した優先度は、前回述べた規則「各 else は前のほうにある未対応の
+ then 文のうち、もっとも近いものと対応する」と同じ働きをしている。
 \end{screen}
 
-\section*{$BN}=,LdBj(B}
+\section*{練習問題}
 
 \begin{enumerate}
- \item $B<!$NJ8K!$,(BLL(1)$BJ8K!$G$"$k$3$H$r<($;!#(B
+ \item 次の文法がLL(1)文法であることを示せ。
        \begin{eqnarray*}
 	& & S \rightarrow AaAb | BbBa \\
 	& & A \rightarrow \epsilon \\

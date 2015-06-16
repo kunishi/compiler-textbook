@@ -1,53 +1,53 @@
 %#!platex main
 
-\chapter{$BF3F~(B}
+\chapter{導入}
 \label{134138_29Mar06}
 
-$BK\9V5A$G$O!"%3%s%Q%$%i$NFbIt9=@.$K$D$$$F!"M}O@LL$+$i<B:]$N%W%m%0%i%`$K;j(B
-$B$k$^$G$r07$&!#(B
+本講義では、コンパイラの内部構成について、理論面から実際のプログラムに至
+るまでを扱う。
 
-C$B8@8l$N%3%s%Q%$%i$O1i=,!&<B83Ey$G$h$/;H$C$F$$$k$O$:$G$"$k!#$3$N%=%U%H%&%'(B
-$B%"$O!"(BC$B8@8l$N%W%m%0%i%`$r5!3#8l$N%W%m%0%i%`$d<B9T7A<0%U%!%$%k(B
-$B!J(B\icode{a.out}$B$J$I!K$KJQ49$7$F$/$l$k!#0lHL$K(B{\bfseries $B%3%s%Q%$(B
-$B%i(B}$B!J(Bcompiler$B!K$H$O!"!V$"$k%W%m%0%i%_%s%08@8l$G=q$+$l$?%W%m%0%i%`$rFI$_9~(B
-$B$s$G!"JL$N%W%m%0%i%_%s%08@8l$K$h$kEy2A$J%W%m%0%i%`$KK]Lu$9$k%=%U%H%&%'%"!W(B
-$B$G$"$k!#K]LuA0$N%W%m%0%i%_%s%08@8l$r(B{\bfseries $B86;O8@8l(B}$B!J(Bsource
-language$B!K!"K]Lu8e$N%W%m%0%i%_%s%08@8l$r(B{\bfseries $BL\E*8@8l(B}$B!J(Btarget
-language$B!K$H$$$&!#$^$?!"K]LuA0$N%W%m%0%i%`$r(B{\bfseries $B86;O%W%m%0%i(B
-$B%`(B}$B!J(Bsource program$B!K!"K]Lu8e$N%W%m%0%i%`$r(B{\bfseries $BL\E*%W%m%0%i(B
-$B%`(B}$B!J(Btarget program$B!K$H$$$&!#(BC$B8@8l$N%3%s%Q%$%i$O!"86;O8@8l$,(BC$B!"L\E*8@8l$,(B
-$B5!3#8l$G$"$k$h$&$J%3%s%Q%$%i(B\footnote{\icode{gcc}$B$O!"(BC$B0J30$N8@8l!J(BC++$B$J$I!K(B
-$B$b86;O8@8l$H$7$F07$($k!#(B}$B$G$"$k!#$^$?%3%s%Q%$%i$O!"86;O%W%m%0%i%`$r2r@O$7!"(B
-$B$=$NCf$KJ8K!E*$J8m$j$,$"$l$P!"$=$N$3$H$r%f!<%6$KDLCN$7$F$/$l$k!#(B
+C言語のコンパイラは演習・実験等でよく使っているはずである。このソフトウェ
+アは、C言語のプログラムを機械語のプログラムや実行形式ファイル
+（\icode{a.out}など）に変換してくれる。一般に{\bfseries コンパイ
+ラ}（compiler）とは、「あるプログラミング言語で書かれたプログラムを読み込
+んで、別のプログラミング言語による等価なプログラムに翻訳するソフトウェア」
+である。翻訳前のプログラミング言語を{\bfseries 原始言語}（source
+language）、翻訳後のプログラミング言語を{\bfseries 目的言語}（target
+language）という。また、翻訳前のプログラムを{\bfseries 原始プログラ
+ム}（source program）、翻訳後のプログラムを{\bfseries 目的プログラ
+ム}（target program）という。C言語のコンパイラは、原始言語がC、目的言語が
+機械語であるようなコンパイラ\footnote{\icode{gcc}は、C以外の言語（C++など）
+も原始言語として扱える。}である。またコンパイラは、原始プログラムを解析し、
+その中に文法的な誤りがあれば、そのことをユーザに通知してくれる。
 
-$B%3%s%Q%$%i$NNr;K$O(B1950$BG/Be$K$5$+$N$\$k!#Ev;~$O!"%3%s%Q%$%i$O<BAu$K$R$I$/(B
-$B<j4V$N$+$+$k%=%U%H%&%'%"$G$"$C$?!#$7$+$7!"$=$N8e(B1980$BG/Be:"$^$G$K!"%3%s%Q(B
-$B%$%i@_7W$K4X$9$kM}O@E*$+$DBN7OE*$J<jK!$,$$$m$$$m9M0F$5$l!"%3%s%Q%$%i<BAu(B
-$B$NB?$/$NItJ,$O<+F0$G9T$($k$h$&$K$J$C$?!#(B
+コンパイラの歴史は1950年代にさかのぼる。当時は、コンパイラは実装にひどく
+手間のかかるソフトウェアであった。しかし、その後1980年代頃までに、コンパ
+イラ設計に関する理論的かつ体系的な手法がいろいろ考案され、コンパイラ実装
+の多くの部分は自動で行えるようになった。
 
-$B$7$?$,$C$F%3%s%Q%$%i$N@_7W5;K!$O!">pJs2J3X!"%O!<%I%&%'%"!"%=%U%H%&%'%"$N(B
-3$BJ,Ln$,8r:9$9$k$H$3$m$K$"$j!"4XO"2JL\$bB?4t$KEO$k!#(B
+したがってコンパイラの設計技法は、情報科学、ハードウェア、ソフトウェアの
+3分野が交差するところにあり、関連科目も多岐に渡る。
 \begin{description}
- \item[$B@h9T2JL\(B] $B>pJs=hM}3X!"N%;6?t3X!"%W%m%0%i%_%s%08@8l(BI$B!"%W%m%0%i%_%s%08@8l(BII$B!"7W;;5!%"!<%-%F%/%A%c(BA
- \item[$B8eB32JL\(B] $B7A<08@8lM}O@!J=$;N!K(B
+ \item[先行科目] 情報処理学、離散数学、プログラミング言語I、プログラミング言語II、計算機アーキテクチャA
+ \item[後続科目] 形式言語理論（修士）
 \end{description}
-$B$3$N$[$+!"$3$N9V5A$G$O%W%m%0%i%`Nc$N5-=R$K(BC$B8@8l$rMQ$$$k!#$=$N$?$a!"9V5AA4(B
-$BHL$rDL$7$F(BC$B8@8l$NCN<1$,I,MW$K$J$k!#(B
+このほか、この講義ではプログラム例の記述にC言語を用いる。そのため、講義全
+般を通してC言語の知識が必要になる。
 
-$B$3$N9V5A$O(B
+この講義は
 \cite{aho86:_compiler}\cite{aho07:_compil_princ_techn_tools_secon_edition}
-\cite{$BEr@u(B01}$B$r4p$K$7$F$$$k!#$?$@$7!"J,NL$,KDBg$G$"$j!"$+$DFq2r$JItJ,$bB?(B
-$B$$$N$G!"4pACE*$JItJ,$rH4?h$7$F9=@.$7$F$$$k(B\footnote{$BK\%F%-%9%HCf$NNc$K$D(B
-$B$$$F$O$3$l$i$N=q@R$+$i$N0zMQ$,$+$J$jB?$/!"3X304X78<T$KN.I[$9$k$HCx:n8">e(B
-$BLdBj$,$"$k!#K\;qNA$NMxMQ$O3XFb4X78<T$N$_$K$H$I$a$F$*$$$F$$$?$@$-$?$$!#(B}$B!#$=$NB>!"(B
-\cite{$B%[%C%W%/%m%U%H(B03:automaton}\cite{$BCfED(B99}\cite{$B%+!<%K%O%s(B89}$B$J$I$rE,(B
-$B59;2>H$7$F$$$k!#(B
+\cite{湯浅01}を基にしている。ただし、分量が膨大であり、かつ難解な部分も多
+いので、基礎的な部分を抜粋して構成している\footnote{本テキスト中の例につ
+いてはこれらの書籍からの引用がかなり多く、学外関係者に流布すると著作権上
+問題がある。本資料の利用は学内関係者のみにとどめておいていただきたい。}。その他、
+\cite{ホップクロフト03:automaton}\cite{中田99}\cite{カーニハン89}などを適
+宜参照している。
 
-\section{$B%3%s%Q%$%i$N9=@.(B}
+\section{コンパイラの構成}
 \label{134201_29Mar06}
 
-$B:#8e$N9V5A$NN.$l$rCN$C$F$*$/$?$a$K!"Nc$rMQ$$$F%3%s%Q%$%i$NFbIt9=@.$r4JC1(B
-$B$K@bL@$9$k$3$H$K$7$h$&!#<!$N(BC$B%W%m%0%i%`!J(B\icode{simple.c}$B!K$r9M$($k!#(B
+今後の講義の流れを知っておくために、例を用いてコンパイラの内部構成を簡単
+に説明することにしよう。次のCプログラム（\icode{simple.c}）を考える。
 
 \begin{quote}
 \lstinputlisting{code/simple.c}
@@ -55,72 +55,72 @@ language$B!K$H$$$&!#$^$?!"K]LuA0$N%W%m%0%i%`$r(B{\bfseries $B86;O%W%m%0%i(B
 
 \begin{figure}
  \lstinputlisting[language={[x86masm]Assembler},numbers=left,xleftmargin=100pt]{code/simple.s}
- \caption{i386$B5!3#8lL?Na$NNc(B}
+ \caption{i386機械語命令の例}
  \label{143232_11Apr06}
 \end{figure}
 
-$B%3%s%Q%$%i$O(B\icode{simple.c}$B$NFbMF$r2r@O$7!"Nc$($P?^(B\ref{143232_11Apr06}
-$B$N$h$&$J5!3#8lNs$r@8@.$9$k(B\footnote{i386$B%"!<%-%F%/%A%c$r2>Dj$7$F$$$k!#(B}$B!#(B
-$B$J$*!"K\Ev$N5!3#8lNs$O!"$=$l$>$l$N%7%s%\%k$r(B0/1$B$NNs$GCV$-49$($?$b$N$K$J$k!#(B
+コンパイラは\icode{simple.c}の内容を解析し、例えば図\ref{143232_11Apr06}
+のような機械語列を生成する\footnote{i386アーキテクチャを仮定している。}。
+なお、本当の機械語列は、それぞれのシンボルを0/1の列で置き換えたものになる。
 
-$B3F5!3#8lL?Na$O!"(BCPU$B$K$h$C$FD>@\2r<a<B9T$9$k$3$H$,$G$-$k!#(B
-\icode{simple.c}$B$r%3%s%Q%$%k$7$FF@$i$l$?<B9T7A<0%U%!%$%k!J(B\icode{a.out}$B$J(B
-$B$I!K$r<B9T$9$k$H!"$3$N5!3#8lL?NaNs$,<g5-21>e$K%m!<%I$5$l!"(BCPU$B$,$=$l$r=g<!(B
-$B2r<a$7$F<B9T$7$F$$$/!#3F9T$N0UL#$O$@$$$?$$<!$N$h$&$K$J$C$F$$$k!#(B
+各機械語命令は、CPUによって直接解釈実行することができる。
+\icode{simple.c}をコンパイルして得られた実行形式ファイル（\icode{a.out}な
+ど）を実行すると、この機械語命令列が主記憶上にロードされ、CPUがそれを順次
+解釈して実行していく。各行の意味はだいたい次のようになっている。
 \begin{itemize}
- \item 3$B9TL\!D(B\icode{\_main}$B$H$$$&L\0u!J%i%Y%k!K$E$1!#(B\icode{main}$B4X?t$KBP(B
-       $B1~$7$F$$$k!#(B
- \item 4-6$B9TL\!D(B\icode{main}$B4X?t$N8F$S=P$7=hM}!#$3$N$H$-!"(B
-       \icode{-16(\%ebp)}$BHVCO$+$i(B4$B%P%$%H$NNN0h$K6I=jJQ?t(B\icode{x}$B$,!"(B
-       \icode{-12(\%ebp)}$BHVCO$+$i(B4$B%P%$%H$NNN0h$K6I=jJQ?t(B\icode{y}$B$,$=$l$>(B
-       $B$l3d$jEv$F$i$l$k!#(B
- \item 7$B9TL\!D(B\icode{y}$B$NNN0h$K(B\icode{\$1}$B!"$9$J$o$ADj?t(B1$B$,%;%C%H$5$l$k!#(B
- \item 8$B9TL\!D(B\icode{y}$B$NNN0h$NCM$,%l%8%9%?(B\icode{\%eax}$B$K%;%C%H$5$l$k!#(B
- \item 9$B9TL\!D%l%8%9%?(B\icode{\%eax}$B$NCM$KDj?t(B20$B$,2C$($i$l$k!#(B
- \item 10$B9TL\!D%l%8%9%?(B\icode{\%eax}$B$NCM$,(B\icode{x}$B$NNN0h$K%;%C%H$5$l$k!#(B
- \item 11-13$B9TL\!D(B\icode{main}$B4X?t$N=*N;=hM}(B\footnote{11-12$B9TL\$O(B
-       \icode{leave}$B$H$$$&(B1$B$D$N5!3#8lL?Na$K$^$H$a$i$l$F$$$k$3$H$b$"$k!#(B}$B!#(B
+ \item 3行目…\icode{\_main}という目印（ラベル）づけ。\icode{main}関数に対
+       応している。
+ \item 4-6行目…\icode{main}関数の呼び出し処理。このとき、
+       \icode{-16(\%ebp)}番地から4バイトの領域に局所変数\icode{x}が、
+       \icode{-12(\%ebp)}番地から4バイトの領域に局所変数\icode{y}がそれぞ
+       れ割り当てられる。
+ \item 7行目…\icode{y}の領域に\icode{\$1}、すなわち定数1がセットされる。
+ \item 8行目…\icode{y}の領域の値がレジスタ\icode{\%eax}にセットされる。
+ \item 9行目…レジスタ\icode{\%eax}の値に定数20が加えられる。
+ \item 10行目…レジスタ\icode{\%eax}の値が\icode{x}の領域にセットされる。
+ \item 11-13行目…\icode{main}関数の終了処理\footnote{11-12行目は
+       \icode{leave}という1つの機械語命令にまとめられていることもある。}。
 \end{itemize}
 
-$B$3$N9V5A$G07$&FbMF$r@0M}$9$k$H<!$N$h$&$K$J$k!#(B
+この講義で扱う内容を整理すると次のようになる。
 \begin{enumerate}
- \item $B86;O%W%m%0%i%`!J>e$NNc$G$O(BC$B%W%m%0%i%`!K$+$iL\E*%W%m%0%i%`!J>e$NNc(B
-       $B$G$O5!3#8lNs!K$r@8@.$9$k%"%k%4%j%:%`(B\label{195753_28Mar06}
- \item \ref{195753_28Mar06}$B$r<B8=$9$k%W%m%0%i%`(B
+ \item 原始プログラム（上の例ではCプログラム）から目的プログラム（上の例
+       では機械語列）を生成するアルゴリズム\label{195753_28Mar06}
+ \item \ref{195753_28Mar06}を実現するプログラム
        \label{195816_28Mar06}
- \item \ref{195816_28Mar06}$B$r<+F0E*$K@8@.$9$k%"%k%4%j%:%`(B/$B<jK!(B
+ \item \ref{195816_28Mar06}を自動的に生成するアルゴリズム/手法
        \label{200119_28Mar06}
 \end{enumerate}
-\ref{195753_28Mar06}$B$H(B\ref{200119_28Mar06}$B$N0c$$$K=<J,N10U$5$l$?$$!#(B
+\ref{195753_28Mar06}と\ref{200119_28Mar06}の違いに充分留意されたい。
 
-$B$5$F!"%3%s%Q%$%i$OBg$-$/J,$1$F0J2<$N(B2$B$D$NItJ,$+$i9=@.$5$l$k!#(B
+さて、コンパイラは大きく分けて以下の2つの部分から構成される。
 \begin{description}
- \item[$B2r@OIt(B] $B86;O%W%m%0%i%`$r2r@O$7!"%3%s%Q%$%iFbIt$G=hM}$9$k$?$a$N%G!<(B
-	    $B%?9=B$!J(B{\bfseries $BCf4VI=8=(B}$B!K$r:n$k!#J8;zNs$H$7$F$N86;O%W%m(B
-	    $B%0%i%`$+$i%W%m%0%i%`$N:G>.0UL#C10L!J(B{\bfseries $B%H!<%/%s(B},
-	    token$B!K$r@Z$j=P$9(B{\bfseries $B;z6g2r@O(B}$B!J(Blexical analysis$B!KIt!"(B
-	    $B%H!<%/%sNs$+$i%W%m%0%i%`$N0UL#9=B$$r2r@O$9$k(B{\bfseries $B9=J82r(B
-	    $B@O(B}$B!J(Bsyntax analysis$B!KIt!"7?$N8!::$J$I9=J82r@OIt$G$O9T(B
-	    $B$($J$$%W%m%0%i%`2r@O$r9T$&(B{\bfseries $B0UL#2r@O(B}$B!J(Bsemantic
-	    analysis$B!KIt$N(B3$B$D$NItJ,$+$i$J$k!#$^$?!"@h$NNc$N(B\icode{main},
-	    \icode{x}, \icode{y}$B$J$I!"%f!<%6$,Dj5A$7$?JQ?t$d4X?t$NNs5s$b(B
-	    $B$3$NCJ3,$G9T$o$l$k!#(B
- \item[$B9g@.It(B] $B2r@OIt$G:n$C$?Cf4VI=8=$r4p$K!"L\E*%W%m%0%i%`$r9g@.$9$k!#>l(B
-	    $B9g$K$h$C$F$O!"<B9TB.EY$r>e$2$k$?$a$K!"9g@.$7$?%W%m%0%i%`$r$5(B
-	    $B$i$K2C9)$9$k$3$H$b$"$k!J(B{\bfseries $B:GE,2=(B}, optimization$B!K!#(B
+ \item[解析部] 原始プログラムを解析し、コンパイラ内部で処理するためのデー
+	    タ構造（{\bfseries 中間表現}）を作る。文字列としての原始プロ
+	    グラムからプログラムの最小意味単位（{\bfseries トークン},
+	    token）を切り出す{\bfseries 字句解析}（lexical analysis）部、
+	    トークン列からプログラムの意味構造を解析する{\bfseries 構文解
+	    析}（syntax analysis）部、型の検査など構文解析部では行
+	    えないプログラム解析を行う{\bfseries 意味解析}（semantic
+	    analysis）部の3つの部分からなる。また、先の例の\icode{main},
+	    \icode{x}, \icode{y}など、ユーザが定義した変数や関数の列挙も
+	    この段階で行われる。
+ \item[合成部] 解析部で作った中間表現を基に、目的プログラムを合成する。場
+	    合によっては、実行速度を上げるために、合成したプログラムをさ
+	    らに加工することもある（{\bfseries 最適化}, optimization）。
 \end{description}
 
-$B%3%s%Q%$%i$O!":G=i$O86;O%W%m%0%i%`$rC1$J$kJ8;z$NJB$S$H$7$F07$&!#@h$NNc$G(B
-$B8@$($P!"<!$N$h$&$JJ8;z$NJB$S$H$7$F07$&!J(B\verb|\n|$B$O2~9TJ8;z$rI=$9!K!#(B
+コンパイラは、最初は原始プログラムを単なる文字の並びとして扱う。先の例で
+言えば、次のような文字の並びとして扱う（\verb|\n|は改行文字を表す）。
 \begin{quote}
 \verb|int main()\n{\n int x;\n int y = 1;\n x = y + 20;\n}\n|
 \end{quote}
-$B$3$3$+$i(BC$B8@8l$H$7$F0UL#$N$"$kJ8;zNs$r@Z$j=P$9$N$,;z6g2r@OIt$G$"$k!#7k2L$O(B
-$B<!$N$h$&$JJ8;zNs$NJB$S$K$J$k(B\footnote{$B8e$G=R$Y$k$h$&$K!"<B:]$K$O!"=PNO$9(B
-$B$k$N$O$=$l$>$l$NJ8;zNs$rCj>]2=$7$?5-9f!"$9$J$o$A%H!<%/%s$G$"$k!#$^$?!"0l(B
-$BEY$K$3$N$h$&$JJB$S$r$^$H$a$F=PNO$9$k$N$G$O$J$/!";z6g2r@OIt$KMW5a$,$"$k$?(B
-$B$S$K0l$D$:$D@Z$j=P$7$F=PNO$9$k!#(B}$B!#6uGr$d2~9TJ8;z$J$I!"(BC$B8@8l$H$7$F0UL#$N(B
-$B$J$$J8;zNs$O=PNO$5$l$F$$$J$$$3$H$KCm0U$7$F$*$$$F$[$7$$!#(B
+ここからC言語として意味のある文字列を切り出すのが字句解析部である。結果は
+次のような文字列の並びになる\footnote{後で述べるように、実際には、出力す
+るのはそれぞれの文字列を抽象化した記号、すなわちトークンである。また、一
+度にこのような並びをまとめて出力するのではなく、字句解析部に要求があるた
+びに一つずつ切り出して出力する。}。空白や改行文字など、C言語として意味の
+ない文字列は出力されていないことに注意しておいてほしい。
 \begin{quote}
  \verb|int|, \verb|main|, \verb|(|, \verb|)|, \verb|{|, \verb|int|,
  \verb|x|, \verb|;|, \verb|int|, \verb|y|, \verb|=|, \verb|1|, 
@@ -128,37 +128,37 @@ language$B!K$H$$$&!#$^$?!"K]LuA0$N%W%m%0%i%`$r(B{\bfseries $B86;O%W%m%0%i(B
  \verb|}|
 \end{quote}
 
-$B$3$NJB$S$r!"%W%m%0%i%_%s%08@8l$NJ8K!$K=>$C$F%0%k!<%W2=$7!"0UL#$N$^$H$^$j(B
-$B$r2r@O$9$k$N$,9=J82r@OIt$G$"$k!#Nc$($P!"%;%_%3%m%s(B \verb|;| $B$O(BC$B8@8l$NJ8$N6h(B
-$B@Z$j$G$"$j!"%;%_%3%m%s$G0O$^$l$?<!$NItJ,$O0l$D$N$^$H$^$j$K$J$k!#(B
+この並びを、プログラミング言語の文法に従ってグループ化し、意味のまとまり
+を解析するのが構文解析部である。例えば、セミコロン \verb|;| はC言語の文の区
+切りであり、セミコロンで囲まれた次の部分は一つのまとまりになる。
 \begin{quote}
  \verb|x|, \verb|=|, \verb|y|, \verb|+|, \verb|20|
 \end{quote}
-$B$3$l$O$5$i$K(B\verb|x|, \verb|=|, \verb|y| \verb|+| \verb|20|$B$H$$$&(B3$B$D$NIt(B
-$BJ,$K%0%k!<%W2=$G$-!"$5$i$K:G8e$NItJ,$O(B\verb|y|, \verb|+|, \verb|20|$B$H$$$&(B
-3$B$D$NItJ,$K%0%k!<%W2=$G$-$k!#$3$N$h$&$K!"%0%k!<%W2=$7$?7k2L!"$D$^$j9=J82r(B
-$B@O$N7k2L$ODL>o%0%k!<%W$NF~$l;R$K$J$j!"LZ$GI=8=$9$k$N$,0lHLE*$G$"$k!J?^(B
-\ref{112135_29Mar06}$B!K!#O@M}E*$K$O!"$3$l$,9=J82r@OIt$N=PNO%G!<%?9=B$$K$J(B
-$B$k!#(B
+これはさらに\verb|x|, \verb|=|, \verb|y| \verb|+| \verb|20|という3つの部
+分にグループ化でき、さらに最後の部分は\verb|y|, \verb|+|, \verb|20|という
+3つの部分にグループ化できる。このように、グループ化した結果、つまり構文解
+析の結果は通常グループの入れ子になり、木で表現するのが一般的である（図
+\ref{112135_29Mar06}）。論理的には、これが構文解析部の出力データ構造にな
+る。
 
 \begin{figure}
  \begin{center}
   \includegraphics[scale=0.8]{figure/tree_structure.pdf}
  \end{center}
- \caption{{\sffamily x = y + 20}$B$rI=$9LZ9=B$(B}
+ \caption{{\sffamily x = y + 20}を表す木構造}
  \label{112135_29Mar06}
 \end{figure}
 
-$B$3$NLZ$K$O!"7?$N>pJs$J$I!"%W%m%0%i%`<B9T$N$?$a$N=EMW$J>pJs$,$$$/$D$+4^$^(B
-$B$l$F$$$J$$!#$3$l$rJd$&$N$,0UL#2r@OIt$G$"$k!#Dj?t$dJQ?t$N7?JQ49$J$I$O0UL#(B
-$B2r@OIt$GE,59=hM}$5$l$k!#$=$N7k2L!"9=J82r@OIt$N=PNO$NLZ$K=$@5$,2C$($i$l$k(B
-$B$3$H$b$"$k!#(B
+この木には、型の情報など、プログラム実行のための重要な情報がいくつか含ま
+れていない。これを補うのが意味解析部である。定数や変数の型変換などは意味
+解析部で適宜処理される。その結果、構文解析部の出力の木に修正が加えられる
+こともある。
 
-$B$3$3$^$G$GF@$i$l$?LZ9=B$$r4p$K$7$F!"L\E*%W%m%0%i%`$,9g@.$5$l$k!#$=$N:]!"(B
-$B$$$-$J$jL\E*%W%m%0%i%`$r9g@.$9$k$N$G$O$J$/!"$$$C$?$s5<;wE*$J5!3#8lNs$r@8(B
-$B@.$7$F$+$i<B:]$NL\E*%W%m%0%i%`$KJQ49$9$k$[$&$,9M$($d$9$$!#Nc$($P!"(B
-{\sffamily x = y + 20}$B$KBP$7$F!"?7$?$JJQ?t(B\icode{temp1}, \icode{temp2}$B$r(B
-$BF3F~$7!"<!$N$h$&$J5<;w5!3#8lNs$r9M$($k!#(B
+ここまでで得られた木構造を基にして、目的プログラムが合成される。その際、
+いきなり目的プログラムを合成するのではなく、いったん擬似的な機械語列を生
+成してから実際の目的プログラムに変換するほうが考えやすい。例えば、
+{\sffamily x = y + 20}に対して、新たな変数\icode{temp1}, \icode{temp2}を
+導入し、次のような擬似機械語列を考える。
 \begin{quote}
 \begin{verbatim}
 	temp1 = y
@@ -166,27 +166,27 @@ language$B!K$H$$$&!#$^$?!"K]LuA0$N%W%m%0%i%`$r(B{\bfseries $B86;O%W%m%0%i(B
 	x = temp2
 \end{verbatim}
 \end{quote}
-$B$9$k$H!"@h$K<($7$?L\E*%W%m%0%i%`$H$NBP1~$,$H$j$d$9$/$J$k$3$H$,J,$+$k$@$m(B
-$B$&!#$3$N5<;w5!3#8lNs$KBP$7$F!"JQ?t(B\icode{temp1}, \icode{temp2}$B$K%l%8%9%?(B
-\icode{\%eax}$B$r!"(B\icode{x}$B$KHVCO(B\icode{-16(\%ebp)}$B$r!"(B\icode{y}$B$KHVCO(B
-\icode{-12(\%ebp)}$B$r$=$l$>$l3d$jEv$F$k$H!"@h$K<($7$?L\E*%W%m%0%i%`$,@8@.(B
-$B$G$-$k!#%l%8%9%?$dHVCO$N3d$jEv$F!"4X?t8F$S=P$7;~$N=hM}%3!<%I$NDI2C$J$I$b(B
-$B9g@.It$G9T$o$l$k!#(B
+すると、先に示した目的プログラムとの対応がとりやすくなることが分かるだろ
+う。この擬似機械語列に対して、変数\icode{temp1}, \icode{temp2}にレジスタ
+\icode{\%eax}を、\icode{x}に番地\icode{-16(\%ebp)}を、\icode{y}に番地
+\icode{-12(\%ebp)}をそれぞれ割り当てると、先に示した目的プログラムが生成
+できる。レジスタや番地の割り当て、関数呼び出し時の処理コードの追加なども
+合成部で行われる。
 
-$B$J$*!"$3$3$G=R$Y$?%3%s%Q%$%i$N9=@.$O$b$C$H$b4pK\E*$J$b$N$G$"$k!#<B:]$N%3(B
-$B%s%Q%$%i@_7W$G$O$3$N9=@.$K87L)$K$O=>$o$J$$$3$H$bB?!9$"$k!#(B
+なお、ここで述べたコンパイラの構成はもっとも基本的なものである。実際のコ
+ンパイラ設計ではこの構成に厳密には従わないことも多々ある。
 
-\section{$BN}=,LdBj(B}
+\section{練習問題}
 
 \begin{exercise}
 \label{ex:intro01}
- \icode{gcc}$B$O!"(B\icode{-s}$B%*%W%7%g%s$r$D$1$k$3$H$G5!3#8lL?NaNs$r=PNO$5$;(B
- $B$k$3$H$,$G$-$k!#4JC1$J(BC$B8@8l%W%m%0%i%`$r3F<+$G=q$-!"$I$N$h$&$J5!3#8lL?Na(B
- $BNs$,=PNO$5$l$k$+!";n$7$F$_$h!#(B
+ \icode{gcc}は、\icode{-s}オプションをつけることで機械語命令列を出力させ
+ ることができる。簡単なC言語プログラムを各自で書き、どのような機械語命令
+ 列が出力されるか、試してみよ。
 \end{exercise}
 \begin{exercise}
 \label{ex:intro02}
- $B<!$N(BC$B8@8l$NJ8$r!"(BC$B8@8l$H$7$F0UL#$N$"$kJ8;zNs$KJ,2r$;$h!#(B
+ 次のC言語の文を、C言語として意味のある文字列に分解せよ。
  \begin{quote}
   \verb|x = 0; while (i < 100) { x += i; i++; }|
  \end{quote}

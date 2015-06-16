@@ -1,51 +1,51 @@
 %#!platex main
 
-\chapter{$B0UL#2r@O(B}
+\chapter{意味解析}
 
-$B%W%m%0%i%_%s%08@8l$N9=J8>e$N@)Ls$K$O!"J8L.<+M3J8K!$NOH$+$i30$l$k$b$N$,$$(B
-$B$/$D$+$"$k!#$3$3$^$G$K$b$H$3$m$I$3$m$G=R$Y$F$-$?$,!"@0M}$7$F$_$h$&!#(B
+プログラミング言語の構文上の制約には、文脈自由文法の枠から外れるものがい
+くつかある。ここまでにもところどころで述べてきたが、整理してみよう。
 \begin{itemize}
- \item $BJQ?t$N@k8@$O!"$=$NJQ?t$r;HMQ$9$k$h$j@h$K=P8=$7$J$/$F$O$J$i$J$$!#(B
-       \ref{110128_3Apr06}$B@a$G$b=R$Y$?DL$j!"$3$l$OJ8L.<+M3J8K!$G$OI=8=$G(B
-       $B$-$J$$!#$b$A$m$s(BLL(1)$BJ8K!$G$bI=8=$G$-$J$$!#(B
+ \item 変数の宣言は、その変数を使用するより先に出現しなくてはならない。
+       \ref{110128_3Apr06}節でも述べた通り、これは文脈自由文法では表現で
+       きない。もちろんLL(1)文法でも表現できない。
        \label{132708_10Apr06}
- \item $B7?$N@09g@-!#Nc$($P(BC$B8@8l$N(B\icode{int x = 10.0 + 2;}$B$H$$$&J8$O!"(B
-       \icode{int x = (int)(10.0 + (float)2);}$B!"$D$^$j!"(B(1)$B1&JU$N(B2$B$,(B
-       float$B7?$KJQ49$5$l(B (2) 10.0 + 2.0 $B$r7W;;$7!J7k2L$O(B float $B7?!K(B(3)
-       int$B7?$KJQ49$5$l$FJQ?t(B x $B$KBeF~$5$l$k!"$H$$$&$h$&$K7W;;$5$l$k!#$3$l(B
-       $B$i$N7?JQ49$O!"(BC$B8@8l$NJ8K!$G$OI=8=$5$l$F$*$i$:!";z6g2r@OIt$d9=J82r(B
-       $B@OIt$G$O07$($J$$!#(B
+ \item 型の整合性。例えばC言語の\icode{int x = 10.0 + 2;}という文は、
+       \icode{int x = (int)(10.0 + (float)2);}、つまり、(1)右辺の2が
+       float型に変換され (2) 10.0 + 2.0 を計算し（結果は float 型）(3)
+       int型に変換されて変数 x に代入される、というように計算される。これ
+       らの型変換は、C言語の文法では表現されておらず、字句解析部や構文解
+       析部では扱えない。
 \end{itemize}
 
-$B$3$N$h$&$K!"J8L.<+M3J8K!$+$i30$l$k@)Ls$N8!::$d2r@O$O!"9=J82r@OIt$N8e$G9T(B
-$B$o$l$k!#$3$l$r(B{\bf $B0UL#2r@O(B}$B!J(Bsemantic analysis$B!K$H$$$&!#0UL#2r@O$O!"9=J8(B
-$B2r@O$N=PNO$G$"$k2r@OLZ$rF~NO$H$7!"$=$N2r@OLZ$rJQ7A$7$?$j!"JL$N%G!<%?9=B$(B
-$B$r:n@.$7$?$j$9$k!#K\>O$G$O!"0UL#2r@O$N4pAC$H$J$k5;=Q$G$"$kK]Lu%9%-!<%`$K(B
-$B$D$$$F=R$Y!"$$$/$D$+$N@)Ls$N8!::$K$D$$$F<BNc$K$h$j@bL@$9$k!#(B
+このように、文脈自由文法から外れる制約の検査や解析は、構文解析部の後で行
+われる。これを{\bf 意味解析}（semantic analysis）という。意味解析は、構文
+解析の出力である解析木を入力とし、その解析木を変形したり、別のデータ構造
+を作成したりする。本章では、意味解析の基礎となる技術である翻訳スキームに
+ついて述べ、いくつかの制約の検査について実例により説明する。
 
-\section{$B5-9fI=(B}
+\section{記号表}
 
-$B86;O%W%m%0%i%`Cf$G$J$s$i$+$NL>A0$,$D$$$F$$$k9=@.MWAG!JJQ?tL>!"4X?tL>!"9=(B
-$BB$BN!"9=B$BN$N%a%s%P$J$I!K$rFCD'$E$1$k>pJs$K$O<!$N$h$&$J$b$N$,$"$k!#(B
+原始プログラム中でなんらかの名前がついている構成要素（変数名、関数名、構
+造体、構造体のメンバなど）を特徴づける情報には次のようなものがある。
 \begin{itemize}
- \item $B9=@.MWAG$N<oN`!JJQ?t!"4X?t$J$I!K(B
- \item $B9=@.MWAG$NL>A0(B
- \item $B7?>pJs!JJQ?t$N7?!"4X?t$N0z?t$N8D?t!"8D!9$N0z?t$N7?!"JV$jCM$N7?$J(B
-       $B$I!K(B
- \item $BB0@-!J(B\icode{static}$B$J$I!K(B
- \item $B9=@.MWAG$,3d$jEv$F$i$l$F$$$kHVCO(B
+ \item 構成要素の種類（変数、関数など）
+ \item 構成要素の名前
+ \item 型情報（変数の型、関数の引数の個数、個々の引数の型、返り値の型な
+       ど）
+ \item 属性（\icode{static}など）
+ \item 構成要素が割り当てられている番地
 \end{itemize}
-$B$3$l$i$N>pJs$O%3%s%Q%$%i$N3FCJ3,$GIQHK$K;2>H$5$l$k$N$G!"2?$i$+$N7A$N%G!<(B
-$B%?9=B$$GI=8=$7!"%3%s%Q%$%iCf$GJ];}!&4IM}$7$J$1$l$P$J$i$J$$!#%3%s%Q%$%i$G(B
-$B$ODL>o!"$3$l$i$N>pJs$r(B{\bfseries $B5-9fI=(B}$B!J(Bsymbol table$B!K$H$$$&I=$G4IM}$9$k!#(B
+これらの情報はコンパイラの各段階で頻繁に参照されるので、何らかの形のデー
+タ構造で表現し、コンパイラ中で保持・管理しなければならない。コンパイラで
+は通常、これらの情報を{\bfseries 記号表}（symbol table）という表で管理する。
 
-\subsection{$B5-9fI=$N<BAu(B}
+\subsection{記号表の実装}
 
-$B5-9fI=$r<BAu$9$k:G$b4JC1$JJ}K!$O!"9=B$BN$NG[Ns$rMQ$$$k$b$N$G$"$k!#4JC1$N(B
-$B$?$a!"5-9fI=$K3JG<$5$l$k>pJs$r!"<1JL;R$NJ8;zNs!J(B\icode{lexname}$B!":GBgD9$5(B
-\icode{MAXLEN}$B!K!"<1JL;R$N%H!<%/%s$N<oN`!J(B\icode{lextoken}$B!K$N(B2$B$D$G$"$k$H(B
-$B$7!"5-9fI=$KEPO?$G$-$k%(%s%H%j$N:GBg?t$r(B\icode{MAXENT}$B$H$7$F$*$3$&!#$9$k(B
-$B$H!"5-9fI=$rI=$9%G!<%?9=B$$O<!$N$h$&$K$J$k!#(B
+記号表を実装する最も簡単な方法は、構造体の配列を用いるものである。簡単の
+ため、記号表に格納される情報を、識別子の文字列（\icode{lexname}、最大長さ
+\icode{MAXLEN}）、識別子のトークンの種類（\icode{lextoken}）の2つであると
+し、記号表に登録できるエントリの最大数を\icode{MAXENT}としておこう。する
+と、記号表を表すデータ構造は次のようになる。
 
 \begin{lstlisting}
 typedef struct table_ent {
@@ -55,193 +55,193 @@ typedef struct table_ent {
 table_ent lextable[MAXENT];
 \end{lstlisting}
 
-$B5-9fI=$KBP$9$k<g$JA`:n$O<!$N(B2$B$D$G$"$k!#(B
+記号表に対する主な操作は次の2つである。
 \begin{itemize}
- \item \icode{int insert(char *s, int t)}$B!DJ8;zNs(B$s$, $B%H!<%/%s(B$t$$B$N%(%s%H(B
-       $B%j$r?7$?$K5-9fI=$KEPO?$7!"$=$N%(%s%H%j$NHV9f!JE:;z!K$rJV$9!#$9$G$K(B
-       $BEPO?$5$l$F$$$l$P!JEPO?$G$-$J$$$H$7$F!K(B-1 $B$rJV$9!#(B
- \item \icode{int lookup(char *s)}$B!DJ8;zNs(B$s$$B$N%(%s%H%j$,5-9fI=$KEPO?$5$l(B
-       $B$F$$$k$+D4$Y$k!#$"$l$P$=$N%(%s%H%j$NHV9f!JE:;z!K$rJV$7!"$J$1$l$P(B
-       -1 $B$rJV$9!#(B
+ \item \icode{int insert(char *s, int t)}…文字列$s$, トークン$t$のエント
+       リを新たに記号表に登録し、そのエントリの番号（添字）を返す。すでに
+       登録されていれば（登録できないとして）-1 を返す。
+ \item \icode{int lookup(char *s)}…文字列$s$のエントリが記号表に登録され
+       ているか調べる。あればそのエントリの番号（添字）を返し、なければ
+       -1 を返す。
 \end{itemize}
 
-$B>e5-$N9=B$BN$NG[Ns$K$h$k5-9fI=$KBP$7!"$3$l$i$NA`:n$r(BC$B8@8l$G<BAu$9$k$3$H$O(B
-$BMF0W$G$"$m$&!#3F<+$G;n$_$i$l$?$$!#(B
+上記の構造体の配列による記号表に対し、これらの操作をC言語で実装することは
+容易であろう。各自で試みられたい。
 
-$B<B:]$N%3%s%Q%$%i$G$O!">e$G<($7$?5-9fI=$N<BAu$O<!$N$h$&$JLdBj$,$"$k!#(B
+実際のコンパイラでは、上で示した記号表の実装は次のような問題がある。
 \begin{enumerate}
- \item $BEPO?$G$-$kJ8;zNs$ND9$5$K@)8B$,$"$k!#$D$^$j!"%W%m%0%i%`$G;H$($k<1(B
-       $BJL;R$ND9$5$K@)8B$,$"$k!#(B
+ \item 登録できる文字列の長さに制限がある。つまり、プログラムで使える識
+       別子の長さに制限がある。
        \label{141846_30Mar06}
- \item $B5-9fI=$N%(%s%H%j?t$K@)8B$,$"$k!#$D$^$j!"%W%m%0%i%`$G;H$($k<1JL;R(B
-       $B$N?t$K@)8B$,$"$k!#(B
+ \item 記号表のエントリ数に制限がある。つまり、プログラムで使える識別子
+       の数に制限がある。
        \label{141856_30Mar06}
- \item $B5-9fI=$r8!:w$7$?$j!"A^F~$7$h$&$H$9$k%(%s%H%j$,$"$k$+$I$&$+D4$Y$k(B
-       $B$N$K!":G0-!"5-9fI=$N%(%s%H%j$r$9$Y$FD4$Y$J$1$l$P$J$i$J$$!#$D$^$j!"(B
-       insert$B$d(Blookup$B$N=hM}$N8zN($,0-$$!#(B
+ \item 記号表を検索したり、挿入しようとするエントリがあるかどうか調べる
+       のに、最悪、記号表のエントリをすべて調べなければならない。つまり、
+       insertやlookupの処理の効率が悪い。
        \label{141901_30Mar06}
 \end{enumerate}
 
-\ref{141846_30Mar06}$B$O!"(B\icode{lexname}$B$r(B\icode{char}$B$N8GDjD9G[Ns$G$O$J$/!"(B
-\icode{malloc()}$B$J$I$K$h$jF0E*3NJ]$9$k$h$&$K$9$l$P$h$$!#$^$?(B
-\ref{141856_30Mar06}$B$O!"G[Ns$G$O$J$/O"7k%j%9%H$J$I$rMQ$$$l$P2r7h2DG=$G$"(B
-$B$k!#$7$+$7!"(B\ref{141901_30Mar06}$B$K$D$$$F$O$3$N$h$&$J9)IW$G$O2r7h$G$-$:!"(B
-{\bfseries $B%O%C%7%e(B}$BK!$J$I$N<jK!$,I,MW$K$J$k(B\footnote{$B%O%C%7%eK!$K$D$$$F(B
-$B$O!V%"%k%4%j%:%`O@!W$G<h$j>e$2$i$l$F$$$k$N$G!"@bL@$O>JN,$9$k!#>\:Y$O!V%"(B
-$B%k%4%j%:%`O@!W$N652J=q(B\cite{$B%(%$%[(B77}$B$r;2>H$5$l$?$$!#(B}$B!#(B
+\ref{141846_30Mar06}は、\icode{lexname}を\icode{char}の固定長配列ではなく、
+\icode{malloc()}などにより動的確保するようにすればよい。また
+\ref{141856_30Mar06}は、配列ではなく連結リストなどを用いれば解決可能であ
+る。しかし、\ref{141901_30Mar06}についてはこのような工夫では解決できず、
+{\bfseries ハッシュ}法などの手法が必要になる\footnote{ハッシュ法について
+は「アルゴリズム論」で取り上げられているので、説明は省略する。詳細は「ア
+ルゴリズム論」の教科書\cite{エイホ77}を参照されたい。}。
 
-\subsection{$B5-9fI=$K$h$k0UL#2r@O(B}
+\subsection{記号表による意味解析}
 
-$B5-9fI=$rMQ$$$k$H!"K\>O$N:G=i$G=R$Y$?9=J8>e$N@)Ls!VJQ?t$N@k8@$O!"$=$NJQ?t(B
-$B$r;HMQ$9$k$h$j@h$K=P8=$7$J$/$F$O$J$i$J$$!W$OMF0W$K8!::$G$-$k!#$9$J$o$A!"(B
-$B<!$N$h$&$K$9$l$P$h$$!#(B
+記号表を用いると、本章の最初で述べた構文上の制約「変数の宣言は、その変数
+を使用するより先に出現しなくてはならない」は容易に検査できる。すなわち、
+次のようにすればよい。
 \begin{enumerate}
- \item $BJQ?t$d4X?t!"9=B$BN$J$I$N@k8@$,=P8=$7$?$H$-$K!"L>A0!"7?$J$I$N>pJs$r(B
-       $B5-9fI=$KEPO?$9$k!#(B
- \item $BM=Ls8l0J30$N<1JL;R$,%W%m%0%i%`Cf$G=P8=$7$?$H$-$K!"5-9fI=$r;2>H$7!"(B
-       $B$=$N<1JL;R$,$9$G$KEPO?$5$l$F$$$k$+D4$Y$k!#EPO?$5$l$F$$$J$1$l$P!"<1(B
-       $BJL;R$N@k8@$r$;$:$K;HMQ$5$l$F$$$k$N$G!"8m$j$G$"$k!#(B
+ \item 変数や関数、構造体などの宣言が出現したときに、名前、型などの情報を
+       記号表に登録する。
+ \item 予約語以外の識別子がプログラム中で出現したときに、記号表を参照し、
+       その識別子がすでに登録されているか調べる。登録されていなければ、識
+       別子の宣言をせずに使用されているので、誤りである。
 \end{enumerate}
 
-$B$3$3$GCm0U$r$7$F$*$+$J$1$l$P$J$i$J$$$N$,!"JQ?t$d4X?t$J$I$N(B{\bfseries $BM-8z(B
-$BHO0O(B}$B!J(Bscope$B!K!"$9$J$o$A$=$NJQ?t$d4X?t$r;2>H$9$k$3$H$N$G$-$k%W%m%0%i%`$N(B
-$BHO0O$G$"$k!#(BC$B8@8l$N<1JL;R$K$O!"M-8zHO0O$K4X$7$F<!$N$h$&$J@)8B$,$"$k!#(B
+ここで注意をしておかなければならないのが、変数や関数などの{\bfseries 有効
+範囲}（scope）、すなわちその変数や関数を参照することのできるプログラムの
+範囲である。C言語の識別子には、有効範囲に関して次のような制限がある。
 \begin{enumerate}
- \item $BBg0hJQ?t!J(Bglobal variable$B!K!"4X?t!"9=B$BN!"9=B$BN$N%a%s%P$J$I$O!"(B
-       $B$=$l$,@k8@$5$l$?>l=j$+$i%U%!%$%k$N=*$o$j$^$G$,M-8zHO0O$G$"$k!#(B
+ \item 大域変数（global variable）、関数、構造体、構造体のメンバなどは、
+       それが宣言された場所からファイルの終わりまでが有効範囲である。
        \label{144539_10Apr06}
- \item $B4X?t$N0z?t$O!"$=$N4X?t$NFbIt$,M-8zHO0O$G$"$k!#(B
+ \item 関数の引数は、その関数の内部が有効範囲である。
        \label{144557_10Apr06}
- \item $B4X?tFb$G@k8@$5$l$?JQ?t!J6I=jJQ?t!"(Blocal variable$B!K$O!"@k8@$5$l$?>l(B
-       $B=j$+$i$=$N4X?t$N=*$o$j$^$G$,M-8zHO0O$G$"$k!#(B
+ \item 関数内で宣言された変数（局所変数、local variable）は、宣言された場
+       所からその関数の終わりまでが有効範囲である。
        \label{144603_10Apr06}
- \item $BF1$8<1JL;R$,Bg0hJQ?t$H6I=jJQ?t!&0z?t$H$7$F$H$b$KMQ$$$i$l$F$$$?>l9g!"(B
-       $B6I=jJQ?t!&0z?t$,M%@h$9$k!#(B
+ \item 同じ識別子が大域変数と局所変数・引数としてともに用いられていた場合、
+       局所変数・引数が優先する。
 \end{enumerate}
-$B5-9fI=$N4IM}$b!"$3$NM-8zHO0O$r9MN8$7$F9T$o$J$1$l$P$J$i$J$$!#(B
+記号表の管理も、この有効範囲を考慮して行わなければならない。
 
-$B4JC1$J$N$O!"(B\ref{144539_10Apr06}$B$N%?%$%W$N<1JL;R$H!"(B
-\ref{144557_10Apr06}, \ref{144603_10Apr06}$B$N%?%$%W$N<1JL;R$rJL$N5-9fI=$G(B
-$B4IM}$9$k!"$H$$$&J}K!$G$"$k!#5-9fI=$N4IM}$O<!$N$h$&$K=$@5$5$l$k!#$?$@$70J(B
-$B2<$G$O!"$=$l$>$l$N5-9fI=$rBg0h5-9fI=!"6I=j5-9fI=$H8F$s$G$$$k!#(B
+簡単なのは、\ref{144539_10Apr06}のタイプの識別子と、
+\ref{144557_10Apr06}, \ref{144603_10Apr06}のタイプの識別子を別の記号表で
+管理する、という方法である。記号表の管理は次のように修正される。ただし以
+下では、それぞれの記号表を大域記号表、局所記号表と呼んでいる。
 \begin{enumerate}
- \item $BBg0hJQ?t!"9=B$BN!"9=B$BN$N%a%s%P!"(B\icode{extern}$BJ8$K$h$k!J%U%!%$%k(B
-       $B30It$NJQ?t!"4X?t$J$I$N!K@k8@$J$I$,=P8=$7$?$H$-$K$O!"$=$NL>A0!"7?$J(B
-       $B$I$N>pJs$rBg0h5-9fI=$KEPO?$9$k!#(B
- \item $B4X?t@k8@$,=P8=$7$?$H$-$K$O!"4X?tL>$H$=$N7?$J$I$N>pJs$rBg0h5-9fI=$K!"(B
-       $B0z?t$NL>A0!"7?$J$I$N>pJs$r6I=j5-9fI=$K$=$l$>$lEPO?$9$k!#(B
- \item $B6I=jJQ?t$N@k8@$,=P8=$7$?$H$-$K$O!"$=$NJQ?t$NL>A0!"7?$J$I$N>pJs$r6I(B
-       $B=j5-9fI=$KEPO?$9$k!#(B
- \item $BM=Ls8l0J30$N<1JL;R$,%W%m%0%i%`Cf$G=P8=$7$?$H$-$K!"6I=j5-9fI=!"Bg0h(B
-       $B5-9fI=$N=g$K;2>H$7!"$=$N<1JL;R$,$9$G$KEPO?$5$l$F$$$k$+D4$Y$k!#$I$A(B
-       $B$i$N5-9fI=$K$bEPO?$5$l$F$$$J$1$l$P!"<1JL;R$N@k8@$r$;$:$K;HMQ$5$l$F(B
-       $B$$$k$N$G!"8m$j$G$"$k!#(B
- \item $B4X?t@k8@$N=*$o$j$KE~C#$9$k$H!"6I=j5-9fI=$NFbMF$r$9$Y$F>C5n$9$k!#(B
+ \item 大域変数、構造体、構造体のメンバ、\icode{extern}文による（ファイル
+       外部の変数、関数などの）宣言などが出現したときには、その名前、型な
+       どの情報を大域記号表に登録する。
+ \item 関数宣言が出現したときには、関数名とその型などの情報を大域記号表に、
+       引数の名前、型などの情報を局所記号表にそれぞれ登録する。
+ \item 局所変数の宣言が出現したときには、その変数の名前、型などの情報を局
+       所記号表に登録する。
+ \item 予約語以外の識別子がプログラム中で出現したときに、局所記号表、大域
+       記号表の順に参照し、その識別子がすでに登録されているか調べる。どち
+       らの記号表にも登録されていなければ、識別子の宣言をせずに使用されて
+       いるので、誤りである。
+ \item 関数宣言の終わりに到達すると、局所記号表の内容をすべて消去する。
 \end{enumerate}
 
-$B$J$*!"(BC$B8@8l$G$O!"M-8zHO0O$H$7$F!JCf3g8L$G0O$^$l$?!K%V%m%C%/$b9MN8$7$J$1$l(B
-$B$P$J$i$J$$!#$^$?!"(B\icode{goto}$BJ8$NHt$S@h$r;XDj$9$k%i%Y%k$b!">e$K=R$Y$?$b(B
-$B$N$H$O0[$J$kM-8zHO0O$r;}$C$F$$$k!#$3$N$h$&$JM}M3$K$h$j!"<B:]$K$O!"$h$jJ#(B
-$B;($J5-9fI=4IM}$,I,MW$K$J$k!#$^$?!"!V7W;;5!8@8l(BI$B!W$G<h$j>e$2$?(BML$B$d!V7W;;5!(B
-$B8@8l(BII$B!W$G<h$j>e$2$kM=Dj$N(BJava$B$J$I!"(BC$B$h$jJ#;($JM-8zHO0O$r;}$D%W%m%0%i%_%s(B
-$B%08@8l$G$b!"$h$jJ#;($J5-9fI=4IM}$,I,MW$G$"$k!#(B
+なお、C言語では、有効範囲として（中括弧で囲まれた）ブロックも考慮しなけれ
+ばならない。また、\icode{goto}文の飛び先を指定するラベルも、上に述べたも
+のとは異なる有効範囲を持っている。このような理由により、実際には、より複
+雑な記号表管理が必要になる。また、「計算機言語I」で取り上げたMLや「計算機
+言語II」で取り上げる予定のJavaなど、Cより複雑な有効範囲を持つプログラミン
+グ言語でも、より複雑な記号表管理が必要である。
 
-\section{$B7?8!::$H7?JQ49(B}
+\section{型検査と型変換}
 \label{163428_10Apr06}
 
-$B<!$K!"K\>O$N:G=i$K5s$2$?9=J8>e$N@)Ls$N$&$A!"7?$N@09g@-$K$D$$$F=R$Y$k!#(B
+次に、本章の最初に挙げた構文上の制約のうち、型の整合性について述べる。
 
-$B!V7W;;5!8@8l(BI$B!W$G<h$j>e$2$?(BML$B$G$O!"1i;;?t$KBP$9$k7?$N@)8B$,Hs>o$K6/$$!#Nc(B
-$B$($P!";;=Q<0(B$x\ \icode{div}\ y$$B$G$"$l$P!"(B$x, y$$B$O$$$:$l$b@0?t7?!J(B\icode{int}$B!K(B
-$B$G$J$1$l$P$J$i$J$$!#$3$N@)Ls$O!"(B\ref{190545_30Mar06}$B@a$NNc$HF1MM!"0J2<$N(B
-$B$h$&$J%W%m%0%i%`CGJRIU$-@8@.5,B'$GI=8=$9$k$3$H$,$G$-$k!#(B
+「計算機言語I」で取り上げたMLでは、演算数に対する型の制限が非常に強い。例
+えば、算術式$x\ \icode{div}\ y$であれば、$x, y$はいずれも整数型（\icode{int}）
+でなければならない。この制約は、\ref{190545_30Mar06}節の例と同様、以下の
+ようなプログラム断片付き生成規則で表現することができる。
 \begin{align*}
  list \rightarrow list\ \icode{div}\ digit &\ \{ \mbox{$list_l.type$ = }\\
  &\  \mbox{if ($list_r.type == int$ \&\& $digit.type == int$)} \\
- &\  \mbox{then $int$ else $B7?%(%i!<(B} \} \\
+ &\  \mbox{then $int$ else 型エラー} \} \\
  list \rightarrow digit & \ \{ list.type = digit.type; \} \\
  digit \rightarrow 0 & \ \{ digit.type = int; \} \\
  \cdots \\
  digit \rightarrow 9 & \ \{ digit.type = int; \} \\
 \end{align*}
 
-\ref{190545_30Mar06}$B@a$N;;=Q<0$NCM$N7W;;$HF1MM!"$3$N7?8!::$O!"%W%m%0%i%`(B
-$BCGJRIU$-2r@OLZ$r:n$j!"$=$l$r?<$5M%@h$G$?$I$j$J$,$i%W%m%0%i%`CGJR$r<B9T$9(B
-$B$k$3$H$G!"=hM}$G$-$k!#(B
+\ref{190545_30Mar06}節の算術式の値の計算と同様、この型検査は、プログラム
+断片付き解析木を作り、それを深さ優先でたどりながらプログラム断片を実行す
+ることで、処理できる。
 
-C$B8@8l$N>l9g$b>e$NNc$HF1MM$K7?8!::$r9T$&$3$H$,$G$-$k!#$?$@$7!"86;R7?$N<oN`(B
-$B$,B?$/!J(B\icode{int}, \icode{signed int}, \icode{unsigned int},
+C言語の場合も上の例と同様に型検査を行うことができる。ただし、原子型の種類
+が多く（\icode{int}, \icode{signed int}, \icode{unsigned int},
 \icode{long}, \icode{signed long}, \icode{unsigned long}, \icode{short},
-$\cdots$$B!K!"$+$D7?$N@09g@-$K4X$9$k%k!<%k$,J#;($G$"$k!#Nc$($P(B$x + y$$B$K$*$$(B
-$B$F!"(B$x$$B$,(B\icode{float}$B7?$G(B$y$$B$,(B\icode{int}$B7?$G$"$C$F$b8m$j$G$O$J$$!#$3$N(B
-$B>l9g!"(B$y$$B$,(B\icode{float}$B7?$KJQ49$5$l$F$+$i2C;;$,9T$o$l!"7k2L$O(B
-\icode{float}$B7?$K$J$k(B\footnote{$B;;=Q1i;;$K$*$1$k1i;;?t$N7?JQ49$K$D$$$F$O(B
-\cite{$B%+!<%K%O%s(B89}$B$N(BA6.5$B@a$r;2>H$N$3$H!#(B}$B!#$3$N$H$-!"(B$y$$B$K4X$9$k7?JQ49$O(B
-$B%W%m%0%i%`<B9T;~$K9T$o$l$k$3$H$KCm0U$7$J$1$l$P$J$i$J$$!#$D$^$j!"%3%s%Q%$(B
-$B%i$O!"(B$x$$B$H(B$y$$B$N2C;;$N5!3#8lL?Na$K2C$(!"(B$y$$B$r(B\icode{float}$B$KJQ49$9$k5!3#(B
-$B8lL?Na$r@8@.$7$J$1$l$P$J$i$J$$!#$=$N$?$a!"0UL#2r@OIt$G$O!"(B$y$$B$r(B
-\icode{float}$B$KJQ49$9$kI,MW$,$"$k$H$$$&>pJs$r2r@OLZ$KDI2C$9$k!J?^(B
-\ref{191552_10Apr06}$B!K!#(B
+$\cdots$）、かつ型の整合性に関するルールが複雑である。例えば$x + y$におい
+て、$x$が\icode{float}型で$y$が\icode{int}型であっても誤りではない。この
+場合、$y$が\icode{float}型に変換されてから加算が行われ、結果は
+\icode{float}型になる\footnote{算術演算における演算数の型変換については
+\cite{カーニハン89}のA6.5節を参照のこと。}。このとき、$y$に関する型変換は
+プログラム実行時に行われることに注意しなければならない。つまり、コンパイ
+ラは、$x$と$y$の加算の機械語命令に加え、$y$を\icode{float}に変換する機械
+語命令を生成しなければならない。そのため、意味解析部では、$y$を
+\icode{float}に変換する必要があるという情報を解析木に追加する（図
+\ref{191552_10Apr06}）。
 
 \begin{figure}
  \begin{center}
   \includegraphics[width=12cm]{figure/type_conversion.pdf}
  \end{center}
- \caption{$B2r@OLZ$X$N7?JQ49>pJs$NIU2C(B}
+ \caption{解析木への型変換情報の付加}
  \label{191552_10Apr06}
 \end{figure}
 
-\section{$B2r@OLZ$rMQ$$$?0UL#2r@O(B}
+\section{解析木を用いた意味解析}
 
-$B2r@OLZ$rMQ$$$k$H!"$5$^$6$^$J<BMQE*$J=hM}$,BN7OE*$K9T$($k$h$&$K$J$k!#(B
-\ref{163428_10Apr06}$B@a$G5s$2$?7?8!::$d(B\ref{190545_30Mar06}$B@a$G=R$Y$?;;=Q(B
-$B<0$NCM$N7W;;$,$=$NNc$G$"$k!#K\@a$G$O!"$3$N$h$&$J2r@OLZ$rMQ$$$?0UL#2r@O$N(B
-$B4pAC$H$J$kM}O@$H$7$F!"K]Lu%9%-!<%`$H$$$&9M$(J}$r>R2p$9$k!#(B
+解析木を用いると、さまざまな実用的な処理が体系的に行えるようになる。
+\ref{163428_10Apr06}節で挙げた型検査や\ref{190545_30Mar06}節で述べた算術
+式の値の計算がその例である。本節では、このような解析木を用いた意味解析の
+基礎となる理論として、翻訳スキームという考え方を紹介する。
 
-$B$^$:!"%3%s%Q%$%i$NF0:n$K6a$$Nc$H$7$F!"CfCV5-K!$G=q$+$l$?;;=Q<0$r8eCV5-K!(B
-$B$KJQ49$9$k$3$H$r9M$($h$&!#(B
+まず、コンパイラの動作に近い例として、中置記法で書かれた算術式を後置記法
+に変換することを考えよう。
 
-\subsection{$BCfCV5-K!$H8eCV5-K!(B}
+\subsection{中置記法と後置記法}
 
-$B2f!9$,IaCJL\$K$9$k(B2$B9`1i;;;R$O!"$?$$$F$$!"(B2$B$D$N1i;;?t$N4V$K1i;;;R$r=q$/!#(B
-\icode{32 + 9}, \icode{4 / 2}$B$H$$$C$?6q9g$G$"$k!#$3$l$r(B{\bfseries $BCfCV5-(B
-$BK!(B}$B!J(Binfix notation$B!K$H$$$&!#$7$+$7!";;=Q<0$N=q$-J}$O$3$l$@$1$G$O$J$$!#1i(B
-$B;;;R$r(B2$B$D$N1i;;?t$NA0$KCV$/(B{\bfseries $BA0CV5-K!(B}$B!J(Bprefix notation$B!K!"(B2 $B$D(B
-$B$N1i;;?t$N8e$m$KCV$/(B{\bfseries $B8eCV5-K!(B}$B!J(Bpostfix notation$B!K$H$$$&=q$-J}(B
-$B$b$"$k!#$3$3$G$O8eCV5-K!$N$_$b$&>/$7>\$7$/@bL@$9$k$3$H$K$7$h$&!#(B
+我々が普段目にする2項演算子は、たいてい、2つの演算数の間に演算子を書く。
+\icode{32 + 9}, \icode{4 / 2}といった具合である。これを{\bfseries 中置記
+法}（infix notation）という。しかし、算術式の書き方はこれだけではない。演
+算子を2つの演算数の前に置く{\bfseries 前置記法}（prefix notation）、2 つ
+の演算数の後ろに置く{\bfseries 後置記法}（postfix notation）という書き方
+もある。ここでは後置記法のみもう少し詳しく説明することにしよう。
 
 \begin{definition}
- $BCfCV5-K!$K$h$k<0(B$E$$B$N8eCV5-K!$O<!$N$h$&$K:F5"E*$KDj5A$5$l$k!#(B
+ 中置記法による式$E$の後置記法は次のように再帰的に定義される。
  \begin{enumerate}
-  \item $E$$B$,JQ?t$^$?$ODj?t$G$"$l$P!"(B$E$$B$N8eCV5-K!$O(B$E$$B$G$"$k!#(B
-  \item $BG$0U$N(B2$B9`1i;;;R(B$\op$$B$K$D$$$F!"(B$E_1 \op E_2$$B$N8eCV5-K!$O(B
-	$E_1'~E_2'~\op$$B$G$"$k!#$3$3$G(B$E_1', E_2'$$B$O$=$l$>$l(B$E_1, E_2$$B$N8e(B
-	$BCV5-K!$G$"$k!#(B
-  \item $(E)$$B$N8eCV5-K!$O(B$E'$$B$G$"$k!#$3$3$G(B$E'$$B$O(B$E$$B$N8eCV5-K!$G$"$k!#(B
+  \item $E$が変数または定数であれば、$E$の後置記法は$E$である。
+  \item 任意の2項演算子$\op$について、$E_1 \op E_2$の後置記法は
+	$E_1'~E_2'~\op$である。ここで$E_1', E_2'$はそれぞれ$E_1, E_2$の後
+	置記法である。
+  \item $(E)$の後置記法は$E'$である。ここで$E'$は$E$の後置記法である。
  \end{enumerate}$\Box$
 \end{definition}
 
 \begin{example}
- $32 + 3$$B$N8eCV5-K!$O(B$32~3~+$$B$G$"$k!#(B$9 + 4 * 3$$B$N8eCV5-K!$O(B$9~4~3~*~+$$B$G(B
- $B$"$k!#(B$(1+2)*4$$B$N8eCV5-K!$O(B$1~2~+~4~*$$B$G$"$k!#(B$\Box$
+ $32 + 3$の後置記法は$32~3~+$である。$9 + 4 * 3$の後置記法は$9~4~3~*~+$で
+ ある。$(1+2)*4$の後置記法は$1~2~+~4~*$である。$\Box$
  \label{ex:prefix_notation}
 \end{example}
 
-$B8eCV5-K!$G=q$+$l$?;;=Q<0$O!"%9%?%C%/(B1$B$D$G7W;;$G$-$k$H$$$&FCD'$r;}$D!#<0$r(B
-$B:8$+$i1&$K(B1$B%H!<%/%s$:$DFI$_!"<!$NF0:n$r9T$($P$h$$!#(B
+後置記法で書かれた算術式は、スタック1つで計算できるという特徴を持つ。式を
+左から右に1トークンずつ読み、次の動作を行えばよい。
 \begin{enumerate}
- \item $B%H!<%/%s$,?t$G$"$l$P!"$=$N?t$r%9%?%C%/$K@Q$`!J(Bpush$B!K!#(B
- \item $B%H!<%/%s$,1i;;;R(B$\op$$B$G$"$l$P!"%9%?%C%/$N>e(B2$B$D$NMWAG!J(B$x, y$$B$H$9$k!K(B
-       $B$r$*$m$7!J(Bpop$B!K!"(B$x \op y$$B$r7W;;$7!"7k2L$r%9%?%C%/$K@Q$`!#(B
+ \item トークンが数であれば、その数をスタックに積む（push）。
+ \item トークンが演算子$\op$であれば、スタックの上2つの要素（$x, y$とする）
+       をおろし（pop）、$x \op y$を計算し、結果をスタックに積む。
 \end{enumerate}
-$B$3$l$r<0$N=*$o$j$^$G9T$$!":G8e$K%9%?%C%/$K;D$C$??t$,<0$N7W;;7k2L$G$"$k!#(B
-$BNc(B\ref{ex:prefix_notation}$B$N8eCV5-K!$G3N$+$a$F$_$h!#(B
+これを式の終わりまで行い、最後にスタックに残った数が式の計算結果である。
+例\ref{ex:prefix_notation}の後置記法で確かめてみよ。
 
-\subsection{$BCfCV5-K!$+$i8eCV5-K!$X$NJQ49(B}
+\subsection{中置記法から後置記法への変換}
 
-$BCfCV5-K!$G=q$+$l$?;;=Q<0$r8eCV5-K!$KJQ49$9$kJ}K!$N(B1$B$D$K!"2r@OLZ$rMQ$$$k$d(B
-$B$jJ}$,$"$k!#J,$+$j$d$9$/$9$k$?$a$K!";;=Q<0$N$?$a$NJ8K!$H$7$F!"<!$N$h$&$J(B
-$B!J:8:F5"$r4^$`!K$b$N$r9M$($k!#(B
+中置記法で書かれた算術式を後置記法に変換する方法の1つに、解析木を用いるや
+り方がある。分かりやすくするために、算術式のための文法として、次のような
+（左再帰を含む）ものを考える。
 \begin{equation}
 \begin{split}
  E & \rightarrow E + E \\
@@ -255,8 +255,8 @@ $\cdots$$B!K!"$+$D7?$N@09g@-$K4X$9$k%k!<%k$,J#;($G$"$k!#Nc$($P(B$x + y$$B$K$*
 \end{split}\label{135829_4Apr06}
 \end{equation}
 
-\eqref{135829_4Apr06}$B$N5,B'$=$l$>$l$K%W%m%0%i%`CGJR$rIU$1$F$_$k!#$3$3$G(B
-$putchar$$B$O!"0z?t$r0u;z$9$k4X?t$G$"$k!#(B
+\eqref{135829_4Apr06}の規則それぞれにプログラム断片を付けてみる。ここで
+$putchar$は、引数を印字する関数である。
 \begin{align*}
  E & \rightarrow E + E && \{ putchar('+'); \} \\
  E & \rightarrow E - E & & \{ putchar('-'); \} \\
@@ -268,42 +268,42 @@ $putchar$$B$O!"0z?t$r0u;z$9$k4X?t$G$"$k!#(B
  E & \rightarrow 9 & & \{ putchar('9'); \}
 \end{align*}
 
-\eqref{135829_4Apr06}$B$NJ8K!$K4p$E$$$F2r@OLZ$r:n$k$H$-!"F3=P$KMQ$$$?5,B'$K(B
-$B%W%m%0%i%`CGJR$,IU$$$F$$$l$P!"$=$NCGJR$r:8JU$NHs=*C<5-9f$KBP1~$9$k@aE@$K(B
-$BIU$1$F$*$/!#Nc$($P!"<0(B$(3+4)*5$$B$KBP$7$F%W%m%0%i%`CGJR$rIU$1$J$,$i2r@OLZ$r(B
-$B:n$k$H!"?^(B\ref{142037_4Apr06}$B$N$h$&$K$J$k!#(B
+\eqref{135829_4Apr06}の文法に基づいて解析木を作るとき、導出に用いた規則に
+プログラム断片が付いていれば、その断片を左辺の非終端記号に対応する節点に
+付けておく。例えば、式$(3+4)*5$に対してプログラム断片を付けながら解析木を
+作ると、図\ref{142037_4Apr06}のようになる。
 
 \begin{figure}
  \begin{center}
   \includegraphics{figure/parse_tree_with_program.pdf}
  \end{center}
- \caption{$(3+4)*5$$B$KBP$9$k%W%m%0%i%`CGJRIU$-2r@OLZ(B}
+ \caption{$(3+4)*5$に対するプログラム断片付き解析木}
  \label{142037_4Apr06}
 \end{figure}
 
-$BF@$i$l$?2r@OLZ$r?<$5M%@h$G$?$I$j!"@aE@$K%W%m%0%i%`CGJR$,IU$$$F$$$k>l9g$O(B
-$B5"$j$,$1$K$=$NCGJR$r<B9T$9$k!#$9$k$H?^(B\ref{142037_4Apr06}$B$NNc$G$O(B
-$3~4~+~5~*$$B$H$J$j!"8eCV5-K!$N<0$,@5$7$/F@$i$l$k!#(B
+得られた解析木を深さ優先でたどり、節点にプログラム断片が付いている場合は
+帰りがけにその断片を実行する。すると図\ref{142037_4Apr06}の例では
+$3~4~+~5~*$となり、後置記法の式が正しく得られる。
 
-\section{$BK]Lu%9%-!<%`(B}
+\section{翻訳スキーム}
 \label{195223_17Apr06}
 
-$B?^(B\ref{142037_4Apr06}$B$NNc$G$O%W%m%0%i%`CGJR$r5"$j$,$1$K<B9T$7$?$,!"0lHL$K(B
-$B$O!"9T$-$,$1$dDL$j$,$1$K%W%m%0%i%`CGJR$r<B9T$7$?$$$3$H$b$"$k!#$=$3$G!"(B
-\eqref{135829_4Apr06}$B$N%W%m%0%i%`CGJRIU$-$NJ8K!$r>/$73HD%$7$h$&!#$3$l$,(B
-{\bfseries $BK]Lu%9%-!<%`(B}$B$H8F$P$l$k$b$N$G$"$k!#(B
+図\ref{142037_4Apr06}の例ではプログラム断片を帰りがけに実行したが、一般に
+は、行きがけや通りがけにプログラム断片を実行したいこともある。そこで、
+\eqref{135829_4Apr06}のプログラム断片付きの文法を少し拡張しよう。これが
+{\bfseries 翻訳スキーム}と呼ばれるものである。
 
 \begin{definition}
- $BJ8L.<+M3J8K!(B$G$$B$K$*$$$F!"(B$G$$B$N3F@8@.5,B'$N1&JU$K%W%m%0%i%`CGJR$rKd$a9~$s(B
- $B$GF@$i$l$k!J3HD%$5$l$?!KJ8K!$r(B{\bfseries $BK]Lu%9%-!<%`(B}$B!J(Btranslation
- scheme$B!K$H$$$&!#K]Lu%9%-!<%`$N4p$K$J$kJ8L.<+M3J8K!(B$G$$B$r(B{\bfseries $B4pDl(B
- $BJ8K!(B}$B!J(Bunderlying grammar$B!K!"Kd$a9~$^$l$?%W%m%0%i%`CGJR$r(B{\bfseries $B0U(B
- $BL#F0:n(B}$B!J(Bsemantic action$B!K$H$=$l$>$l8@$&!#(B$\Box$
+ 文脈自由文法$G$において、$G$の各生成規則の右辺にプログラム断片を埋め込ん
+ で得られる（拡張された）文法を{\bfseries 翻訳スキーム}（translation
+ scheme）という。翻訳スキームの基になる文脈自由文法$G$を{\bfseries 基底
+ 文法}（underlying grammar）、埋め込まれたプログラム断片を{\bfseries 意
+ 味動作}（semantic action）とそれぞれ言う。$\Box$
 \end{definition}
 
 \begin{example}
- $B<!$K<($9$N$O!"4pDlJ8K!$r(B\eqref{135829_4Apr06}$B$H$7!"CfCV5-K!$N<0$r8eCV5-(B
- $BK!$KJQ49$9$kK]Lu%9%-!<%`$G$"$k!#(B
+ 次に示すのは、基底文法を\eqref{135829_4Apr06}とし、中置記法の式を後置記
+ 法に変換する翻訳スキームである。
  \begin{equation}
 \begin{split}
   E & \rightarrow E + E\ \{ putchar('+'); \} \\
@@ -318,28 +318,28 @@ $3~4~+~5~*$$B$H$J$j!"8eCV5-K!$N<0$,@5$7$/F@$i$l$k!#(B
 \end{equation}$\Box$
 \end{example}
 
-$B0UL#F0:n$rFC<l$J=*C<5-9f$H$_$J$9$H!"K]Lu%9%-!<%`$OJ8L.<+M3J8K!$H8+$k$3$H(B
-$B$,$G$-!"!J0UL#F0:n$r4^$s$@!K2r@OLZ$r@8@.$7$?$j!":8:F5"$N=|5n$J$I$NJ8L.<+(B
-$BM3J8K!$NJQ7A<jK!$r$=$N$^$^E,MQ$7$?$j$G$-$k!#(B
+意味動作を特殊な終端記号とみなすと、翻訳スキームは文脈自由文法と見ること
+ができ、（意味動作を含んだ）解析木を生成したり、左再帰の除去などの文脈自
+由文法の変形手法をそのまま適用したりできる。
 
 \begin{example}
- \eqref{151014_4Apr06}$B$NK]Lu%9%-!<%`$rMQ$$$F<0(B$4 + 3 * 5$$B$N!J0UL#F0:n$r4^(B
- $B$s$@!K2r@OLZ$r@8@.$9$k$H?^(B\ref{152516_4Apr06}$B$N$h$&$K$J$k!#$3$N2r@OLZ$r(B
- $B?<$5M%@h$K$?$I$j!"0UL#F0:n$N@aE@$G$O$=$N0UL#F0:n$r<B9T$9$k$H!"<0(B
- $4~3~5~\ast~+$$B$H$$$&8eCV5-K!$N<0$,F@$i$l$k!#(B
+ \eqref{151014_4Apr06}の翻訳スキームを用いて式$4 + 3 * 5$の（意味動作を含
+ んだ）解析木を生成すると図\ref{152516_4Apr06}のようになる。この解析木を
+ 深さ優先にたどり、意味動作の節点ではその意味動作を実行すると、式
+ $4~3~5~\ast~+$という後置記法の式が得られる。
 \end{example}
 
 \begin{figure}
  \begin{center}
   \includegraphics{figure/translation_scheme_parse_tree.pdf}
  \end{center}
- \caption{$BK]Lu%9%-!<%`$K$h$k(B$4+3*5$$B$N2r@OLZ(B}
+ \caption{翻訳スキームによる$4+3*5$の解析木}
  \label{152516_4Apr06}
 \end{figure}
 
 \begin{example}
- \eqref{151014_4Apr06}$B$NK]Lu%9%-!<%`$K(B\ref{121145_31Mar06}$B$N<jK!$rE,MQ$7(B
- $B$F:8:F5"$r=|5n$9$k$H!"<!$N$h$&$JK]Lu%9%-!<%`$KJQ7A$5$l$k!#(B
+ \eqref{151014_4Apr06}の翻訳スキームに\ref{121145_31Mar06}の手法を適用し
+ て左再帰を除去すると、次のような翻訳スキームに変形される。
  \begin{align*}
   E \rightarrow & (E)E' \\
      & \mid 0\ \{ putchar('0'); \}\ E' \\ 
@@ -351,71 +351,71 @@ $3~4~+~5~*$$B$H$J$j!"8eCV5-K!$N<0$,@5$7$/F@$i$l$k!#(B
      & \mid /E\ \{ putchar('/'); \}\ E' \\
      & \mid \epsilon
  \end{align*}
- $B$3$l$rMQ$$$F<0(B$3 * (1 + 2)$$B$N2r@OLZ$r@8@.$9$k$H?^(B\ref{155248_4Apr06}$B$N$h(B
- $B$&$K$J$k!#(B
+ これを用いて式$3 * (1 + 2)$の解析木を生成すると図\ref{155248_4Apr06}のよ
+ うになる。
 \end{example}
 
 \begin{figure}
  \begin{center}
   \includegraphics{figure/translation_scheme_no_left_recurs.pdf}
  \end{center}
- \caption{\eqref{151014_4Apr06}$B$K$h$k(B$3 * (1 + 2)$$B$N2r@OLZ(B}
+ \caption{\eqref{151014_4Apr06}による$3 * (1 + 2)$の解析木}
  \label{155248_4Apr06}
 \end{figure}
 
-\subsection{$B0UL#F0:n$N7A<0(B}
+\subsection{意味動作の形式}
 
-$B0J9_$N@a$N=`Hw$H$7$F!"0UL#F0:n$N7A<0$K$D$$$F$b$&>/$7>\$7$/=R$Y$k!#$3$l$^(B
-$B$G!"0UL#F0:n$O%W%m%0%i%`CGJR$@$H$7$F$-$?$,!"$I$s$J7A$N%W%m%0%i%`$G$bG'$a(B
-$B$i$l$k$o$1$G$O$J$$!#;H$($kJQ?t$K4X$7$F@)8B$,$"$k!#(B
+以降の節の準備として、意味動作の形式についてもう少し詳しく述べる。これま
+で、意味動作はプログラム断片だとしてきたが、どんな形のプログラムでも認め
+られるわけではない。使える変数に関して制限がある。
 
-$B%W%m%0%i%`CGJRCf$G;H$($kJQ?t$O(B$X.v$$B$H$$$&7A<0$K8B$i$l$k!#$3$3$G(B$X$$B$O!"4p(B
-$BDlJ8K!$K=P8=$9$kHs=*C<5-9f$^$?$O=*C<5-9f$G$"$k!#(B$v$$B$OK]Lu%9%-!<%`Fb$GE,Ev(B
-$B$K7h$a$F9=$o$J$$!#(B$v$$B$r(B$X$$B$N(B{\bfseries $BB0@-(B}$B!J(Battribute$B!K$H$$$&!#(B
+プログラム断片中で使える変数は$X.v$という形式に限られる。ここで$X$は、基
+底文法に出現する非終端記号または終端記号である。$v$は翻訳スキーム内で適当
+に決めて構わない。$v$を$X$の{\bfseries 属性}（attribute）という。
 
-\section{$B@-<A$N$h$$K]Lu%9%-!<%`(B}
+\section{性質のよい翻訳スキーム}
 
-$BA0@a$G=R$Y$?K]Lu%9%-!<%`$K$h$k7W;;$O!">o$K8zN($h$/9T$($k$o$1$G$O$J$$!#7W(B
-$B;;8zN($N%]%$%s%H$N0l$D$,!V?<$5M%@h$K(B1$B2s$?$I$k$@$1$G7W;;$G$-$k$+!W$G$"$k!#(B
-$B2r@OLZ$O0lHL$KBg$-$/$J$j$,$A$J$N$G!"?<$5M%@hC5:w$N2s?t$,A}$($k$[$I!"7W;;(B
-$B8zN($,0-$/$J$k$3$H$,M=A[$5$l$k$+$i$G$"$k!#(B
+前節で述べた翻訳スキームによる計算は、常に効率よく行えるわけではない。計
+算効率のポイントの一つが「深さ優先に1回たどるだけで計算できるか」である。
+解析木は一般に大きくなりがちなので、深さ優先探索の回数が増えるほど、計算
+効率が悪くなることが予想されるからである。
 
-$B$=$3$G$3$N@a$G$O!"K]Lu%9%-!<%`$N0UL#F0:n$K@)8B$r2C$(!"?<$5M%@h$K(B1$B2s$?$I$k(B
-$B$@$1$G7W;;$,9T$($kK]Lu%9%-!<%`!J(BS$BB0@-Dj5A!"(BL$BB0@-Dj5A!K$rF3F~$9$k!#(B
+そこでこの節では、翻訳スキームの意味動作に制限を加え、深さ優先に1回たどる
+だけで計算が行える翻訳スキーム（S属性定義、L属性定義）を導入する。
 
-\subsection{$B9g@.B0@-$HAjB3B0@-(B}
+\subsection{合成属性と相続属性}
 
-$B$b$H$b$H$NK]Lu%9%-!<%`$G$O!"4pDlJ8K!$K=P8=$9$kHs=*C<5-9f$d=*C<5-9f$NB0@-(B
-$B$O$9$Y$F0UL#F0:nFb$GMQ$$$k$3$H$,$G$-$k!#$7$+$7!"$3$l$G$O0UL#F0:n$N1&JUCM(B
-$B!J(B$v=E$$B$N7A$NJ8$N(B$E$$B!K$r7W;;$9$k$N$K!"2r@OLZ$N$"$A$3$A$r;2>H$7$J$/$F$O$J(B
-$B$i$:!"?<$5M%@h$K(B1$B2s$?$I$k$@$1$G$OE~Dl7W;;$,=*$o$i$J$$!#(B
+もともとの翻訳スキームでは、基底文法に出現する非終端記号や終端記号の属性
+はすべて意味動作内で用いることができる。しかし、これでは意味動作の右辺値
+（$v=E$の形の文の$E$）を計算するのに、解析木のあちこちを参照しなくてはな
+らず、深さ優先に1回たどるだけでは到底計算が終わらない。
 
-$B$=$3$G!"@-<A$N$h$$B0@-$r(B2$B$DDj5A$7$h$&!#(B
+そこで、性質のよい属性を2つ定義しよう。
 \begin{definition}
- $B2r@OLZ$N@aE@(B$A$$B$K$D$$$F!"(B$A$$B$NB0@-(B$x$$B$,(B$A.x = f(c_1, c_2, \cdots, c_n)$
- $B$H7W;;$G$-$k$H$9$k!#(B$c_1, c_2, \cdots, c_n$$B$,$9$Y$F(B$A$$B$N;R(B
- $B@aE@$NB0@-$G$"$k$H$-!"(B$x$$B$r(B$A$$B$N(B{\bfseries $B9g@.B0@-(B}$B!J(Bsynthesized
- attribute$B!K$H$$$&!#(B$\Box$
+ 解析木の節点$A$について、$A$の属性$x$が$A.x = f(c_1, c_2, \cdots, c_n)$
+ と計算できるとする。$c_1, c_2, \cdots, c_n$がすべて$A$の子
+ 節点の属性であるとき、$x$を$A$の{\bfseries 合成属性}（synthesized
+ attribute）という。$\Box$
 \end{definition}
 
 \begin{definition}
- $B2r@OLZ$N@aE@(B$A$$B$K$D$$$F!"(B$A$$B$NB0@-(B$x$$B$,(B$A.x = f(c_1, c_2, \cdots, c_n)$
- $B$H7W;;$G$-$k$H$9$k!#(B$c_1, c_2, \cdots, c_n$$B$,$9$Y$F(B$A$$B$N?F@aE@$^$?$O7;Do(B
- $B@aE@$NB0@-$G$"$k$H$-!"(B$x$$B$r(B$A$$B$N(B{\bfseries $BAjB3B0@-(B}$B!J(Binherited
- attribute$B!K$H$$$&!#(B$\Box$
+ 解析木の節点$A$について、$A$の属性$x$が$A.x = f(c_1, c_2, \cdots, c_n)$
+ と計算できるとする。$c_1, c_2, \cdots, c_n$がすべて$A$の親節点または兄弟
+ 節点の属性であるとき、$x$を$A$の{\bfseries 相続属性}（inherited
+ attribute）という。$\Box$
 \end{definition}
 
-$B@8@.5,B'(B$A \rightarrow \alpha$$B$K4p$E$$$F@bL@$9$k$H!"<!$N$h$&$K$J$k!#(B
+生成規則$A \rightarrow \alpha$に基づいて説明すると、次のようになる。
 \begin{itemize}
- \item $A$$B$NB0@-(B$x$$B$,(B$\alpha$$BCf$NHs=*C<5-9f$d=*C<5-9f$NB0@-$N$_$+$i7W;;$G(B
-       $B$-$k$J$i!"(B$x$$B$O9g@.B0@-(B
- \item $\alpha$$BCf$N5-9f(B$B$$B$NB0@-(B$y$$B$,!"(B$A$$B$d(B$\alpha$$BCf$NB>$N5-9f$NB0@-$N(B
-       $B$_$+$i7W;;$G$-$k$J$i!"(B$y$$B$OAjB3B0@-(B
+ \item $A$の属性$x$が$\alpha$中の非終端記号や終端記号の属性のみから計算で
+       きるなら、$x$は合成属性
+ \item $\alpha$中の記号$B$の属性$y$が、$A$や$\alpha$中の他の記号の属性の
+       みから計算できるなら、$y$は相続属性
 \end{itemize}
 
 \begin{example}
- $B<!$K<($9K]Lu%9%-!<%`$O9g@.B0@-$N$_$+$i$J$k!#E:;z$N(B$l, r$$B$O!"$=$l$>$l:8JU(B
- $B$K=P8=$9$k5-9f!"1&JU$K=P8=$9$k5-9f$rI=$7$F$$$k!#(B
+ 次に示す翻訳スキームは合成属性のみからなる。添字の$l, r$は、それぞれ左辺
+ に出現する記号、右辺に出現する記号を表している。
  \begin{align*}
  E & \rightarrow E + T && \{ E_l.val = E_r.val + T.val; \} \\
  E & \rightarrow T && \{E.val = T.val; \} \\
@@ -428,7 +428,7 @@ $3~4~+~5~*$$B$H$J$j!"8eCV5-K!$N<0$,@5$7$/F@$i$l$k!#(B
 \end{example}
 
 \begin{example}
- $B<!$K<($9K]Lu%9%-!<%`$N$&$A!"Hs=*C<5-9f(B$L$$B$NB0@-(B$in$$B$OAjB3B0@-$G$"$k!#(B
+ 次に示す翻訳スキームのうち、非終端記号$L$の属性$in$は相続属性である。
  \begin{align*}
  D & \rightarrow T\ L && \{ L.in = T.type; \} \\
  T & \rightarrow int && \{ T.type = integer; \} \\
@@ -439,58 +439,58 @@ $3~4~+~5~*$$B$H$J$j!"8eCV5-K!$N<0$,@5$7$/F@$i$l$k!#(B
  \label{example:L-attributed definition}
 \end{example}
 
-$B9g@.B0@-$dAjB3B0@-$O!"2r@OLZ$N?<$5M%@hC5:w$HAj@-$,NI$$!#9g@.B0@-$N7W;;$O!"(B
-$B5"$j$,$1$K9T$&$H$?$I$j$r(B1$B2s$G:Q$^$;$k$3$H$,$G$-$k!#$^$?!"AjB3B0@-$N0lIt$b!"(B
-1$B2s$N$?$I$j$G7W;;$r9T$&$3$H$,$G$-$k!#(B
+合成属性や相続属性は、解析木の深さ優先探索と相性が良い。合成属性の計算は、
+帰りがけに行うとたどりを1回で済ませることができる。また、相続属性の一部も、
+1回のたどりで計算を行うことができる。
 
-\subsection{S$BB0@-Dj5A(B}
+\subsection{S属性定義}
 
 \begin{definition}
- $BK]Lu%9%-!<%`$N$&$A!"<!$N>r7o$rK~$?$9$b$N$r(B{\bfseries S$BB0@-Dj(B
- $B5A(B}$B!J(BS-attributed definition$B!K$H$$$&!#(B
+ 翻訳スキームのうち、次の条件を満たすものを{\bfseries S属性定
+ 義}（S-attributed definition）という。
  \begin{enumerate}
-  \item $B0UL#F0:nCf$K8=$l$kJQ?t$O$9$Y$F9g@.B0@-$G$"$k!#(B
-  \item $B$9$Y$F$N0UL#F0:n$O!"@8@.5,B'$N1&JU$NKvHx$K$7$+8=$l$J$$!#(B
+  \item 意味動作中に現れる変数はすべて合成属性である。
+  \item すべての意味動作は、生成規則の右辺の末尾にしか現れない。
  \end{enumerate}$\Box$
 \end{definition}
 
 \begin{example}
- $BNc(B\ref{example:S-attributed definition}$B$NK]Lu%9%-!<%`$O(BS$BB0@-Dj5A$G$"$k!#(B
+ 例\ref{example:S-attributed definition}の翻訳スキームはS属性定義である。
  $\Box$
 \end{example}
 
-$BDj5A$h$j!"(BS$BB0@-Dj5A$N0UL#F0:n$O!"2r@OLZ$r(B1$B2s?<$5M%@h$K$?$I$k$@$1$G$9$Y$F(B
-$B7W;;$9$k$3$H$,$G$-$k!#(B
+定義より、S属性定義の意味動作は、解析木を1回深さ優先にたどるだけですべて
+計算することができる。
 
-\subsection{L$BB0@-Dj5A(B}
+\subsection{L属性定義}
 
 \begin{definition}
- $BK]Lu%9%-!<%`$N$&$A!"<!$N>r7o$rK~$?$9$b$N$r(B{\bfseries L$BB0@-Dj(B
- $B5A(B}$B!J(BL-attributed definition$B!K$H$$$&!#(B
+ 翻訳スキームのうち、次の条件を満たすものを{\bfseries L属性定
+ 義}（L-attributed definition）という。
  \begin{enumerate}
-  \item $B0UL#F0:nCf$K8=$l$kJQ?t$O$9$Y$F9g@.B0@-$+AjB3B0@-$G$"$k!#(B
+  \item 意味動作中に現れる変数はすべて合成属性か相続属性である。
 	\label{153250_7Apr06}
-  \item $B4pDlJ8K!$N@8@.5,B'(B$A \rightarrow X_1X_2\cdots X_n$$B$K$D$$$F!"(B
-	$X_j$$B$NAjB3B0@-$O!"(B$X_1, X_2, \cdots, X_{j-1}$$B$NB0@-$H(B$A$$B$NAjB3B0(B
-	$B@-$@$1$K0MB8$9$k!#(B
-  \item $B4pDlJ8K!$N@8@.5,B'(B$A \rightarrow X_1X_2\cdots X_n$$B$K$D$$$F!"(B
-	$X_j$$B$NAjB3B0@-$r:8JU$K;}$DJ8$r4^$`0UL#F0:n$O!"(B$X_j$$B$ND>A0$K=P8=(B
-	$B$9$k!#(B
-  \item $B4pDlJ8K!$N@8@.5,B'(B$A \rightarrow X_1X_2\cdots X_n$$B$K$D$$$F!"(B$A$$B$N(B
-	$B9g@.B0@-$O$3$N5,B'$NKvHx$K=P8=$9$k!#(B
+  \item 基底文法の生成規則$A \rightarrow X_1X_2\cdots X_n$について、
+	$X_j$の相続属性は、$X_1, X_2, \cdots, X_{j-1}$の属性と$A$の相続属
+	性だけに依存する。
+  \item 基底文法の生成規則$A \rightarrow X_1X_2\cdots X_n$について、
+	$X_j$の相続属性を左辺に持つ文を含む意味動作は、$X_j$の直前に出現
+	する。
+  \item 基底文法の生成規則$A \rightarrow X_1X_2\cdots X_n$について、$A$の
+	合成属性はこの規則の末尾に出現する。
 	\label{153257_7Apr06}
  \end{enumerate}$\Box$
  \label{def:L-attributed definition}
 \end{definition}
 
 \begin{example}
- $B<!$NK]Lu%9%-!<%`$O(BL$BB0@-Dj5A$G$"$k!#$3$3$G!"(B$type$$B$O9g@.B0@-!"(B$in$$B$OAjB3(B
- $BB0@-$G$"$k(B\footnote{$B$3$NK]Lu%9%-!<%`$O!"(B\icode{int i, j;} $B$N$h$&$K(B
- \icode{int}$B7?$NJQ?t$rJ#?tF1;~$K@k8@$9$k$H$-$K!"(B\icode{i}, \icode{j}$B$N7?(B
- $B$r(B\icode{int} $B$HDj$a$k$b$N$G$"$k!#(B}$B!#$^$?(B$entry$$B$O<1JL;R$rI=$9=*C<5-9f(B
- $id$$B$NB0@-$G$"$j!"$=$N<1JL;R$NL>A0$r3JG<$7$F$$$k$H$9$k!#(B$entry$$B$NCM$O0U(B
- $BL#2r@O0JA0$K$9$G$KJ,$+$C$F$$$k$b$N$H$9$k!#4X?t(B$addtype(id.entry, L.in)$
- $B$O!"(B$id.entry$$B$N7?$H$7$F(B$L.in$$B$rEPO?$9$k!"$H$$$&F0:n$r$9$k!#(B
+ 次の翻訳スキームはL属性定義である。ここで、$type$は合成属性、$in$は相続
+ 属性である\footnote{この翻訳スキームは、\icode{int i, j;} のように
+ \icode{int}型の変数を複数同時に宣言するときに、\icode{i}, \icode{j}の型
+ を\icode{int} と定めるものである。}。また$entry$は識別子を表す終端記号
+ $id$の属性であり、その識別子の名前を格納しているとする。$entry$の値は意
+ 味解析以前にすでに分かっているものとする。関数$addtype(id.entry, L.in)$
+ は、$id.entry$の型として$L.in$を登録する、という動作をする。
  \begin{align*}
   D & \rightarrow T\ \{ L.in = T.type; \}\ L \\
   T & \rightarrow \icode{int}\ \{ T.type = integer; \} \\
@@ -501,92 +501,92 @@ $3~4~+~5~*$$B$H$J$j!"8eCV5-K!$N<0$,@5$7$/F@$i$l$k!#(B
  \label{example:L-attributed translation scheme}
 \end{example}
 
-$BDj5A(B\ref{def:L-attributed definition}$B$N(B\ref{153250_7Apr06}$B$H(B
-\ref{153257_7Apr06}$B$+$iJ,$+$k$h$&$K!"$b$7(BL$BB0@-Dj5A$KAjB3B0@-$,0l$D$b4^$^(B
-$B$l$J$1$l$P!"(BS$BB0@-Dj5A$=$N$b$N$G$"$k!#$9$J$o$A!"(BS$BB0@-Dj5A$OI,$:(BL$BB0@-Dj5A$K(B
-$B$J$k!#(B
+定義\ref{def:L-attributed definition}の\ref{153250_7Apr06}と
+\ref{153257_7Apr06}から分かるように、もしL属性定義に相続属性が一つも含ま
+れなければ、S属性定義そのものである。すなわち、S属性定義は必ずL属性定義に
+なる。
 
-S$BB0@-Dj5A$HF1MM$K!"(BL$BB0@-Dj5A$NK]Lu%9%-!<%`$b2r@OLZ$r(B1$B2s?<$5M%@h$K$?$I$k$@(B
-$B$1$G!"$9$Y$F$N0UL#F0:n$r7W;;$9$k$3$H$,$G$-$k!#(B
+S属性定義と同様に、L属性定義の翻訳スキームも解析木を1回深さ優先にたどるだ
+けで、すべての意味動作を計算することができる。
 
 \begin{figure}
  \begin{center}
   \includegraphics[width=13cm]{figure/L_attr_translation_scheme.pdf}
  \end{center}
- \caption{L$BB0@-Dj5A$K4p$E$/2r@OLZ(B}
+ \caption{L属性定義に基づく解析木}
  \label{170525_7Apr06}
 \end{figure}
 
 \begin{example}
- $BNc(B\ref{example:L-attributed translation scheme}$B$NK]Lu%9%-!<%`$K4p$E$$$F!"(B
- $B%H!<%/%sNs(B\icode{int id, id, id}$B$+$i@8@.$7$?0UL#F0:nIU$-2r@OLZ$r?^(B
- \ref{170525_7Apr06}$B$K<($9!#$J$*!"Hs=*C<5-9f(B$L$$B!"=*C<5-9f(B$id$$B$,J#?t8=$l$k(B
- $B$N$G!"JX59>eE:;z$rIU$1$F6hJL$7$F$$$k!#(B
+ 例\ref{example:L-attributed translation scheme}の翻訳スキームに基づいて、
+ トークン列\icode{int id, id, id}から生成した意味動作付き解析木を図
+ \ref{170525_7Apr06}に示す。なお、非終端記号$L$、終端記号$id$が複数現れる
+ ので、便宜上添字を付けて区別している。
 
- $B?^Cf$NGK@~$O!"B0@-$N0MB84X78$r<($7$F$$$k!#Nc$($P!"0UL#5,B'(B$T.type =
- integer;$$B$G7hDj$7$?(B$T.type$$B$NCM$r(B$L_1.in = T.type;$$B$G;2>H$9$k!"$H$$$C$?(B
- $B6q9g$G$"$k!#$3$N2r@OLZ$r?<$5M%@h$G$?$I$C$F$$$/$H!"GK@~$G<($7$?B0@-$N0MB8(B
- $B4X78$N=g=x$r<i$j$J$,$i0UL#5,B'$,7W;;$5$l$F$$$/$3$H$r3N$+$a$h!#(B$\Box$
+ 図中の破線は、属性の依存関係を示している。例えば、意味規則$T.type =
+ integer;$で決定した$T.type$の値を$L_1.in = T.type;$で参照する、といった
+ 具合である。この解析木を深さ優先でたどっていくと、破線で示した属性の依存
+ 関係の順序を守りながら意味規則が計算されていくことを確かめよ。$\Box$
 \end{example}
 
-% \section{$BK]Lu%9%-!<%`$r<B9T$9$k%W%m%0%i%`$N@8@.(B}
+% \section{翻訳スキームを実行するプログラムの生成}
 
-% $B0lHL$K$O!"K]Lu%9%-!<%`$r<B9T$9$k%W%m%0%i%`$r@8@.$9$k$N$OC1=c$G$O$J$$!#$7(B
-% $B$+$7!"4pDlJ8K!$r(BLL(1)$BJ8K!$J$IM=B,7?9=J82r@O$N9T$($kJ8K!$K@)8B$7!"$+$DK]Lu(B
-% $B%9%-!<%`$r(BS$BB0@-Dj5A!&(BL$BB0@-Dj5A$K@)8B$9$k$H!"K]Lu%9%-!<%`$r<B9T$9$k%W%m%0(B
-% $B%i%`$O<+F0@8@.$G$-$k!#(B
+% 一般には、翻訳スキームを実行するプログラムを生成するのは単純ではない。し
+% かし、基底文法をLL(1)文法など予測型構文解析の行える文法に制限し、かつ翻訳
+% スキームをS属性定義・L属性定義に制限すると、翻訳スキームを実行するプログ
+% ラムは自動生成できる。
 
-% $BM=B,7?9=J82r@O%k!<%A%s$O<!$N$h$&$K@8@.$9$k$N$G$"$C$?!#(B
+% 予測型構文解析ルーチンは次のように生成するのであった。
 % \begin{enumerate}
-%  \item $B3FHs=*C<5-9f$KBP1~$9$k4X?t$rMQ0U$9$k(B
-%  \item $B$=$N4X?tFb$K!"@8@.5,B'$N1&JU$K$J$i$C$F!"@aE@$N@8@.$dHs=*C<5-9f$KBP(B
-%        $B1~$9$k4X?t8F$S=P$7$rJB$Y$k(B
+%  \item 各非終端記号に対応する関数を用意する
+%  \item その関数内に、生成規則の右辺にならって、節点の生成や非終端記号に対
+%        応する関数呼び出しを並べる
 %        \label{153525_10Apr06}
 % \end{enumerate}
-% $B$3$l$r<B9T$9$k$H!"$"$?$+$b2r@OLZ$r?<$5M%@h$K$?$I$k$h$&$K=hM}$,9T$o$l$k!#(B
+% これを実行すると、あたかも解析木を深さ優先にたどるように処理が行われる。
 
-% $B$=$3$G!"(B\ref{153525_10Apr06}$B$r9T$&$H$-$K!"0UL#F0:n$rBP1~$9$k>l=j$KKd$a9~(B
-% $B$`!#$9$k$H!"F@$i$l$?M=B,7?9=J82r@O%k!<%A%s$r<B9T$9$k$H!"2r@OLZ$r?<$5M%@h(B
-% $B$G$?$I$j$J$,$iBP1~$9$k0UL#F0:n$,<B9T$5$l!"(BS$BB0@-Dj5A$d(BL$BB0@-Dj5A$G$"$l$P@5(B
-% $B$7$/=hM}$5$l$k$3$H$K$J$k!#(B
+% そこで、\ref{153525_10Apr06}を行うときに、意味動作を対応する場所に埋め込
+% む。すると、得られた予測型構文解析ルーチンを実行すると、解析木を深さ優先
+% でたどりながら対応する意味動作が実行され、S属性定義やL属性定義であれば正
+% しく処理されることになる。
 
-% $B$?$@$7!"(B
+% ただし、
 
-% - [ ] $BM=B,7?9=J82r@O$X$NK]Lu%9%-!<%`$NKd$a9~$_(B
-% 	- [ ] $BNc!'(B2-13$B!J9g@.B0@-$bAjB3B0@-$b4^$^$l$F$$$J$$!K(B
-% 	- [ ] $B:8:F5"$N=|5n(B
-% 		- [ ] $B@8@.5,B'$NCf$KKd$a9~$s$@0UL#F0:n$b0l=o$K9T$&(B
-% 		- [ ] 2-13 $B"*(B 2-14$B!"K]Lu$NMM;R!'?^(B2.21
-% 	- [ ] $BK]Lu%W%m%0%i%`$N@8@.(B
-% 		- [ ] $BM=B,7?9=J82r@O$HF1MM(B
-% 		- [ ] $B0UL#F0:n$KBP1~$9$k>l=j$K!"0UL#F0:n$N%W%m%0%i%`JR$r$=$N$^$^Kd$a9~$`(B
-% 		- [ ] $B7k2L!'(B2-22
-% - [ ] $B0lHLE*$JK]Lu%9%-!<%`$NKd$a9~$_(B
-% 	- [ ] $B9g@.B0@-$bAjB3B0@-$b4^$^$l$k>l9g(B
-% 	- [ ] $B%]%$%s%H!'0UL#F0:n$NCf$G;2>H$9$kB0@-$O!"$=$NF0:n$r<B9T$9$k;~E@$G$O$9$G$KI>2A$7=*$o$C$F$$$J$1$l$P$J$i$J$$!JCM$,5a$^$C$F$$$J$1$l$P$J$i$J$$!K(B
-% 		- [ ] $B@8@.5,B'$N1&JU$N5-9f$NAjB3B0@-!'$=$N5-9f$h$jA0$NF0:n$GCM$,5a$a$i$l$F$$$J$1$l$P$J$i$J$$(B
-% 		- [ ] $B3FF0:n$NCf$G$O!"$=$NF0:n$h$j1&$K$"$k5-9f$N9g@.B0@-$r;2>H$7$F$O$$$1$J$$(B
-% 		- [ ] $B@8@.5,B'$N:8JU$NHs=*C<5-9f$N9g@.B0@-!';2>H$9$kB0@-$r$9$Y$F7W;;$7$?8e!"7W;;$9$k!J0UL#F0:n$r@8@.5,B'$N1&JU$N:G8e$KCV$/!K(B
-% 	* [ ] $B9=J8<gF3Dj5A$+$iK]Lu%9%-!<%`$r:n$k$K$O(B
-% 	- [ ] $B:8:F5"$N=|5n(B
-% 		- [ ] $B>e$N(B3$B$D$N>r7o$rK~$?$9$h$&$K!"0UL#F0:n$rJQ7A$7$J$1$l$P$J$i$J$$(B
-% 		- [ ] 5-24$B"*(B 5-25
-% 			- [ ] $B?7$?$KF3F~$5$l$?Hs=*C<5-9f(B R, R1$B$NB0@-(B i, s
-% 		- [ ] $BCj>]E*$K$O(B
-% 			- [ ] $BK]Lu%9%-!<%`JQ49(B
-% 			- [ ] $BB0@-CM$N5a$aJ}$N0c$$!'?^(B5.27
-% 		- [ ] $BM=B,7?9=J82r@O%k!<%A%s!\K]Lu%9%-!<%`Kd$a9~$_!!$N@8@.(B
-% 			- [ ] $BHs=*C<5-9f(BA$B$KBP$9$k4X?t(B A()
-% 				- [ ] A$B$NAjB3B0@-$r2>0z?t$K(B
-% 				- [ ] A$B$N9g@.B0@-$rJV$jCM$K(B
-% 				- [ ] A$B$r:8JU$H$9$k@8@.5,B'$K8=$l$k5-9f$NB0@-$r6I=jJQ?t$K(B
-% 			- [ ] $B@8@.5,B'$N1&JU$r:8$+$i1&$KD4$Y(B
-% 				- [ ] $B9g@.B0@-(B x $B$r;}$D%H!<%/%s!J=*C<5-9f!K(BX
-% 					- [ ] X.x$B$KBP1~$9$kJQ?t(B = X.x$B$NCM(B; X$B$H$N>H9g(B; $BF~NO$r@h$K?J$a$k(B;
-% 				- [ ] $BHs=*C<5-9f(BB
-% 					- [ ] B$B$N9g@.B0@-$KBP1~$9$kJQ?t(B = B(b1, b2, $B!D(B, bk);
-% 						- [ ] b1, b2, $B!D(B, bk$B!'(BB$B$NAjB3B0@-$KBP1~$9$kJQ?t(B
-% 				- [ ] $B0UL#F0:n(B
-% 					- [ ] $B%W%m%0%i%`JR$rJ#<L!JB0@-$N;2>H$O!"BP1~$9$kJQ?t$N;2>H$KCV$-49$(!K(B
-% 			- [ ] $BNc!'(B5-31
+% - [ ] 予測型構文解析への翻訳スキームの埋め込み
+% 	- [ ] 例：2-13（合成属性も相続属性も含まれていない）
+% 	- [ ] 左再帰の除去
+% 		- [ ] 生成規則の中に埋め込んだ意味動作も一緒に行う
+% 		- [ ] 2-13 → 2-14、翻訳の様子：図2.21
+% 	- [ ] 翻訳プログラムの生成
+% 		- [ ] 予測型構文解析と同様
+% 		- [ ] 意味動作に対応する場所に、意味動作のプログラム片をそのまま埋め込む
+% 		- [ ] 結果：2-22
+% - [ ] 一般的な翻訳スキームの埋め込み
+% 	- [ ] 合成属性も相続属性も含まれる場合
+% 	- [ ] ポイント：意味動作の中で参照する属性は、その動作を実行する時点ではすでに評価し終わっていなければならない（値が求まっていなければならない）
+% 		- [ ] 生成規則の右辺の記号の相続属性：その記号より前の動作で値が求められていなければならない
+% 		- [ ] 各動作の中では、その動作より右にある記号の合成属性を参照してはいけない
+% 		- [ ] 生成規則の左辺の非終端記号の合成属性：参照する属性をすべて計算した後、計算する（意味動作を生成規則の右辺の最後に置く）
+% 	* [ ] 構文主導定義から翻訳スキームを作るには
+% 	- [ ] 左再帰の除去
+% 		- [ ] 上の3つの条件を満たすように、意味動作を変形しなければならない
+% 		- [ ] 5-24→ 5-25
+% 			- [ ] 新たに導入された非終端記号 R, R1の属性 i, s
+% 		- [ ] 抽象的には
+% 			- [ ] 翻訳スキーム変換
+% 			- [ ] 属性値の求め方の違い：図5.27
+% 		- [ ] 予測型構文解析ルーチン＋翻訳スキーム埋め込み　の生成
+% 			- [ ] 非終端記号Aに対する関数 A()
+% 				- [ ] Aの相続属性を仮引数に
+% 				- [ ] Aの合成属性を返り値に
+% 				- [ ] Aを左辺とする生成規則に現れる記号の属性を局所変数に
+% 			- [ ] 生成規則の右辺を左から右に調べ
+% 				- [ ] 合成属性 x を持つトークン（終端記号）X
+% 					- [ ] X.xに対応する変数 = X.xの値; Xとの照合; 入力を先に進める;
+% 				- [ ] 非終端記号B
+% 					- [ ] Bの合成属性に対応する変数 = B(b1, b2, …, bk);
+% 						- [ ] b1, b2, …, bk：Bの相続属性に対応する変数
+% 				- [ ] 意味動作
+% 					- [ ] プログラム片を複写（属性の参照は、対応する変数の参照に置き換え）
+% 			- [ ] 例：5-31
 
